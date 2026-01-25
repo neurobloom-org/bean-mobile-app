@@ -10,6 +10,8 @@ import LoginUserScreen from './screens/LoginUserScreen';
 import LoginGuardianScreen from './screens/LoginGuardianScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import VerifyCodeScreen from './screens/VerifyCodeScreen';
+import HomeScreen from './screens/HomeScreen';
+import FocusModeScreen from './screens/FocusModeScreen'; 
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +32,8 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginGuardian" component={LoginGuardianScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyCode" component={VerifyCodeScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="FocusMode" component={FocusModeScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );

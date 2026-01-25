@@ -23,7 +23,14 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleCreateAccount = () => {
-    // Validation
+    // If user type, navigate directly to Home without validation
+    if (userType === 'user') {
+      console.log('User account created - navigating to Home');
+      navigation.navigate('Home');
+      return;
+    }
+
+    // For guardians, keep the validation and alert
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -41,7 +48,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       return;
     }
 
-    // Show welcome alert
+    // Show welcome alert for guardians
     Alert.alert(
       'Welcome to Bean!',
       `${fullName}, welcome to Bean!`,
@@ -49,10 +56,9 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
         {
           text: 'Get Started',
           onPress: () => {
-            // Navigate to appropriate screen after account creation
-            console.log('Account created:', { fullName, email, userType });
-            // You can navigate to home or verification screen here
-            // navigation.navigate('Home');
+            console.log('Guardian account created:', { fullName, email, userType });
+            // Navigate to Guardian home or dashboard
+            // navigation.navigate('GuardianHome');
           },
         },
       ]

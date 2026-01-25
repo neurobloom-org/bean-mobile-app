@@ -18,15 +18,16 @@ const LoginUserScreen = ({ navigation }: any) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSignIn = () => {
-    console.log('Sign in as User:', { email, password });
-    // Add authentication logic here
-    // After successful login:
-    // navigation.navigate('Home');
+    console.log('User signing in - navigating to Home');
+    // Navigate directly to Home without validation
+    // Backend will handle authentication
+    navigation.navigate('Home');
   };
 
   const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
-    // Add social login logic here
+    console.log(`Login with ${provider} - navigating to Home`);
+    // Navigate directly to Home
+    navigation.navigate('Home');
   };
 
   const handleSignUp = () => {
