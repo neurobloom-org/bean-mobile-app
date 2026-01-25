@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Dimensions,
 } from 'react-native';
+
+const { width, height } = Dimensions.get('window'); // Get device width & height
 
 const WelcomeScreen = ({ navigation }: any) => {
   const handleGetStarted = () => {
@@ -34,7 +37,7 @@ const WelcomeScreen = ({ navigation }: any) => {
         </Text>
 
         {/* Get Started Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.button}
           onPress={handleGetStarted}
           activeOpacity={0.8}
@@ -62,20 +65,25 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
   },
   imageContainer: {
-    marginBottom: 40,
+    marginBottom: 20,
+    width: width * 0.9,       // 90% of screen width
+    height: height * 0.55,    // 55% of screen height
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   robotImage: {
-    width: 200,
-    height: 200,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',    // ensures the robot scales without distortion
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 15,
+    marginBottom: 12,
     textAlign: 'center',
   },
   subtitle: {
@@ -83,7 +91,7 @@ const styles = StyleSheet.create({
     color: '#666666',
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 40,
+    marginBottom: 30,
     paddingHorizontal: 10,
   },
   button: {
@@ -94,13 +102,11 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
+    marginBottom: 20,
   },
   buttonText: {
     color: '#FFFFFF',
@@ -109,7 +115,7 @@ const styles = StyleSheet.create({
   },
   paginationContainer: {
     flexDirection: 'row',
-    marginTop: 30,
+    marginTop: 10,
     gap: 8,
   },
   dot: {

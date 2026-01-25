@@ -14,7 +14,7 @@ import {
 
 const VerifyCodeScreen = ({ navigation, route }: any) => {
   const { email, userType } = route.params || { email: '', userType: 'user' };
-  
+
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
@@ -34,7 +34,10 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
     }
   };
 
-  const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
+  const handleKeyPress = (
+    e: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    index: number,
+  ) => {
     // Handle backspace to go to previous input
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
       if (inputRefs.current[index - 1]) {
@@ -45,7 +48,7 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
 
   const handleVerify = () => {
     const verificationCode = code.join('');
-    
+
     if (verificationCode.length !== 6) {
       Alert.alert('Error', 'Please enter the complete 6-digit code');
       return;
@@ -53,24 +56,20 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
 
     // Here you would verify the code with your backend
     console.log('Verifying code:', verificationCode);
-    
-    Alert.alert(
-      'Success',
-      'Your password has been reset successfully!',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Navigate to appropriate login screen
-            if (userType === 'user') {
-              navigation.navigate('LoginUser');
-            } else {
-              navigation.navigate('LoginGuardian');
-            }
-          },
+
+    Alert.alert('Success', 'Your password has been reset successfully!', [
+      {
+        text: 'OK',
+        onPress: () => {
+          // Navigate to appropriate login screen
+          if (userType === 'user') {
+            navigation.navigate('LoginUser');
+          } else {
+            navigation.navigate('LoginGuardian');
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleResend = () => {
@@ -83,12 +82,12 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Back Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
@@ -107,8 +106,10 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
 
         {/* Description */}
         <Text style={styles.description}>
-          We have sent a 6-digit verification code to {userType === 'guardian' ? "the Ward's email" : 'your email'}. 
-          Please enter the code below to confirm {userType === 'guardian' ? "the Ward's email" : 'your email'}.
+          We have sent a 6-digit verification code to{' '}
+          {userType === 'guardian' ? "the Ward's email" : 'your email'}. Please
+          enter the code below to confirm{' '}
+          {userType === 'guardian' ? "the Ward's email" : 'your email'}.
         </Text>
 
         {/* Code Input Boxes */}
@@ -116,13 +117,13 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
           {code.map((digit, index) => (
             <TextInput
               key={index}
-              ref={(ref) => {
+              ref={ref => {
                 inputRefs.current[index] = ref;
               }}
               style={styles.codeInput}
               value={digit}
-              onChangeText={(text) => handleCodeChange(text, index)}
-              onKeyPress={(e) => handleKeyPress(e, index)}
+              onChangeText={text => handleCodeChange(text, index)}
+              onKeyPress={e => handleKeyPress(e, index)}
               keyboardType="number-pad"
               maxLength={1}
               selectTextOnFocus
@@ -131,7 +132,7 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
         </View>
 
         {/* Verify Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.verifyButton}
           onPress={handleVerify}
           activeOpacity={0.8}
