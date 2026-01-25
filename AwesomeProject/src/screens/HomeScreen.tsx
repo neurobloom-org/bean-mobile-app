@@ -13,7 +13,7 @@ import {
 const HomeScreen = ({ navigation }: any) => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const userName = 'Alex'; // You can make this dynamic later
-  
+
   // Default values for first-time users
   const todayProgress = 0; // 0% for new users
   const tasksDone = 0;
@@ -61,7 +61,7 @@ const HomeScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F0F9F6" />
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -84,7 +84,7 @@ const HomeScreen = ({ navigation }: any) => {
 
         {/* Mood Selection */}
         <View style={styles.moodSection}>
-          {moodOptions.map((mood) => (
+          {moodOptions.map(mood => (
             <TouchableOpacity
               key={mood.id}
               style={[
@@ -115,7 +115,7 @@ const HomeScreen = ({ navigation }: any) => {
           <Text style={styles.progressSubtitle}>
             {tasksDone}/{totalTasks} Tasks Done • {focusTime}m Focus Time
           </Text>
-          
+
           <View style={styles.progressActions}>
             <View style={styles.streakBadge}>
               <Text style={styles.streakEmoji}>🔥</Text>
@@ -129,7 +129,7 @@ const HomeScreen = ({ navigation }: any) => {
 
         {/* Activity Cards Grid */}
         <View style={styles.activityGrid}>
-          {activityCards.map((card) => (
+          {activityCards.map(card => (
             <TouchableOpacity
               key={card.id}
               style={[styles.activityCard, { backgroundColor: card.bgColor }]}
@@ -157,22 +157,34 @@ const HomeScreen = ({ navigation }: any) => {
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Home')}
+        >
           <Text style={styles.navIconActive}>⌂</Text>
           <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Tasks')}>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Tasks')}
+        >
           <Text style={styles.navIconInactive}>✓</Text>
           <Text style={styles.navLabelInactive}>Tasks</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Games')}>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Games')}
+        >
           <Text style={styles.navIconInactive}>◆</Text>
           <Text style={styles.navLabelInactive}>Games</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Profile')}
+        >
           <Text style={styles.navIconInactive}>◉</Text>
           <Text style={styles.navLabelInactive}>Profile</Text>
         </TouchableOpacity>
