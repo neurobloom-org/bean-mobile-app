@@ -15,7 +15,7 @@ import {
 
 const CreateAccountScreen = ({ navigation, route }: any) => {
   const { userType } = route.params || { userType: 'user' };
-  
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -23,14 +23,14 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleCreateAccount = () => {
-    // If user type, navigate directly to Home without validation
+    // If user type, navigate directly to Home (User Dashboard)
     if (userType === 'user') {
-      console.log('User account created - navigating to Home');
+      console.log('User account created - navigating to HomeScreen');
       navigation.navigate('Home');
       return;
     }
 
-    // For guardians, keep the validation and alert
+    // For guardians, validate inputs
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -48,49 +48,42 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       return;
     }
 
-    // Show welcome alert for guardians
-    Alert.alert(
-      'Welcome to Bean!',
-      `${fullName}, welcome to Bean!`,
-      [
-        {
-          text: 'Get Started',
-          onPress: () => {
-            console.log('Guardian account created:', { fullName, email, userType });
-            // Navigate to Guardian home or dashboard
-            // navigation.navigate('GuardianHome');
-          },
-        },
-      ]
-    );
+    // Navigate guardian to CaregiverDashboard
+    console.log('Guardian account created - navigating to CaregiverDashboard');
+    navigation.navigate('CaregiverDashboard');
   };
 
   const handleSocialLogin = (provider: string) => {
     console.log(`${provider} login`);
-    Alert.alert('Coming Soon', `${provider} authentication will be available soon!`);
+    Alert.alert(
+      'Coming Soon',
+      `${provider} authentication will be available soon!`,
+    );
   };
 
   const handleSignIn = () => {
-    // Navigate to appropriate login screen based on userType
+    // Navigate to appropriate dashboard based on userType
     if (userType === 'user') {
-      navigation.navigate('LoginUser');
+      // For users, go directly to HomeScreen (User Dashboard)
+      navigation.navigate('Home');
     } else {
-      navigation.navigate('LoginGuardian');
+      // For guardians, go to CaregiverDashboard
+      navigation.navigate('CaregiverDashboard');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           {/* Back Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
@@ -100,7 +93,8 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           {/* Title */}
           <Text style={styles.title}>Create Account!</Text>
           <Text style={styles.subtitle}>
-            Join Bean today as {userType === 'guardian' ? 'a Guardian' : 'a User'}!
+            Join Bean today as{' '}
+            {userType === 'guardian' ? 'a Guardian' : 'a User'}!
           </Text>
 
           {/* Full Name Input */}
@@ -145,14 +139,16 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder={`Password (${userType === 'guardian' ? 'Guardian / Therapist' : 'User'})`}
+              placeholder={`Password (${
+                userType === 'guardian' ? 'Guardian / Therapist' : 'User'
+              })`}
               placeholderTextColor="#999999"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.eyeIconContainer}
               onPress={() => setShowPassword(!showPassword)}
             >
@@ -161,7 +157,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           </View>
 
           {/* Create Account Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.createButton}
             onPress={handleCreateAccount}
             activeOpacity={0.8}
@@ -186,7 +182,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
 
           {/* Social Login Buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Google')}
             >
@@ -197,7 +193,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               />
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Facebook')}
             >
@@ -208,7 +204,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               />
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Apple')}
             >
