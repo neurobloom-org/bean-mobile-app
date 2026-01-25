@@ -62,13 +62,13 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   };
 
   const handleSignIn = () => {
-    // Navigate to appropriate dashboard based on userType
+    // Navigate to appropriate login screen based on userType
     if (userType === 'user') {
-      // For users, go directly to HomeScreen (User Dashboard)
-      navigation.navigate('Home');
+      // For users, navigate to LoginUser screen
+      navigation.navigate('LoginUser');
     } else {
-      // For guardians, go to CaregiverDashboard
-      navigation.navigate('CaregiverDashboard');
+      // For guardians, navigate to LoginGuardian screen
+      navigation.navigate('LoginGuardian');
     }
   };
 

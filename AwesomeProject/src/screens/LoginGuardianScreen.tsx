@@ -19,10 +19,9 @@ const LoginGuardianScreen = ({ navigation }: any) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSignIn = () => {
-    console.log('Sign in as Guardian:', { emailWard, emailGuardian, password });
-    // Add authentication logic here
-    // After successful login:
-    // navigation.navigate('Home');
+    // Navigate directly to CaregiverDashboard (no validation for now)
+    console.log('Sign in as Guardian - navigating to CaregiverDashboard');
+    navigation.navigate('CaregiverDashboard');
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -42,16 +41,16 @@ const LoginGuardianScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           {/* Back Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
@@ -70,7 +69,8 @@ const LoginGuardianScreen = ({ navigation }: any) => {
           {/* Title */}
           <Text style={styles.title}>Welcome back!</Text>
           <Text style={styles.subtitle}>
-            Sign in to continue as a <Text style={styles.boldText}>Guardian</Text>
+            Sign in to continue as a{' '}
+            <Text style={styles.boldText}>Guardian</Text>
           </Text>
 
           {/* Email (Ward) Input */}
@@ -139,7 +139,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
 
           {/* Social Login Buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Google')}
             >
@@ -150,7 +150,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
               />
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Facebook')}
             >
@@ -161,7 +161,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
               />
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Apple')}
             >
@@ -174,7 +174,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
           </View>
 
           {/* Sign In Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.signInButton}
             onPress={handleSignIn}
             activeOpacity={0.8}
