@@ -1,75 +1,56 @@
-# Bean Mobile App
+<div align="center">
 
-The Bean Mobile App is the central companion application for the Bean mental wellness robot. It connects users, guardians/therapists, and the backend system to deliver personalized, supportive mental wellness experiences.
+# 🌱 Bean Mobile App  
+### AI-Powered Mental Wellness Companion
 
-## Overview
+A mobile application designed to work seamlessly with the **Bean Mental Wellness Robot**,  
+connecting users, guardians, and AI systems into a single supportive ecosystem.
 
-The app enables users to:
+🔧 *Currently under active development*
 
-Interact with the Bean robot
+</div>
 
-Track moods and progress
+---
 
-Manage daily tasks and routines
+## ✨ Overview
 
-Access calming and focus-based activities
+**Bean** is an assistive AI robotics initiative focused on **mental wellness, emotional regulation, and daily support** for students and young users.
 
-Guardians and therapists can:
+The **Bean Mobile App** acts as the **central companion interface**, enabling:
+- Human–AI interaction
+- Guardian and therapist monitoring
+- Secure communication with backend intelligence systems
 
-Monitor user progress
+---
 
-Assign tasks
+## 👥 User Roles
 
-View mood insights
+### 🧑‍🎓 Student / Primary User
+- Daily mental wellness support
+- Mood tracking and emotional check-ins
+- Task and routine management
+- Focus and calming activities
 
-Receive SOS alerts when needed
+### 👨‍👩‍⚕️ Guardian / Therapist
+- Monitor emotional progress
+- Assign and manage tasks
+- View mood insights and analytics
+- Receive SOS alerts when necessary
 
-## User Roles
+---
 
-Student / Primary User – Uses Bean for daily mental wellness support
+## 🌈 Key Features
 
-Guardian / Therapist – Monitors progress and provides guidance through a shared dashboard
+- 📊 Mood tracking and emotional insights  
+- ✅ Task assignment and completion tracking  
+- 🧘 Focus and calming activities  
+- 🔐 Secure role-based access  
+- 🤖 Real-time synchronization with the Bean robot  
+- 📈 Progress monitoring and analytics  
 
-## Key Features
+---
 
-Mood tracking and emotional insights
+## 🧠 System Integration
 
-Task assignment and completion tracking
+The mobile app functions as a **bridge** between:
 
-Focus and calming activities
-
-Secure role-based access
-
-Real-time sync with the Bean robot
-
-Progress monitoring and analytics
-
-## System Integration
-
-The mobile app acts as a bridge between:
-
-Bean Robot (voice & interaction layer)
-
-Backend Server (AI processing & data handling)
-
-Database (secure storage of user activity and progress)
-
-## Tech Stack (Planned)
-
-Frontend: Flutter / React Native
-
-Backend Communication: REST / WebSockets
-
-Authentication: Role-based access control
-
-Cloud: Azure / Google Cloud (TBD)
-
-## Project Status
-
-🔧 In Development
-This app is currently under active development as part of the Bean assistive robotics project.
-
-## License
-
-This project is part of an academic and research initiative.
-License details will be updated.
