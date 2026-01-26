@@ -39,7 +39,7 @@ The **Bean Mobile App** acts as the **central companion interface**, enabling:
 
 ---
 
-## 🌈 Key Features
+## 🧠 Key Features
 
 - 📊 Mood tracking and emotional insights  
 - ✅ Task assignment and completion tracking  
@@ -50,7 +50,5 @@ The **Bean Mobile App** acts as the **central companion interface**, enabling:
 
 ---
 
-## 🧠 System Integration
 
-The mobile app functions as a **bridge** between:
 
