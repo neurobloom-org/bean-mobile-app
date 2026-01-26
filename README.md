@@ -25,7 +25,7 @@ The **Bean Mobile App** acts as the **central companion interface**, enabling:
 
 ## 👥 User Roles
 
-### 🧑‍🎓 Student / Primary User
+### 🧑‍🎓 Patient / Primary User
 - Daily mental wellness support
 - Mood tracking and emotional check-ins
 - Task and routine management
