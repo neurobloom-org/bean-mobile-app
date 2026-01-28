@@ -28,6 +28,93 @@ interface QuickReply {
   emoji: string;
 }
 
+// ✅ SOLUTION: Create MessageItem COMPONENT inside the same file!
+// This is a proper React component, so hooks work here!
+const MessageItem = ({ item }: { item: Message }) => {
+  const isBean = item.sender === 'bean';
+
+  // ✅ Hooks work inside components!
+  const messageAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(messageAnim, {
+      toValue: 1,
+      tension: 50,
+      friction: 7,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
+  return (
+    <Animated.View
+      style={[
+        styles.messageContainer,
+        isBean ? styles.beanMessageContainer : styles.userMessageContainer,
+        {
+          opacity: messageAnim,
+          transform: [
+            {
+              translateY: messageAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      {isBean && (
+        <View style={styles.beanAvatar}>
+          <Image
+            source={require('../../assets/images/select-user.png')}
+            style={styles.avatarImage}
+          />
+        </View>
+      )}
+
+      <View style={styles.messageBubbleContainer}>
+        <View
+          style={[
+            styles.messageBubble,
+            isBean ? styles.beanBubble : styles.userBubble,
+          ]}
+        >
+          <Text
+            style={[
+              styles.messageText,
+              isBean ? styles.beanMessageText : styles.userMessageText,
+            ]}
+          >
+            {item.text}
+          </Text>
+        </View>
+        <Text
+          style={[
+            styles.timestamp,
+            isBean ? styles.timestampLeft : styles.timestampRight,
+          ]}
+        >
+          {formatTime(item.timestamp)}
+        </Text>
+      </View>
+
+      {!isBean && (
+        <View style={styles.userAvatar}>
+          <Text style={styles.avatarLetter}>You</Text>
+        </View>
+      )}
+    </Animated.View>
+  );
+};
+
 const ChatScreen = ({ navigation }: any) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -45,15 +132,6 @@ const ChatScreen = ({ navigation }: any) => {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, []);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -159,87 +237,9 @@ const ChatScreen = ({ navigation }: any) => {
     sendMessage(text);
   };
 
-  const formatTime = (date: Date): string => {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
-
-  const renderMessage = ({ item, index }: { item: Message; index: number }) => {
-    const isBean = item.sender === 'bean';
-    const messageAnim = useRef(new Animated.Value(0)).current;
-
-    useEffect(() => {
-      Animated.spring(messageAnim, {
-        toValue: 1,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }).start();
-    }, []);
-
-    return (
-      <Animated.View
-        style={[
-          styles.messageContainer,
-          isBean ? styles.beanMessageContainer : styles.userMessageContainer,
-          {
-            opacity: messageAnim,
-            transform: [
-              {
-                translateY: messageAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [20, 0],
-                }),
-              },
-            ],
-          },
-        ]}
-      >
-        {isBean && (
-          <View style={styles.beanAvatar}>
-            <Image
-              source={require('../../assets/images/select-user.png')}
-              style={styles.avatarImage}
-            />
-          </View>
-        )}
-
-        <View style={styles.messageBubbleContainer}>
-          <View
-            style={[
-              styles.messageBubble,
-              isBean ? styles.beanBubble : styles.userBubble,
-            ]}
-          >
-            <Text
-              style={[
-                styles.messageText,
-                isBean ? styles.beanMessageText : styles.userMessageText,
-              ]}
-            >
-              {item.text}
-            </Text>
-          </View>
-          <Text
-            style={[
-              styles.timestamp,
-              isBean ? styles.timestampLeft : styles.timestampRight,
-            ]}
-          >
-            {formatTime(item.timestamp)}
-          </Text>
-        </View>
-
-        {!isBean && (
-          <View style={styles.userAvatar}>
-            <Text style={styles.avatarLetter}>You</Text>
-          </View>
-        )}
-      </Animated.View>
-    );
+  // ✅ SOLUTION: Change renderMessage to just return the MessageItem component!
+  const renderMessage = ({ item }: { item: Message }) => {
+    return <MessageItem item={item} />;
   };
 
   const renderTypingIndicator = () => {
@@ -316,9 +316,7 @@ const ChatScreen = ({ navigation }: any) => {
 
         {/* Quick Replies */}
         {quickReplies.length > 0 && (
-          <Animated.View
-            style={[styles.quickRepliesContainer, { opacity: fadeAnim }]}
-          >
+          <View style={styles.quickRepliesContainer}>
             {quickReplies.map(reply => (
               <TouchableOpacity
                 key={reply.id}
@@ -330,7 +328,7 @@ const ChatScreen = ({ navigation }: any) => {
                 <Text style={styles.quickReplyText}>{reply.text}</Text>
               </TouchableOpacity>
             ))}
-          </Animated.View>
+          </View>
         )}
 
         {/* Input Section */}
