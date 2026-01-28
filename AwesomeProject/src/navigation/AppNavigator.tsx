@@ -1,21 +1,21 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SplashScreen from './screens/onboarding/SplashScreen';
-import WelcomeScreen from './screens/onboarding/WelcomeScreen';
-import FeaturesScreen from './screens/onboarding/FeaturesScreen';
-import PrivacyScreen from './screens/onboarding/PrivacyScreen';
-import RoleSelectionScreen from './screens/auth/RoleSelectionScreen';
-import CreateAccountScreen from './screens/auth/CreateAccountScreen';
-import LoginUserScreen from './screens/auth/LoginUserScreen';
-import LoginGuardianScreen from './screens/auth/LoginGuardianScreen';
-import ForgotPasswordScreen from './screens/auth/ForgotPasswordScreen';
-import VerifyCodeScreen from './screens/auth/VerifyCodeScreen';
-import HomeScreen from './screens/HomeScreen';
-import ChatScreen from './screens/ChatScreen';
-import FocusModeScreen from './screens/FocusModeScreen';
-import TasksScreen from './screens/TasksScreen';
-import CaregiverDashboard from './screens/CaregiverDashboard';
+import SplashScreen from '../screens/onboarding/SplashScreen';
+import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
+import FeaturesScreen from '../screens/onboarding/FeaturesScreen';
+import PrivacyScreen from '../screens/onboarding/PrivacyScreen';
+import RoleSelectionScreen from '../screens/auth/RoleSelectionScreen';
+import CreateAccountScreen from '../screens/auth/CreateAccountScreen';
+import LoginUserScreen from '../screens/auth/LoginUserScreen';
+import LoginGuardianScreen from '../screens/auth/LoginGuardianScreen';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+import VerifyCodeScreen from '../screens/auth/VerifyCodeScreen';
+import HomeScreen from '../screens/user/HomeScreen';
+import ChatScreen from '../screens/user/ChatScreen';
+import FocusModeScreen from '../screens/user/FocusModeScreen';
+import TasksScreen from '../screens/user/TasksScreen';
+import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
 
 const Stack = createNativeStackNavigator();
 
