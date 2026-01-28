@@ -11,17 +11,17 @@ import {
 
 const PrivacyScreen = ({ navigation }: any) => {
   const handleContinue = () => {
-  navigation.navigate('RoleSelection');
-};
+    navigation.navigate('RoleSelection');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Back Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
@@ -40,25 +40,30 @@ const PrivacyScreen = ({ navigation }: any) => {
         {/* Title */}
         <Text style={styles.title}>Your Privacy Really Matters for US !</Text>
 
-        {/* Terms Box */}
+        {/* Terms Box - No internal scrolling, just taller */}
         <View style={styles.termsBox}>
-          <ScrollView 
-            style={styles.termsScrollView}
-            showsVerticalScrollIndicator={true}
-          >
-            <Text style={styles.termsText}>
-              By continuing to access or use the Bean Robot, its software, and related services, you expressly acknowledge that you have read, understood, and agree to be legally bound by these Terms and Conditions and the Privacy Policy, which together form a binding agreement between you and the service provider. You consent to the collection, use, storage, and processing of your personal data in accordance with the Privacy Policy and applicable laws. Your continued use of the service constitutes your full, informed, and voluntary acceptance of these terms, obligations, limitations, and disclaimers set forth herein.
-            </Text>
-          </ScrollView>
+          <Text style={styles.termsText}>
+            By continuing to access or use the Bean Robot, its software, and
+            related services, you expressly acknowledge that you have read,
+            understood, and agree to be legally bound by these Terms and
+            Conditions and the Privacy Policy, which together form a binding
+            agreement between you and the service provider. You consent to the
+            collection, use, storage, and processing of your personal data in
+            accordance with the Privacy Policy and applicable laws. Your
+            continued use of the service constitutes your full, informed, and
+            voluntary acceptance of all terms, obligations, limitations, and
+            disclaimers set forth herein.
+          </Text>
 
           {/* Bottom Text */}
           <Text style={styles.bottomText}>
-            By <Text style={styles.linkText}>continuing</Text>, you agree to our Terms & Privacy Policy
+            By <Text style={styles.linkText}>continuing</Text>, you agree to our
+            Terms & Privacy Policy
           </Text>
         </View>
 
         {/* Continue Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.button}
           onPress={handleContinue}
           activeOpacity={0.8}
@@ -119,22 +124,19 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 24,
-    minHeight: 350,
-  },
-  termsScrollView: {
-    maxHeight: 300,
   },
   termsText: {
     fontSize: 14,
     color: '#000000',
     lineHeight: 22,
     textAlign: 'justify',
+    marginBottom: 20,
   },
   bottomText: {
     fontSize: 12,
     color: '#666666',
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: 4,
   },
   linkText: {
     color: '#E74C3C',
