@@ -1,3 +1,6 @@
+// src/screens/auth/RoleSelectionScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React, { useState } from 'react';
 import {
   View,
@@ -7,8 +10,10 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Alert
+  Alert,
 } from 'react-native';
+import { BackButton, PrimaryButton } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 type RoleType = 'user' | 'guardian' | null;
 
@@ -20,12 +25,11 @@ const RoleSelectionScreen = ({ navigation }: any) => {
       Alert.alert(
         'Select Your Role',
         'Please select either User or Guardian to continue.',
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       );
       return;
     }
-    
-    // Navigate to Create Account screen with selected role
+
     navigation.navigate('CreateAccount', { userType: selectedRole });
   };
 
@@ -34,34 +38,25 @@ const RoleSelectionScreen = ({ navigation }: any) => {
   };
 
   const handleSignIn = () => {
-    // Navigate to appropriate login screen based on selection
-    // Or show a modal to select role first
     if (selectedRole === 'user') {
       navigation.navigate('LoginUser');
     } else if (selectedRole === 'guardian') {
       navigation.navigate('LoginGuardian');
     } else {
-      Alert.alert(
-        'Select Your Role',
-        'Please select your role to sign in.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Select Your Role', 'Please select your role to sign in.', [
+        { text: 'OK' },
+      ]);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Back Button */}
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
+        <BackButton />
 
         {/* Title */}
         <Text style={styles.title}>Welcome to Bean</Text>
@@ -170,17 +165,14 @@ const RoleSelectionScreen = ({ navigation }: any) => {
         </View>
 
         {/* Continue Button */}
-        <TouchableOpacity
-          style={[
-            styles.continueButton,
-            !selectedRole && styles.continueButtonDisabled,
-          ]}
+        <PrimaryButton
+          title="Continue"
           onPress={handleContinue}
-          activeOpacity={0.8}
+          variant="primary"
+          size="large"
+          fullWidth
           disabled={!selectedRole}
-        >
-          <Text style={styles.continueButtonText}>Continue</Text>
-        </TouchableOpacity>
+        />
 
         {/* Sign In Link */}
         <View style={styles.signInContainer}>
@@ -197,76 +189,63 @@ const RoleSelectionScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000000',
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XL,
+    paddingBottom: SPACING.XXL,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000000',
+    ...TYPOGRAPHY.H2,
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: SPACING.XL,
   },
   subtitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginBottom: 10,
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.MD,
   },
   description: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 30,
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: SPACING.XXL,
     lineHeight: 20,
   },
   rolesContainer: {
-    gap: 16,
-    marginBottom: 24,
+    gap: SPACING.LG,
+    marginBottom: SPACING.XL,
   },
   roleCard: {
     borderWidth: 2,
-    borderColor: '#000000',
-    borderRadius: 20,
-    padding: 20,
-    backgroundColor: '#FFFFFF',
+    borderColor: COLORS.BLACK,
+    borderRadius: SPACING.XL,
+    padding: SPACING.XL,
+    backgroundColor: COLORS.WHITE,
   },
   roleCardSelected: {
-    borderColor: '#4ECCA3',
-    backgroundColor: '#E8FAF4',
+    borderColor: COLORS.PRIMARY,
+    backgroundColor: COLORS.SECONDARY_LIGHT,
   },
   roleContent: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: SPACING.LG,
     alignItems: 'center',
   },
   roleTextContainer: {
     flex: 1,
-    marginRight: 16,
+    marginRight: SPACING.LG,
   },
   roleTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000000',
-    marginBottom: 6,
+    ...TYPOGRAPHY.H4,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.XS,
   },
   roleSubtitle: {
-    fontSize: 13,
-    color: '#666666',
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
     lineHeight: 18,
   },
   roleIconContainer: {
@@ -280,63 +259,38 @@ const styles = StyleSheet.create({
     height: 70,
   },
   selectButton: {
-    backgroundColor: '#000000',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
+    backgroundColor: COLORS.BLACK,
+    paddingVertical: SPACING.MD,
+    paddingHorizontal: SPACING.XL,
+    borderRadius: SPACING.XL,
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
   },
   selectButtonActive: {
-    backgroundColor: '#4ECCA3',
+    backgroundColor: COLORS.PRIMARY,
   },
   selectButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
+    color: COLORS.WHITE,
+    ...TYPOGRAPHY.BODY,
     fontWeight: '600',
   },
   selectButtonTextActive: {
-    color: '#FFFFFF',
-  },
-  continueButton: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    borderRadius: 30,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  continueButtonDisabled: {
-    backgroundColor: '#D3D3D3',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  continueButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+    color: COLORS.WHITE,
   },
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: SPACING.LG,
   },
   signInText: {
-    fontSize: 14,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
   },
   signInLink: {
-    fontSize: 14,
-    color: '#4169E1',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.LINK,
     fontWeight: '600',
   },
 });
