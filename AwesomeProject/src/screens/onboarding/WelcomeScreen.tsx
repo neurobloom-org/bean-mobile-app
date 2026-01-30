@@ -1,15 +1,19 @@
+// src/screens/onboarding/WelcomeScreen.tsx
+// ✅ REFACTORED VERSION - Uses components and constants!
+
 import React from 'react';
 import {
   View,
   Text,
   Image,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   Dimensions,
 } from 'react-native';
+import { PrimaryButton, PaginationDots } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
-const { width, height } = Dimensions.get('window'); // Get device width & height
+const { width, height } = Dimensions.get('window');
 
 const WelcomeScreen = ({ navigation }: any) => {
   const handleGetStarted = () => {
@@ -33,24 +37,21 @@ const WelcomeScreen = ({ navigation }: any) => {
 
         {/* Subtitle */}
         <Text style={styles.subtitle}>
-          Your friendly companion for a calmer, focused mind. Let's take a breath and start our journey together.
+          Your friendly companion for a calmer, focused mind. Let's take a
+          breath and start our journey together.
         </Text>
 
         {/* Get Started Button */}
-        <TouchableOpacity
-          style={styles.button}
+        <PrimaryButton
+          title="Get Started"
           onPress={handleGetStarted}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
+          variant="primary"
+          size="large"
+          fullWidth
+        />
 
         {/* Pagination Dots */}
-        <View style={styles.paginationContainer}>
-          <View style={[styles.dot, styles.activeDot]} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-        </View>
+        <PaginationDots currentStep={0} totalSteps={3} />
       </View>
     </SafeAreaView>
   );
@@ -59,74 +60,38 @@ const WelcomeScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: SPACING.XL,
   },
   imageContainer: {
-    marginBottom: 20,
-    width: width * 0.9,       // 90% of screen width
-    height: height * 0.55,    // 55% of screen height
+    marginBottom: SPACING.XL,
+    width: width * 0.9,
+    height: height * 0.55,
     alignItems: 'center',
     justifyContent: 'center',
   },
   robotImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',    // ensures the robot scales without distortion
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginBottom: 12,
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.MD,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY_LARGE,
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 30,
-    paddingHorizontal: 10,
-  },
-  button: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    paddingHorizontal: 60,
-    borderRadius: 30,
-    width: '100%',
-    alignItems: 'center',
-    shadowColor: '#4ECCA3',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  paginationContainer: {
-    flexDirection: 'row',
-    marginTop: 10,
-    gap: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D3D3D3',
-  },
-  activeDot: {
-    backgroundColor: '#4ECCA3',
-    width: 24,
+    marginBottom: SPACING.XXL,
+    paddingHorizontal: SPACING.MD,
   },
 });
 
