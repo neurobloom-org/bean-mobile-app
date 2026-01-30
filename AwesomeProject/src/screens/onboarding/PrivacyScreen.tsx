@@ -1,13 +1,17 @@
+// src/screens/onboarding/PrivacyScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React from 'react';
 import {
   View,
   Text,
   Image,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import { BackButton, PrimaryButton, PaginationDots } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const PrivacyScreen = ({ navigation }: any) => {
   const handleContinue = () => {
@@ -21,12 +25,7 @@ const PrivacyScreen = ({ navigation }: any) => {
         showsVerticalScrollIndicator={false}
       >
         {/* Back Button */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
+        <BackButton />
 
         {/* Privacy Icon */}
         <View style={styles.iconContainer}>
@@ -40,7 +39,7 @@ const PrivacyScreen = ({ navigation }: any) => {
         {/* Title */}
         <Text style={styles.title}>Your Privacy Really Matters for US !</Text>
 
-        {/* Terms Box - No internal scrolling, just taller */}
+        {/* Terms Box */}
         <View style={styles.termsBox}>
           <Text style={styles.termsText}>
             By continuing to access or use the Bean Robot, its software, and
@@ -63,20 +62,16 @@ const PrivacyScreen = ({ navigation }: any) => {
         </View>
 
         {/* Continue Button */}
-        <TouchableOpacity
-          style={styles.button}
+        <PrimaryButton
+          title="Continue"
           onPress={handleContinue}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>Continue</Text>
-        </TouchableOpacity>
+          variant="primary"
+          size="large"
+          fullWidth
+        />
 
         {/* Pagination Dots */}
-        <View style={styles.paginationContainer}>
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-          <View style={[styles.dot, styles.activeDot]} />
-        </View>
+        <PaginationDots currentStep={2} totalSteps={3} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -85,99 +80,51 @@ const PrivacyScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000000',
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XL,
+    paddingBottom: SPACING.XXL,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: SPACING.XL,
   },
   privacyIcon: {
     width: 80,
     height: 80,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000000',
+    ...TYPOGRAPHY.H2,
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    marginBottom: SPACING.XL,
+    paddingHorizontal: SPACING.MD,
   },
   termsBox: {
-    backgroundColor: '#D5F5E8',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 24,
+    backgroundColor: COLORS.SECONDARY_LIGHT,
+    borderRadius: SPACING.XL,
+    padding: SPACING.XL,
+    marginBottom: SPACING.XL,
   },
   termsText: {
-    fontSize: 14,
-    color: '#000000',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_PRIMARY,
     lineHeight: 22,
     textAlign: 'justify',
-    marginBottom: 20,
+    marginBottom: SPACING.XL,
   },
   bottomText: {
-    fontSize: 12,
-    color: '#666666',
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginTop: 4,
+    marginTop: SPACING.XS,
   },
   linkText: {
-    color: '#E74C3C',
+    color: COLORS.ERROR,
     fontWeight: '600',
-  },
-  button: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    paddingHorizontal: 60,
-    borderRadius: 30,
-    width: '100%',
-    alignItems: 'center',
-    shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
-    gap: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D3D3D3',
-  },
-  activeDot: {
-    backgroundColor: '#4ECCA3',
-    width: 24,
   },
 });
 
