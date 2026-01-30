@@ -1,13 +1,17 @@
+// src/screens/onboarding/FeaturesScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React from 'react';
 import {
   View,
   Text,
   Image,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import { BackButton, PrimaryButton, PaginationDots } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 interface FeatureItemProps {
   iconSource: any;
@@ -18,8 +22,8 @@ interface FeatureItemProps {
 const FeatureItem = ({ iconSource, title, subtitle }: FeatureItemProps) => (
   <View style={styles.featureCard}>
     <View style={styles.iconContainer}>
-      <Image 
-        source={iconSource} 
+      <Image
+        source={iconSource}
         style={styles.iconImage}
         resizeMode="contain"
       />
@@ -33,22 +37,17 @@ const FeatureItem = ({ iconSource, title, subtitle }: FeatureItemProps) => (
 
 const FeaturesScreen = ({ navigation }: any) => {
   const handleContinue = () => {
-  navigation.navigate('Privacy');
-};
+    navigation.navigate('Privacy');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Back Button */}
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
+        <BackButton />
 
         {/* Title */}
         <Text style={styles.title}>What Bean can do...</Text>
@@ -83,20 +82,16 @@ const FeaturesScreen = ({ navigation }: any) => {
         </View>
 
         {/* Continue Button */}
-        <TouchableOpacity 
-          style={styles.button}
+        <PrimaryButton
+          title="Continue"
           onPress={handleContinue}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>Continue</Text>
-        </TouchableOpacity>
+          variant="primary"
+          size="large"
+          fullWidth
+        />
 
         {/* Pagination Dots */}
-        <View style={styles.paginationContainer}>
-          <View style={styles.dot} />
-          <View style={[styles.dot, styles.activeDot]} />
-          <View style={styles.dot} />
-        </View>
+        <PaginationDots currentStep={1} totalSteps={3} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -105,49 +100,38 @@ const FeaturesScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000000',
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XL,
+    paddingBottom: SPACING.XXL,
   },
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginBottom: 30,
+    ...TYPOGRAPHY.H2,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.XXL,
   },
   featuresContainer: {
     flex: 1,
-    gap: 16,
+    gap: SPACING.LG,
   },
   featureCard: {
     flexDirection: 'row',
-    backgroundColor: '#E0F7F1',
-    borderRadius: 20,
-    padding: 18,
+    backgroundColor: COLORS.SECONDARY_LIGHT,
+    borderRadius: SPACING.XL,
+    padding: SPACING.LG,
     alignItems: 'center',
   },
   iconContainer: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#4ECCA3',
+    backgroundColor: COLORS.PRIMARY,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: SPACING.LG,
     overflow: 'hidden',
   },
   iconImage: {
@@ -160,50 +144,12 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#000000',
-    marginBottom: 4,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.XXS,
   },
   featureSubtitle: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  button: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    paddingHorizontal: 60,
-    borderRadius: 30,
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 30,
-    shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
-    gap: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D3D3D3',
-  },
-  activeDot: {
-    backgroundColor: '#4ECCA3',
-    width: 24,
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
   },
 });
 
