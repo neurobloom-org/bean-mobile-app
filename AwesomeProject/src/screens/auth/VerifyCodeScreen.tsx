@@ -1,16 +1,19 @@
+// src/screens/auth/VerifyCodeScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  TouchableOpacity,
   Alert,
-  NativeSyntheticEvent,
-  TextInputKeyPressEventData,
 } from 'react-native';
+import { BackButton, PrimaryButton } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const VerifyCodeScreen = ({ navigation, route }: any) => {
   const { email, userType } = route.params || { email: '', userType: 'user' };
@@ -19,30 +22,22 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
   const handleCodeChange = (text: string, index: number) => {
-    // Only allow numbers
-    if (text && !/^\d+$/.test(text)) {
-      return;
+    if (text.length > 1) {
+      text = text.charAt(text.length - 1);
     }
 
     const newCode = [...code];
     newCode[index] = text;
     setCode(newCode);
 
-    // Auto focus next input
-    if (text && index < 5 && inputRefs.current[index + 1]) {
+    if (text && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyPress = (
-    e: NativeSyntheticEvent<TextInputKeyPressEventData>,
-    index: number,
-  ) => {
-    // Handle backspace to go to previous input
+  const handleKeyPress = (e: any, index: number) => {
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
-      if (inputRefs.current[index - 1]) {
-        inputRefs.current[index - 1]?.focus();
-      }
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -54,14 +49,11 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
       return;
     }
 
-    // Here you would verify the code with your backend
-    console.log('Verifying code:', verificationCode);
-
-    Alert.alert('Success', 'Your password has been reset successfully!', [
+    console.log('Verification code:', verificationCode);
+    Alert.alert('Success', 'Password reset link has been sent to your email!', [
       {
         text: 'OK',
         onPress: () => {
-          // Navigate to appropriate login screen
           if (userType === 'user') {
             navigation.navigate('LoginUser');
           } else {
@@ -72,12 +64,13 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
     ]);
   };
 
-  const handleResend = () => {
-    Alert.alert('Success', 'Verification code has been resent to your email!');
+  const handleResendCode = () => {
+    Alert.alert(
+      'Code Sent',
+      'A new verification code has been sent to your email',
+    );
     setCode(['', '', '', '', '', '']);
-    if (inputRefs.current[0]) {
-      inputRefs.current[0]?.focus();
-    }
+    inputRefs.current[0]?.focus();
   };
 
   return (
@@ -87,29 +80,20 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
         showsVerticalScrollIndicator={false}
       >
         {/* Back Button */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
+        <BackButton />
 
         {/* Icon */}
         <View style={styles.iconContainer}>
           <View style={styles.iconCircle}>
-            <Text style={styles.iconText}>🔒</Text>
+            <Text style={styles.iconText}>🔐</Text>
           </View>
         </View>
 
         {/* Title */}
-        <Text style={styles.title}>Verify Code</Text>
-
-        {/* Description */}
-        <Text style={styles.description}>
-          We have sent a 6-digit verification code to{' '}
-          {userType === 'guardian' ? "the Ward's email" : 'your email'}. Please
-          enter the code below to confirm{' '}
-          {userType === 'guardian' ? "the Ward's email" : 'your email'}.
+        <Text style={styles.title}>Verification Code</Text>
+        <Text style={styles.subtitle}>
+          Please enter the code we sent to{'\n'}
+          <Text style={styles.emailText}>{email}</Text>
         </Text>
 
         {/* Code Input Boxes */}
@@ -120,7 +104,7 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
               ref={ref => {
                 inputRefs.current[index] = ref;
               }}
-              style={styles.codeInput}
+              style={[styles.codeInput, digit ? styles.codeInputFilled : null]}
               value={digit}
               onChangeText={text => handleCodeChange(text, index)}
               onKeyPress={e => handleKeyPress(e, index)}
@@ -131,22 +115,22 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
           ))}
         </View>
 
-        {/* Verify Button */}
-        <TouchableOpacity
-          style={styles.verifyButton}
-          onPress={handleVerify}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.verifyButtonText}>Verify!</Text>
-        </TouchableOpacity>
-
-        {/* Resend Link */}
+        {/* Resend Code */}
         <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Don't receive a code? </Text>
-          <TouchableOpacity onPress={handleResend}>
+          <Text style={styles.resendText}>Didn't receive the code? </Text>
+          <TouchableOpacity onPress={handleResendCode}>
             <Text style={styles.resendLink}>Resend</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Verify Button */}
+        <PrimaryButton
+          title="Verify!"
+          onPress={handleVerify}
+          variant="primary"
+          size="large"
+          fullWidth
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -155,33 +139,23 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000000',
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.MASSIVE,
+    paddingBottom: SPACING.XXL,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: SPACING.XXL,
   },
   iconCircle: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#E0F7F1',
+    backgroundColor: COLORS.SECONDARY_LIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -189,68 +163,57 @@ const styles = StyleSheet.create({
     fontSize: 36,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000000',
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: SPACING.SM,
   },
-  description: {
-    fontSize: 14,
-    color: '#666666',
+  subtitle: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
+    marginBottom: SPACING.XXL,
     lineHeight: 22,
-    marginBottom: 40,
-    paddingHorizontal: 10,
+  },
+  emailText: {
+    color: COLORS.PRIMARY,
+    fontWeight: '600',
   },
   codeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 40,
-    paddingHorizontal: 10,
+    marginBottom: SPACING.XXL,
+    gap: SPACING.SM,
   },
   codeInput: {
-    width: 45,
-    height: 50,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
+    flex: 1,
+    height: 60,
+    borderWidth: 2,
+    borderColor: COLORS.BORDER,
+    borderRadius: SPACING.MD,
+    textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#000000',
+    color: COLORS.TEXT_PRIMARY,
+    backgroundColor: COLORS.GRAY_50,
   },
-  verifyButton: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  verifyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+  codeInputFilled: {
+    borderColor: COLORS.PRIMARY,
+    backgroundColor: COLORS.SECONDARY_LIGHT,
   },
   resendContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: SPACING.XXL,
   },
   resendText: {
-    fontSize: 14,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
   },
   resendLink: {
-    fontSize: 14,
-    color: '#4169E1',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.PRIMARY,
     fontWeight: '600',
   },
 });
