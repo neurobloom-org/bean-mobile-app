@@ -1,21 +1,23 @@
+// src/screens/auth/ForgotPasswordScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   ScrollView,
   Alert,
 } from 'react-native';
+import { BackButton, PrimaryButton, Input } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const ForgotPasswordScreen = ({ navigation, route }: any) => {
   const { userType } = route.params || { userType: 'user' };
   const [email, setEmail] = useState('');
 
   const handleSetResetLink = () => {
-    // Validation
     if (!email.trim()) {
       Alert.alert('Error', 'Please enter your email address');
       return;
@@ -25,7 +27,6 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
       return;
     }
 
-    // Navigate to VerifyCode screen
     navigation.navigate('VerifyCode', {
       email: email,
       userType: userType,
@@ -33,7 +34,6 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
   };
 
   const handleBackToSignIn = () => {
-    // Go back to appropriate login screen
     if (userType === 'user') {
       navigation.navigate('LoginUser');
     } else {
@@ -47,6 +47,9 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Back Button */}
+        <BackButton />
+
         {/* Icon */}
         <View style={styles.iconContainer}>
           <View style={styles.iconCircle}>
@@ -59,31 +62,30 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
         <Text style={styles.subtitle}>We'll send you a reset link</Text>
 
         {/* Email Input */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999999"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
+        <Input
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
         {/* Set Reset Link Button */}
-        <TouchableOpacity
-          style={styles.resetButton}
+        <PrimaryButton
+          title="Set Reset Link"
           onPress={handleSetResetLink}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.resetButtonText}>Set Reset Link</Text>
-        </TouchableOpacity>
+          variant="primary"
+          size="large"
+          fullWidth
+        />
 
-        {/* Back to Sign In Link */}
-        <TouchableOpacity onPress={handleBackToSignIn}>
-          <Text style={styles.backToSignIn}>Back to Sign In</Text>
-        </TouchableOpacity>
+        {/* Back to Sign In Button */}
+        <PrimaryButton
+          title="Back to Sign In"
+          onPress={handleBackToSignIn}
+          variant="outline"
+          size="medium"
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -92,23 +94,23 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 80,
-    paddingBottom: 40,
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.MASSIVE,
+    paddingBottom: SPACING.XXL,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: SPACING.XXL,
   },
   iconCircle: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#E0F7F1',
+    backgroundColor: COLORS.SECONDARY_LIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -116,54 +118,16 @@ const styles = StyleSheet.create({
     fontSize: 36,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000000',
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: SPACING.SM,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY_LARGE,
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: 40,
-  },
-  inputContainer: {
-    marginBottom: 24,
-  },
-  input: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    fontSize: 16,
-    color: '#000000',
-  },
-  resetButton: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  resetButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  backToSignIn: {
-    fontSize: 14,
-    color: '#666666',
-    textAlign: 'center',
-    fontWeight: '600',
+    marginBottom: SPACING.XXL,
   },
 });
 
