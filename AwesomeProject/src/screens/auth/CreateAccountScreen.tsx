@@ -1,10 +1,12 @@
+// src/screens/auth/CreateAccountScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React, { useState } from 'react';
 import {
   View,
   Text,
   Image,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
   SafeAreaView,
   ScrollView,
@@ -12,6 +14,8 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import { BackButton, PrimaryButton, Input } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const CreateAccountScreen = ({ navigation, route }: any) => {
   const { userType } = route.params || { userType: 'user' };
@@ -20,17 +24,15 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleCreateAccount = () => {
-    // If user type, navigate directly to Home (User Dashboard)
     if (userType === 'user') {
       console.log('User account created - navigating to HomeScreen');
       navigation.navigate('Home');
       return;
     }
 
-    // For guardians, validate inputs
+    // Validation for guardians
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -48,7 +50,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       return;
     }
 
-    // Navigate guardian to CaregiverDashboard
     console.log('Guardian account created - navigating to CaregiverDashboard');
     navigation.navigate('CaregiverDashboard');
   };
@@ -62,12 +63,9 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   };
 
   const handleSignIn = () => {
-    // Navigate to appropriate login screen based on userType
     if (userType === 'user') {
-      // For users, navigate to LoginUser screen
       navigation.navigate('LoginUser');
     } else {
-      // For guardians, navigate to LoginGuardian screen
       navigation.navigate('LoginGuardian');
     }
   };
@@ -83,12 +81,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           showsVerticalScrollIndicator={false}
         >
           {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.backArrow}>←</Text>
-          </TouchableOpacity>
+          <BackButton />
 
           {/* Title */}
           <Text style={styles.title}>Create Account!</Text>
@@ -98,37 +91,27 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           </Text>
 
           {/* Full Name Input */}
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Full Name"
-              placeholderTextColor="#999999"
-              value={fullName}
-              onChangeText={setFullName}
-              autoCapitalize="words"
-            />
-          </View>
+          <Input
+            placeholder="Full Name"
+            value={fullName}
+            onChangeText={setFullName}
+            autoCapitalize="words"
+          />
 
           {/* Email Input */}
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#999999"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+          <Input
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
           {/* Phone Number Input */}
-          <View style={styles.inputContainer}>
+          <View style={styles.phoneInputContainer}>
             <Text style={styles.phoneIcon}>📱</Text>
-            <TextInput
-              style={[styles.input, styles.inputWithIcon]}
+            <Input
               placeholder="Phone Number (+94......)"
-              placeholderTextColor="#999999"
               value={phoneNumber}
               onChangeText={setPhoneNumber}
               keyboardType="phone-pad"
@@ -136,34 +119,25 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           </View>
 
           {/* Password Input */}
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder={`Password (${
-                userType === 'guardian' ? 'Guardian / Therapist' : 'User'
-              })`}
-              placeholderTextColor="#999999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity
-              style={styles.eyeIconContainer}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
-            </TouchableOpacity>
-          </View>
+          <Input
+            placeholder={`Password (${
+              userType === 'guardian' ? 'Guardian / Therapist' : 'User'
+            })`}
+            value={password}
+            onChangeText={setPassword}
+            isPassword
+            showPasswordToggle
+            autoCapitalize="none"
+          />
 
           {/* Create Account Button */}
-          <TouchableOpacity
-            style={styles.createButton}
+          <PrimaryButton
+            title="Create Account"
             onPress={handleCreateAccount}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.createButtonText}>Create Account</Text>
-          </TouchableOpacity>
+            variant="primary"
+            size="large"
+            fullWidth
+          />
 
           {/* Already have account link */}
           <View style={styles.signInContainer}>
@@ -224,131 +198,81 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000000',
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XL,
+    paddingBottom: SPACING.XXL,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000000',
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: SPACING.SM,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY_LARGE,
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: SPACING.XXL,
   },
-  inputContainer: {
+  phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 16,
-    position: 'relative',
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#000000',
-  },
-  inputWithIcon: {
-    paddingLeft: 8,
+    marginBottom: SPACING.LG,
   },
   phoneIcon: {
     fontSize: 20,
-    marginRight: 8,
-  },
-  eyeIconContainer: {
-    padding: 4,
-  },
-  eyeIcon: {
-    fontSize: 20,
-  },
-  createButton: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-    shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  createButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+    marginRight: SPACING.SM,
   },
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginTop: SPACING.LG,
+    marginBottom: SPACING.XL,
   },
   signInText: {
-    fontSize: 14,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
   },
   signInLink: {
-    fontSize: 14,
-    color: '#4169E1',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.LINK,
     fontWeight: '600',
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: SPACING.XL,
   },
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.BORDER,
   },
   dividerText: {
-    color: '#999999',
-    fontSize: 13,
-    marginHorizontal: 16,
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_TERTIARY,
+    marginHorizontal: SPACING.LG,
   },
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
-    marginBottom: 20,
+    gap: SPACING.XL,
+    marginBottom: SPACING.XL,
   },
   socialButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.GRAY_50,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.BORDER,
   },
   socialIcon: {
     width: 30,

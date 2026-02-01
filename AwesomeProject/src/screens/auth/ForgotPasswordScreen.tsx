@@ -26,9 +26,9 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
     }
 
     // Navigate to VerifyCode screen
-    navigation.navigate('VerifyCode', { 
+    navigation.navigate('VerifyCode', {
       email: email,
-      userType: userType 
+      userType: userType,
     });
   };
 
@@ -43,7 +43,7 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -72,7 +72,7 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
         </View>
 
         {/* Set Reset Link Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.resetButton}
           onPress={handleSetResetLink}
           activeOpacity={0.8}
