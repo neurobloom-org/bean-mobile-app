@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌱 Bean Mobile App  
+# Bean Mobile App  
 ### AI-Powered Mental Wellness Companion
 
 A mobile application designed to work seamlessly with the **Bean Mental Wellness Robot**,  
@@ -12,7 +12,7 @@ connecting users, guardians, and AI systems into a single supportive ecosystem.
 
 ---
 
-## ✨ Overview
+## Overview
 
 **Bean** is an assistive AI robotics initiative focused on **mental wellness, emotional regulation, and daily support** for students and young users.
 
@@ -23,15 +23,15 @@ The **Bean Mobile App** acts as the **central companion interface**, enabling:
 
 ---
 
-## 👥 User Roles
+## User Roles
 
-### 🧑‍🎓 Patient / Primary User
+###  Patient / Primary User
 - Daily mental wellness support
 - Mood tracking and emotional check-ins
 - Task and routine management
 - Focus and calming activities
 
-### 👨‍👩‍⚕️ Guardian / Therapist
+### Guardian / Therapist
 - Monitor emotional progress
 - Assign and manage tasks
 - View mood insights and analytics
@@ -39,7 +39,7 @@ The **Bean Mobile App** acts as the **central companion interface**, enabling:
 
 ---
 
-## 🧠 Key Features
+## Key Features
 
 - 📊 Mood tracking and emotional insights  
 - ✅ Task assignment and completion tracking  
