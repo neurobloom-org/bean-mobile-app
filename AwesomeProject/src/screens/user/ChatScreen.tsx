@@ -1,361 +1,202 @@
-import React, { useState, useRef, useEffect } from 'react';
+// src/screens/user/ChatScreen.tsx
+// ✅ REFACTORED VERSION
+
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
   Image,
-  SafeAreaView,
-  StatusBar,
   TextInput,
-  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  Animated,
 } from 'react-native';
+import { BackButton } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 interface Message {
-  id: string;
+  id: number;
   text: string;
-  sender: 'bean' | 'user';
-  timestamp: Date;
+  sender: 'user' | 'bean';
+  timestamp: string;
 }
-
-interface QuickReply {
-  id: string;
-  text: string;
-  emoji: string;
-}
-
-// ✅ SOLUTION: Create MessageItem COMPONENT inside the same file!
-// This is a proper React component, so hooks work here!
-const MessageItem = ({ item }: { item: Message }) => {
-  const isBean = item.sender === 'bean';
-
-  // ✅ Hooks work inside components!
-  const messageAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.spring(messageAnim, {
-      toValue: 1,
-      tension: 50,
-      friction: 7,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  const formatTime = (date: Date): string => {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
-
-  return (
-    <Animated.View
-      style={[
-        styles.messageContainer,
-        isBean ? styles.beanMessageContainer : styles.userMessageContainer,
-        {
-          opacity: messageAnim,
-          transform: [
-            {
-              translateY: messageAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [20, 0],
-              }),
-            },
-          ],
-        },
-      ]}
-    >
-      {isBean && (
-        <View style={styles.beanAvatar}>
-          <Image
-            source={require('../../assets/images/select-user.png')}
-            style={styles.avatarImage}
-          />
-        </View>
-      )}
-
-      <View style={styles.messageBubbleContainer}>
-        <View
-          style={[
-            styles.messageBubble,
-            isBean ? styles.beanBubble : styles.userBubble,
-          ]}
-        >
-          <Text
-            style={[
-              styles.messageText,
-              isBean ? styles.beanMessageText : styles.userMessageText,
-            ]}
-          >
-            {item.text}
-          </Text>
-        </View>
-        <Text
-          style={[
-            styles.timestamp,
-            isBean ? styles.timestampLeft : styles.timestampRight,
-          ]}
-        >
-          {formatTime(item.timestamp)}
-        </Text>
-      </View>
-
-      {!isBean && (
-        <View style={styles.userAvatar}>
-          <Text style={styles.avatarLetter}>You</Text>
-        </View>
-      )}
-    </Animated.View>
-  );
-};
 
 const ChatScreen = ({ navigation }: any) => {
+  const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: '1',
-      text: "Hi there! 👋 I'm Bean, your wellness companion. How are you feeling today?",
+      id: 1,
+      text: "Hi! I'm Bean, your mental health companion. How can I help you today?",
       sender: 'bean',
-      timestamp: new Date(),
+      timestamp: '10:00 AM',
     },
   ]);
-  const [inputText, setInputText] = useState('');
-  const [quickReplies, setQuickReplies] = useState<QuickReply[]>([
-    { id: '1', text: 'Feeling good', emoji: '😊' },
-    { id: '2', text: 'A bit stressed', emoji: '😰' },
-    { id: '3', text: 'Need help', emoji: '🆘' },
-  ]);
   const [isTyping, setIsTyping] = useState(false);
-  const flatListRef = useRef<FlatList>(null);
 
-  useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    }
-  }, [messages]);
+  const handleSend = () => {
+    if (!message.trim()) return;
 
-  const sendMessage = (text: string) => {
-    if (!text.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: text.trim(),
+    const newMessage: Message = {
+      id: messages.length + 1,
+      text: message,
       sender: 'user',
-      timestamp: new Date(),
+      timestamp: new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputText('');
-    setQuickReplies([]);
-    Keyboard.dismiss();
+    setMessages([...messages, newMessage]);
+    setMessage('');
 
     setIsTyping(true);
     setTimeout(() => {
-      const beanResponse = generateBeanResponse(text);
-      const beanMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: beanResponse,
+      const beanResponse: Message = {
+        id: messages.length + 2,
+        text: "I understand. Can you tell me more about how you're feeling?",
         sender: 'bean',
-        timestamp: new Date(),
+        timestamp: new Date().toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       };
-      setMessages(prev => [...prev, beanMessage]);
+      setMessages(prev => [...prev, beanResponse]);
       setIsTyping(false);
-
-      updateQuickReplies(text);
     }, 1500);
   };
 
-  const updateQuickReplies = (userText: string) => {
-    const lowerText = userText.toLowerCase();
-
-    if (lowerText.includes('stressed') || lowerText.includes('anxious')) {
-      setQuickReplies([
-        { id: '1', text: 'Try breathing', emoji: '🫁' },
-        { id: '2', text: 'Tell me more', emoji: '💭' },
-        { id: '3', text: 'Distract me', emoji: '🎮' },
-      ]);
-    } else if (lowerText.includes('good') || lowerText.includes('great')) {
-      setQuickReplies([
-        { id: '1', text: 'Share more', emoji: '✨' },
-        { id: '2', text: 'Set a goal', emoji: '🎯' },
-        { id: '3', text: 'Track mood', emoji: '📊' },
-      ]);
-    } else {
-      setQuickReplies([
-        { id: '1', text: 'Yes', emoji: '👍' },
-        { id: '2', text: 'Tell me more', emoji: '💬' },
-        { id: '3', text: 'Maybe later', emoji: '⏰' },
-      ]);
-    }
-  };
-
-  const generateBeanResponse = (userText: string): string => {
-    const lowerText = userText.toLowerCase();
-
-    if (lowerText.includes('stressed') || lowerText.includes('overwhelm')) {
-      return "I hear you. 💚 Feeling overwhelmed is really tough. Let's take this one step at a time. Would you like to try a quick breathing exercise?";
-    } else if (lowerText.includes('anxious') || lowerText.includes('worried')) {
-      return "It's completely okay to feel anxious. 🌟 You're not alone in this. Would you like me to guide you through some grounding techniques?";
-    } else if (
-      lowerText.includes('good') ||
-      lowerText.includes('great') ||
-      lowerText.includes('happy')
-    ) {
-      return "That's wonderful to hear! 🎉 I'm so glad you're feeling good! Would you like to capture this moment or set a positive intention for the day?";
-    } else if (lowerText.includes('sad') || lowerText.includes('down')) {
-      return "I'm here with you. 💙 It's okay to feel sad sometimes. Would you like to talk about what's on your mind, or would you prefer a gentle distraction?";
-    } else if (lowerText.includes('help') || lowerText.includes('support')) {
-      return "I'm here to help! 🤗 What would be most helpful for you right now - talking through your feelings, trying a calming activity, or learning some coping strategies?";
-    } else if (
-      lowerText.includes('breathing') ||
-      lowerText.includes('breathe')
-    ) {
-      return "Perfect! Let's do this together. 🫁 Take a deep breath in for 4 counts... Hold for 4... And exhale for 4. Let me know how you feel after!";
-    } else if (
-      lowerText.includes('yes') ||
-      lowerText.includes('sure') ||
-      lowerText.includes('okay')
-    ) {
-      return "Awesome! 🌈 Let's start. I'm right here with you every step of the way. What would you like to focus on first?";
-    } else if (lowerText.includes('no') || lowerText.includes('maybe later')) {
-      return "That's perfectly fine! 😊 There's no pressure at all. I'm here whenever you're ready. Is there anything else I can help you with?";
-    } else if (lowerText.includes('thank')) {
-      return "You're so welcome! 💚 Remember, you're doing great just by being here and taking care of yourself. I'm always here for you!";
-    } else {
-      return "I'm listening. 👂 Take your time and tell me more about how you're feeling. Every feeling is valid and I'm here to support you.";
-    }
-  };
-
-  const handleQuickReply = (text: string) => {
-    sendMessage(text);
-  };
-
-  // ✅ SOLUTION: Change renderMessage to just return the MessageItem component!
-  const renderMessage = ({ item }: { item: Message }) => {
-    return <MessageItem item={item} />;
-  };
-
-  const renderTypingIndicator = () => {
-    if (!isTyping) return null;
-
-    return (
-      <View style={[styles.messageContainer, styles.beanMessageContainer]}>
-        <View style={styles.beanAvatar}>
-          <Image
-            source={require('../../assets/images/select-user.png')}
-            style={styles.avatarImage}
-          />
-        </View>
-        <View
-          style={[styles.messageBubble, styles.beanBubble, styles.typingBubble]}
-        >
-          <View style={styles.typingDots}>
-            <View style={[styles.dot, styles.dot1]} />
-            <View style={[styles.dot, styles.dot2]} />
-            <View style={[styles.dot, styles.dot3]} />
-          </View>
-        </View>
-      </View>
-    );
-  };
+  const quickReplies = [
+    'I feel anxious',
+    'I feel stressed',
+    'I need help',
+    'Tell me more',
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4ECCA3" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-
-        <View style={styles.headerCenter}>
-          <View style={styles.headerAvatarContainer}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <BackButton />
+          <View style={styles.headerCenter}>
             <Image
-              source={require('../../assets/images/select-user.png')}
-              style={styles.headerAvatarImage}
+              source={require('../../assets/images/robot-first-page.png')}
+              style={styles.headerImage}
+              resizeMode="contain"
             />
-            <View style={styles.onlineIndicator} />
+            <View>
+              <Text style={styles.headerTitle}>Bean</Text>
+              <Text style={styles.headerStatus}>Online</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.headerTitle}>Bean</Text>
-            <Text style={styles.headerSubtitle}>Always here for you</Text>
-          </View>
+          <View style={{ width: 40 }} />
         </View>
 
-        <TouchableOpacity style={styles.menuButton}>
-          <Text style={styles.menuIcon}>⋮</Text>
-        </TouchableOpacity>
-      </View>
-
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-      >
-        {/* Chat Messages */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={item => item.id}
-          renderItem={renderMessage}
-          contentContainerStyle={styles.messagesContainer}
+        {/* Messages */}
+        <ScrollView
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.messagesContent}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={renderTypingIndicator}
-        />
+        >
+          {messages.map(msg => (
+            <View
+              key={msg.id}
+              style={[
+                styles.messageBubble,
+                msg.sender === 'user' ? styles.userBubble : styles.beanBubble,
+              ]}
+            >
+              {msg.sender === 'bean' && (
+                <Image
+                  source={require('../../assets/images/robot-first-page.png')}
+                  style={styles.beanAvatar}
+                  resizeMode="contain"
+                />
+              )}
+              <View
+                style={[
+                  styles.bubbleContent,
+                  msg.sender === 'user'
+                    ? styles.userBubbleContent
+                    : styles.beanBubbleContent,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.messageText,
+                    msg.sender === 'user' && styles.userMessageText,
+                  ]}
+                >
+                  {msg.text}
+                </Text>
+                <Text
+                  style={[
+                    styles.timestamp,
+                    msg.sender === 'user' && styles.userTimestamp,
+                  ]}
+                >
+                  {msg.timestamp}
+                </Text>
+              </View>
+            </View>
+          ))}
+
+          {/* Typing Indicator */}
+          {isTyping && (
+            <View style={[styles.messageBubble, styles.beanBubble]}>
+              <Image
+                source={require('../../assets/images/robot-first-page.png')}
+                style={styles.beanAvatar}
+                resizeMode="contain"
+              />
+              <View style={styles.typingIndicator}>
+                <Text style={styles.typingDot}>●</Text>
+                <Text style={styles.typingDot}>●</Text>
+                <Text style={styles.typingDot}>●</Text>
+              </View>
+            </View>
+          )}
+        </ScrollView>
 
         {/* Quick Replies */}
-        {quickReplies.length > 0 && (
-          <View style={styles.quickRepliesContainer}>
-            {quickReplies.map(reply => (
-              <TouchableOpacity
-                key={reply.id}
-                style={styles.quickReplyButton}
-                onPress={() => handleQuickReply(reply.text)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.quickReplyEmoji}>{reply.emoji}</Text>
-                <Text style={styles.quickReplyText}>{reply.text}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.quickRepliesContainer}
+        >
+          {quickReplies.map((reply, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.quickReplyButton}
+              onPress={() => setMessage(reply)}
+            >
+              <Text style={styles.quickReplyText}>{reply}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
-        {/* Input Section */}
+        {/* Input */}
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
             <TextInput
-              style={styles.textInput}
-              placeholder="Share your thoughts..."
-              placeholderTextColor="#999"
-              value={inputText}
-              onChangeText={setInputText}
+              style={styles.input}
+              placeholder="Type your message..."
+              placeholderTextColor={COLORS.TEXT_TERTIARY}
+              value={message}
+              onChangeText={setMessage}
               multiline
-              maxLength={500}
             />
+            <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
+              <Text style={styles.sendIcon}>➤</Text>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              !inputText.trim() && styles.sendButtonDisabled,
-            ]}
-            onPress={() => sendMessage(inputText)}
-            disabled={!inputText.trim()}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.sendIcon}>➤</Text>
-          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -365,272 +206,149 @@ const ChatScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  keyboardView: {
-    flex: 1,
+    backgroundColor: COLORS.WHITE,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#4ECCA3',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backIcon: {
-    fontSize: 28,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
+    backgroundColor: COLORS.WHITE,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.BORDER,
   },
   headerCenter: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 12,
+    gap: SPACING.SM,
   },
-  headerAvatarContainer: {
-    position: 'relative',
-    marginRight: 12,
-  },
-  headerAvatarImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
-    padding: 4,
-  },
-  onlineIndicator: {
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#4CAF50',
-    borderWidth: 2,
-    borderColor: '#4ECCA3',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#E0F2F1',
-    marginTop: 2,
-  },
-  menuButton: {
+  headerImage: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  menuIcon: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    fontWeight: '700',
+  headerTitle: {
+    ...TYPOGRAPHY.H4,
+    color: COLORS.TEXT_PRIMARY,
+  },
+  headerStatus: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.SUCCESS,
   },
   messagesContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    flex: 1,
+    backgroundColor: COLORS.BACKGROUND,
   },
-  messageContainer: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    alignItems: 'flex-end',
-  },
-  beanMessageContainer: {
-    justifyContent: 'flex-start',
-  },
-  userMessageContainer: {
-    justifyContent: 'flex-end',
-  },
-  beanAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#E0F2F1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
-    borderWidth: 2,
-    borderColor: '#4ECCA3',
-  },
-  avatarImage: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-  },
-  userAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  avatarLetter: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  messageBubbleContainer: {
-    maxWidth: '70%',
+  messagesContent: {
+    padding: SPACING.LG,
   },
   messageBubble: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  beanBubble: {
-    backgroundColor: '#FFFFFF',
-    borderBottomLeftRadius: 4,
+    flexDirection: 'row',
+    marginBottom: SPACING.LG,
+    alignItems: 'flex-end',
   },
   userBubble: {
-    backgroundColor: '#4ECCA3',
+    justifyContent: 'flex-end',
+  },
+  beanBubble: {
+    justifyContent: 'flex-start',
+  },
+  beanAvatar: {
+    width: 30,
+    height: 30,
+    marginRight: SPACING.SM,
+  },
+  bubbleContent: {
+    maxWidth: '75%',
+    borderRadius: SPACING.LG,
+    padding: SPACING.MD,
+  },
+  userBubbleContent: {
+    backgroundColor: COLORS.PRIMARY,
     borderBottomRightRadius: 4,
   },
-  messageText: {
-    fontSize: 15,
-    lineHeight: 21,
+  beanBubbleContent: {
+    backgroundColor: COLORS.WHITE,
+    borderBottomLeftRadius: 4,
   },
-  beanMessageText: {
-    color: '#1A1A1A',
+  messageText: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.XS,
   },
   userMessageText: {
-    color: '#FFFFFF',
+    color: COLORS.WHITE,
   },
   timestamp: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_TERTIARY,
     fontSize: 10,
-    color: '#999',
-    marginTop: 4,
   },
-  timestampLeft: {
-    alignSelf: 'flex-start',
-  },
-  timestampRight: {
-    alignSelf: 'flex-end',
-  },
-  typingBubble: {
-    paddingVertical: 16,
-  },
-  typingDots: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#4ECCA3',
-    marginHorizontal: 2,
-  },
-  dot1: {
-    opacity: 0.4,
-  },
-  dot2: {
-    opacity: 0.6,
-  },
-  dot3: {
+  userTimestamp: {
+    color: COLORS.WHITE,
     opacity: 0.8,
   },
-  quickRepliesContainer: {
+  typingIndicator: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.MD,
+    gap: SPACING.XS,
+  },
+  typingDot: {
+    fontSize: 20,
+    color: COLORS.PRIMARY,
+  },
+  quickRepliesContainer: {
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.SM,
+    backgroundColor: COLORS.WHITE,
   },
   quickReplyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#E8F5E9',
-    borderWidth: 1.5,
-    borderColor: '#4ECCA3',
-    gap: 6,
-  },
-  quickReplyEmoji: {
-    fontSize: 16,
+    backgroundColor: COLORS.SECONDARY_LIGHT,
+    borderRadius: SPACING.XL,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.SM,
+    marginRight: SPACING.SM,
   },
   quickReplyText: {
-    fontSize: 13,
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.PRIMARY,
     fontWeight: '600',
-    color: '#2E7D32',
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    gap: 10,
+    borderTopColor: COLORS.BORDER,
   },
   inputWrapper: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    backgroundColor: COLORS.GRAY_50,
+    borderRadius: SPACING.XL,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.SM,
   },
-  textInput: {
+  input: {
     flex: 1,
-    fontSize: 15,
-    color: '#333',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_PRIMARY,
     maxHeight: 100,
-    paddingVertical: 8,
   },
   sendButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#4ECCA3',
+    width: 40,
+    height: 40,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#4ECCA3',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#BDBDBD',
-    elevation: 0,
+    marginLeft: SPACING.SM,
   },
   sendIcon: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: '700',
+    fontSize: 18,
+    color: COLORS.WHITE,
   },
 });
 
