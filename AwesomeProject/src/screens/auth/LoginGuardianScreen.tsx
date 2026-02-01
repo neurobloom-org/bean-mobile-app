@@ -1,41 +1,40 @@
+// src/screens/auth/LoginGuardianScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React, { useState } from 'react';
 import {
   View,
   Text,
   Image,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
   SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { BackButton, PrimaryButton, Input } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const LoginGuardianScreen = ({ navigation }: any) => {
   const [emailWard, setEmailWard] = useState('');
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignIn = () => {
-    // Navigate directly to CaregiverDashboard (no validation for now)
     console.log('Sign in as Guardian - navigating to CaregiverDashboard');
     navigation.navigate('CaregiverDashboard');
   };
 
   const handleSocialLogin = (provider: string) => {
     console.log(`Login with ${provider}`);
-    // Add social login logic here
   };
 
   const handleAddWard = () => {
     console.log('Add ward');
-    // Add logic to add ward
   };
 
   const handleSignUp = () => {
-    // Navigate to CreateAccount with userType: 'guardian'
     navigation.navigate('CreateAccount', { userType: 'guardian' });
   };
 
@@ -50,12 +49,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
         >
           {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.backArrow}>←</Text>
-          </TouchableOpacity>
+          <BackButton />
 
           {/* Robot Icon */}
           <View style={styles.iconContainer}>
@@ -73,64 +67,39 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             <Text style={styles.boldText}>Guardian</Text>
           </Text>
 
-          {/* Email (Ward) Input */}
-          <View style={styles.inputContainer}>
-            <Image
-              source={require('../../assets/images/google.png')}
-              style={styles.inputIcon}
-              resizeMode="contain"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email (Ward)"
-              placeholderTextColor="#999999"
-              value={emailWard}
-              onChangeText={setEmailWard}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <TouchableOpacity onPress={handleAddWard}>
-              <Text style={styles.addButton}>+</Text>
+          {/* Email (Ward) Input with Add Button */}
+          <View style={styles.inputWithButtonContainer}>
+            <View style={{ flex: 1 }}>
+              <Input
+                placeholder="Email (Ward)"
+                value={emailWard}
+                onChangeText={setEmailWard}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+            <TouchableOpacity onPress={handleAddWard} style={styles.addButton}>
+              <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
           </View>
 
           {/* Email (Guardian) Input */}
-          <View style={styles.inputContainer}>
-            <Image
-              source={require('../../assets/images/google.png')}
-              style={styles.inputIcon}
-              resizeMode="contain"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email (Guardian)"
-              placeholderTextColor="#999999"
-              value={emailGuardian}
-              onChangeText={setEmailGuardian}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+          <Input
+            placeholder="Email (Guardian)"
+            value={emailGuardian}
+            onChangeText={setEmailGuardian}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
           {/* Password Input */}
-          <View style={styles.inputContainer}>
-            <Image
-              source={require('../../assets/images/google.png')}
-              style={styles.inputIcon}
-              resizeMode="contain"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password (Guardian)"
-              placeholderTextColor="#999999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
-            </TouchableOpacity>
-          </View>
+          <Input
+            placeholder="Password (Guardian)"
+            value={password}
+            onChangeText={setPassword}
+            isPassword
+            showPasswordToggle
+          />
 
           {/* Forgot Password */}
           <TouchableOpacity onPress={() => console.log('Forgot password')}>
@@ -174,13 +143,13 @@ const LoginGuardianScreen = ({ navigation }: any) => {
           </View>
 
           {/* Sign In Button */}
-          <TouchableOpacity
-            style={styles.signInButton}
+          <PrimaryButton
+            title="Sign In"
             onPress={handleSignIn}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.signInButtonText}>Sign In</Text>
-          </TouchableOpacity>
+            variant="primary"
+            size="large"
+            fullWidth
+          />
 
           {/* Sign Up Link */}
           <View style={styles.signUpContainer}>
@@ -198,135 +167,97 @@ const LoginGuardianScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.WHITE,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000000',
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XL,
+    paddingBottom: SPACING.XXL,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: SPACING.XL,
   },
   robotIcon: {
     width: 100,
     height: 100,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000000',
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: SPACING.MD,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY_LARGE,
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: SPACING.XXL,
   },
   boldText: {
     fontWeight: 'bold',
-    color: '#000000',
+    color: COLORS.TEXT_PRIMARY,
   },
-  inputContainer: {
+  inputWithButtonContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 16,
-  },
-  inputIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
-    tintColor: '#999999',
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#000000',
+    alignItems: 'flex-start',
+    gap: SPACING.SM,
+    marginBottom: SPACING.LG,
   },
   addButton: {
+    width: 50,
+    height: 50,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 0,
+  },
+  addButtonText: {
     fontSize: 28,
-    color: '#4ECCA3',
+    color: COLORS.WHITE,
     fontWeight: 'bold',
   },
-  eyeIcon: {
-    fontSize: 20,
-  },
   forgotPassword: {
-    fontSize: 14,
-    color: '#4ECCA3',
-    marginBottom: 24,
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.PRIMARY,
+    marginBottom: SPACING.XL,
     fontWeight: '600',
   },
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
-    marginBottom: 30,
+    gap: SPACING.XL,
+    marginBottom: SPACING.XXL,
   },
   socialButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.GRAY_50,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.BORDER,
   },
   socialIcon: {
     width: 30,
     height: 30,
   },
-  signInButton: {
-    backgroundColor: '#4ECCA3',
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#4ECCA3',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  signInButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: SPACING.LG,
   },
   signUpText: {
-    fontSize: 14,
-    color: '#666666',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
   },
   signUpLink: {
-    fontSize: 14,
-    color: '#4169E1',
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.LINK,
     fontWeight: '600',
   },
 });
