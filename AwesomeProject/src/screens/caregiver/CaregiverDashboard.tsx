@@ -1,204 +1,211 @@
+// src/screens/caregiver/CaregiverDashboard.tsx
+// ✅ REFACTORED VERSION
+
 import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
+  StyleSheet,
   SafeAreaView,
-  StatusBar,
   ScrollView,
+  Dimensions,
+  Alert,
 } from 'react-native';
+import { BackButton, PrimaryButton } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
-// Type definition for history events
-interface HistoryEvent {
-  title: string;
-  time: string;
-  icon: string;
-  iconBgColor: string;
-}
+const { width } = Dimensions.get('window');
 
 const CaregiverDashboard = ({ navigation }: any) => {
-  // Default values (0 or not done)
-  const monitoringUser = 'Max Smith'; // Can be made dynamic
-  const moodStatus = 'Stable';
-  const moodChange = '+0%';
-  const tasksPercentage = 0;
-  const tasksChangeWeekly = '+0% vs LW';
-  const focusTimeHours = 0;
-  const focusTimeMinutes = 0;
-  const focusChangeWeekly = '-0% vs LW';
+  const [selectedPeriod, setSelectedPeriod] = useState<
+    'week' | 'month' | 'year'
+  >('week');
 
-  // Default mood data for the week (all at baseline)
   const moodData = [
-    { day: 'Mon', value: 50 },
-    { day: 'Tue', value: 50 },
-    { day: 'Wed', value: 50 },
-    { day: 'Thu', value: 50 },
-    { day: 'Fri', value: 50 },
-    { day: 'Sat', value: 50 },
-    { day: 'Sun', value: 50 },
+    { day: 'Mon', mood: 'happy', score: 8 },
+    { day: 'Tue', mood: 'calm', score: 7 },
+    { day: 'Wed', mood: 'anxious', score: 4 },
+    { day: 'Thu', mood: 'calm', score: 7 },
+    { day: 'Fri', mood: 'happy', score: 9 },
+    { day: 'Sat', mood: 'happy', score: 8 },
+    { day: 'Sun', mood: 'calm', score: 7 },
   ];
 
-  // Default history (no events) - properly typed
-  const userHistory: HistoryEvent[] = [
-    // Empty by default - caregiver will see "No recent events" message
+  const activities = [
+    { activity: 'Meditation', count: 12, time: '60 min', icon: '🧘' },
+    { activity: 'Chat Sessions', count: 8, time: '40 min', icon: '💬' },
+    { activity: 'Focus Time', count: 5, time: '125 min', icon: '⏰' },
+    { activity: 'Tasks Completed', count: 18, time: '—', icon: '✅' },
   ];
+
+  const recentEntries = [
+    { date: 'Jan 28', mood: 'happy', note: 'Had a great day at work!' },
+    {
+      date: 'Jan 27',
+      mood: 'anxious',
+      note: 'Feeling stressed about deadlines',
+    },
+    { date: 'Jan 26', mood: 'calm', note: 'Peaceful morning meditation' },
+  ];
+
+  const getMoodEmoji = (mood: string) => {
+    const moodMap: { [key: string]: string } = {
+      happy: '😊',
+      calm: '😌',
+      anxious: '😰',
+      sad: '😢',
+      angry: '😠',
+    };
+    return moodMap[mood] || '😐';
+  };
+
+  const getMoodColor = (mood: string) => {
+    const colorMap: { [key: string]: string } = {
+      happy: COLORS.SUCCESS,
+      calm: COLORS.INFO,
+      anxious: COLORS.WARNING,
+      sad: COLORS.ERROR,
+      angry: COLORS.ERROR,
+    };
+    return colorMap[mood] || COLORS.GRAY_400;
+  };
 
   const handleExportReport = () => {
-    // TODO: Implement export functionality
-    console.log('Export Clinical Report');
+    Alert.alert('Export Report', 'Clinical report will be exported as PDF', [
+      { text: 'OK' },
+    ]);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Caregiver Dashboard</Text>
-          <Text style={styles.headerSubtitle}>
-            Monitoring: {monitoringUser}
-          </Text>
-        </View>
-        <TouchableOpacity style={styles.calendarButton}>
-          <Text style={styles.calendarIcon}>📅</Text>
-        </TouchableOpacity>
-      </View>
-
       <ScrollView
-        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Mood Trends Section */}
+        {/* Header */}
+        <BackButton />
+
+        <Text style={styles.title}>Caregiver Dashboard</Text>
+        <Text style={styles.subtitle}>Monitoring User's Wellness Journey</Text>
+
+        {/* Overview Cards */}
+        <View style={styles.overviewContainer}>
+          <View style={styles.overviewCard}>
+            <Text style={styles.overviewNumber}>7.5</Text>
+            <Text style={styles.overviewLabel}>Avg Mood</Text>
+            <Text style={styles.overviewTrend}>↑ +0.5</Text>
+          </View>
+
+          <View style={styles.overviewCard}>
+            <Text style={styles.overviewNumber}>43</Text>
+            <Text style={styles.overviewLabel}>Activities</Text>
+            <Text style={styles.overviewTrend}>This Week</Text>
+          </View>
+
+          <View style={styles.overviewCard}>
+            <Text style={styles.overviewNumber}>85%</Text>
+            <Text style={styles.overviewLabel}>Task Rate</Text>
+            <Text style={styles.overviewTrend}>↑ +5%</Text>
+          </View>
+        </View>
+
+        {/* Mood Trends */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Mood Trends</Text>
-          <Text style={styles.sectionSubtitle}>
-            Weekly wellness overview from the past 7 days
-          </Text>
-
-          <View style={styles.moodCard}>
-            {/* Status Badge */}
-            <View style={styles.statusContainer}>
-              <Text style={styles.statusLabel}>{moodStatus}</Text>
-              <Text style={styles.statusChange}>{moodChange} Improved</Text>
-            </View>
-
-            {/* Simple Line Graph */}
-            <View style={styles.graphContainer}>
-              <View style={styles.graphLine}>
-                {moodData.map((point, index) => (
-                  <View key={index} style={styles.graphPoint}>
-                    <View style={[styles.graphDot, { bottom: point.value }]} />
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            {/* Days Labels */}
-            <View style={styles.daysContainer}>
-              {moodData.map((point, index) => (
-                <Text key={index} style={styles.dayLabel}>
-                  {point.day}
-                </Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Mood Trends</Text>
+            <View style={styles.periodSelector}>
+              {(['week', 'month', 'year'] as const).map(period => (
+                <TouchableOpacity
+                  key={period}
+                  style={[
+                    styles.periodButton,
+                    selectedPeriod === period && styles.periodButtonActive,
+                  ]}
+                  onPress={() => setSelectedPeriod(period)}
+                >
+                  <Text
+                    style={[
+                      styles.periodText,
+                      selectedPeriod === period && styles.periodTextActive,
+                    ]}
+                  >
+                    {period}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </View>
           </View>
-        </View>
 
-        {/* Activity Overview Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Activity Overview</Text>
-
-          <View style={styles.activityRow}>
-            {/* Tasks Circle */}
-            <View style={styles.activityCard}>
-              <View style={styles.circleContainer}>
-                <View style={styles.circleOuter}>
-                  <View style={styles.circleInner}>
-                    <Text style={styles.circlePercentage}>
-                      {tasksPercentage}%
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.circleLabel}>Tasks</Text>
-              </View>
-              <Text style={styles.circleChange}>{tasksChangeWeekly}</Text>
-            </View>
-
-            {/* Focus Time Circle */}
-            <View style={styles.activityCard}>
-              <View style={styles.circleContainer}>
-                <View style={styles.circleOuter}>
-                  <View style={styles.circleInner}>
-                    <Text style={styles.circleTime}>
-                      {focusTimeHours}h{focusTimeMinutes}m
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.circleLabel}>Focus</Text>
-              </View>
-              <Text style={styles.circleChange}>{focusChangeWeekly}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Bean User History Section */}
-        <View style={styles.section}>
-          <View style={styles.historyHeader}>
-            <Text style={styles.sectionTitle}>Bean User History</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllLink}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-          {userHistory.length === 0 ? (
-            <View style={styles.noEventsCard}>
-              <Text style={styles.noEventsIcon}>✓</Text>
-              <Text style={styles.noEventsText}>No recent events</Text>
-              <Text style={styles.noEventsSubtext}>
-                Everything looks good! No alerts or concerns to report.
-              </Text>
-            </View>
-          ) : (
-            userHistory.map((event, index) => (
-              <TouchableOpacity key={index} style={styles.historyCard}>
+          <View style={styles.moodChart}>
+            {moodData.map((data, index) => (
+              <View key={index} style={styles.moodBar}>
                 <View
                   style={[
-                    styles.historyIcon,
-                    { backgroundColor: event.iconBgColor },
+                    styles.moodBarFill,
+                    {
+                      height: `${data.score * 10}%`,
+                      backgroundColor: getMoodColor(data.mood),
+                    },
                   ]}
-                >
-                  <Text style={styles.historyIconText}>{event.icon}</Text>
-                </View>
-                <View style={styles.historyContent}>
-                  <Text style={styles.historyTitle}>{event.title}</Text>
-                  <Text style={styles.historyTime}>{event.time}</Text>
-                </View>
-                <Text style={styles.historyArrow}>›</Text>
-              </TouchableOpacity>
-            ))
-          )}
+                />
+                <Text style={styles.moodBarLabel}>{data.day}</Text>
+                <Text style={styles.moodBarEmoji}>
+                  {getMoodEmoji(data.mood)}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
 
-        {/* Export Button */}
-        <TouchableOpacity
-          style={styles.exportButton}
-          onPress={handleExportReport}
-        >
-          <Text style={styles.exportButtonText}>Export Clinical Report</Text>
-          <Text style={styles.exportButtonIcon}>↓</Text>
-        </TouchableOpacity>
+        {/* Activity Overview */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Activity Overview</Text>
+          <View style={styles.activitiesGrid}>
+            {activities.map((item, index) => (
+              <View key={index} style={styles.activityCard}>
+                <Text style={styles.activityIcon}>{item.icon}</Text>
+                <Text style={styles.activityCount}>{item.count}</Text>
+                <Text style={styles.activityName}>{item.activity}</Text>
+                <Text style={styles.activityTime}>{item.time}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
 
-        {/* Extra padding at bottom */}
-        <View style={{ height: 40 }} />
+        {/* Recent Entries */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Journal Entries</Text>
+          {recentEntries.map((entry, index) => (
+            <View key={index} style={styles.entryCard}>
+              <View style={styles.entryHeader}>
+                <Text style={styles.entryDate}>{entry.date}</Text>
+                <Text style={styles.entryMood}>{getMoodEmoji(entry.mood)}</Text>
+              </View>
+              <Text style={styles.entryNote}>{entry.note}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Export Report Button */}
+        <PrimaryButton
+          title="Export Clinical Report"
+          onPress={handleExportReport}
+          variant="primary"
+          size="large"
+          fullWidth
+        />
+
+        {/* Emergency Alert */}
+        <View style={styles.alertCard}>
+          <Text style={styles.alertIcon}>🆘</Text>
+          <View style={styles.alertContent}>
+            <Text style={styles.alertTitle}>Emergency Contact</Text>
+            <Text style={styles.alertText}>
+              User can reach you anytime via SOS feature
+            </Text>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -207,296 +214,195 @@ const CaregiverDashboard = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000',
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  calendarButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  calendarIcon: {
-    fontSize: 24,
-  },
-  scrollView: {
-    flex: 1,
+    backgroundColor: COLORS.BACKGROUND,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    flexGrow: 1,
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XL,
+    paddingBottom: SPACING.XXL,
+  },
+  title: {
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
+    marginTop: SPACING.XL,
+  },
+  subtitle: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: SPACING.XXL,
+  },
+  overviewContainer: {
+    flexDirection: 'row',
+    gap: SPACING.MD,
+    marginBottom: SPACING.XL,
+  },
+  overviewCard: {
+    flex: 1,
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
+    alignItems: 'center',
+  },
+  overviewNumber: {
+    ...TYPOGRAPHY.H2,
+    color: COLORS.PRIMARY,
+    marginBottom: SPACING.XS,
+  },
+  overviewLabel: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: SPACING.XXS,
+  },
+  overviewTrend: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.SUCCESS,
+    fontWeight: '600',
   },
   section: {
-    marginBottom: 24,
+    marginBottom: SPACING.XL,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.LG,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 4,
+    ...TYPOGRAPHY.H3,
+    color: COLORS.TEXT_PRIMARY,
   },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 16,
-  },
-  moodCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statusContainer: {
+  periodSelector: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
+    backgroundColor: COLORS.GRAY_100,
+    borderRadius: SPACING.SM,
+    padding: SPACING.XXS,
   },
-  statusLabel: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#000',
-    marginRight: 8,
+  periodButton: {
+    paddingHorizontal: SPACING.MD,
+    paddingVertical: SPACING.XS,
+    borderRadius: SPACING.XS,
   },
-  statusChange: {
-    fontSize: 12,
-    color: '#4CAF50',
+  periodButtonActive: {
+    backgroundColor: COLORS.WHITE,
+  },
+  periodText: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_TERTIARY,
+    textTransform: 'capitalize',
+  },
+  periodTextActive: {
+    color: COLORS.TEXT_PRIMARY,
     fontWeight: '600',
   },
-  graphContainer: {
-    height: 120,
-    marginBottom: 12,
-    position: 'relative',
-  },
-  graphLine: {
-    flex: 1,
+  moodChart: {
     flexDirection: 'row',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
+    height: 200,
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    gap: SPACING.SM,
   },
-  graphPoint: {
+  moodBar: {
     flex: 1,
-    height: '100%',
     alignItems: 'center',
-    position: 'relative',
+    justifyContent: 'flex-end',
   },
-  graphDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#4CAF50',
-    position: 'absolute',
+  moodBarFill: {
+    width: '100%',
+    borderRadius: SPACING.XS,
+    marginBottom: SPACING.XS,
   },
-  daysContainer: {
+  moodBarLabel: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
+    fontSize: 10,
+    marginTop: SPACING.XS,
+  },
+  moodBarEmoji: {
+    fontSize: 16,
+    marginTop: SPACING.XXS,
+  },
+  activitiesGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-  },
-  dayLabel: {
-    fontSize: 11,
-    color: '#666',
-    flex: 1,
-    textAlign: 'center',
-  },
-  activityRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
+    flexWrap: 'wrap',
+    gap: SPACING.MD,
   },
   activityCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  circleContainer: {
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  circleOuter: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#E8F5E9',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  circleInner: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
+    width: (width - SPACING.XL * 2 - SPACING.MD) / 2,
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
     alignItems: 'center',
   },
-  circlePercentage: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#000',
+  activityIcon: {
+    fontSize: 32,
+    marginBottom: SPACING.SM,
   },
-  circleTime: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#000',
+  activityCount: {
+    ...TYPOGRAPHY.H2,
+    color: COLORS.PRIMARY,
+    marginBottom: SPACING.XXS,
   },
-  circleLabel: {
-    fontSize: 14,
+  activityName: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_PRIMARY,
     fontWeight: '600',
-    color: '#000',
+    marginBottom: SPACING.XXS,
   },
-  circleChange: {
-    fontSize: 12,
-    color: '#4CAF50',
-    fontWeight: '600',
+  activityTime: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
+    fontSize: 10,
   },
-  historyHeader: {
+  entryCard: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
+    marginBottom: SPACING.MD,
+  },
+  entryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: SPACING.SM,
   },
-  viewAllLink: {
-    fontSize: 14,
-    color: '#4CAF50',
+  entryDate: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
     fontWeight: '600',
   },
-  noEventsCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  noEventsIcon: {
-    fontSize: 48,
-    color: '#4CAF50',
-    marginBottom: 12,
-  },
-  noEventsText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 8,
-  },
-  noEventsSubtext: {
-    fontSize: 13,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  historyCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  historyIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  historyIconText: {
+  entryMood: {
     fontSize: 20,
   },
-  historyContent: {
+  entryNote: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_PRIMARY,
+  },
+  alertCard: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.ERROR_LIGHT,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
+    marginTop: SPACING.XL,
+    gap: SPACING.LG,
+    alignItems: 'center',
+  },
+  alertIcon: {
+    fontSize: 32,
+  },
+  alertContent: {
     flex: 1,
   },
-  historyTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 4,
+  alertTitle: {
+    ...TYPOGRAPHY.H4,
+    color: COLORS.ERROR,
+    marginBottom: SPACING.XXS,
   },
-  historyTime: {
-    fontSize: 12,
-    color: '#666',
-  },
-  historyArrow: {
-    fontSize: 24,
-    color: '#CCC',
-  },
-  exportButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 30,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  exportButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginRight: 8,
-  },
-  exportButtonIcon: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  alertText: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
   },
 });
 
