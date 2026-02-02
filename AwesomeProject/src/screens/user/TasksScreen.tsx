@@ -1,60 +1,61 @@
+// src/screens/user/TasksScreen.tsx
+// ✅ REFACTORED VERSION
+
 import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
+  StyleSheet,
   SafeAreaView,
-  StatusBar,
   ScrollView,
-  Image,
+  TextInput,
+  Alert,
 } from 'react-native';
+import { BackButton, PrimaryButton } from '../../components';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+
+interface Task {
+  id: number;
+  title: string;
+  category: 'personal' | 'medication' | 'routine';
+  completed: boolean;
+  time?: string;
+}
 
 const TasksScreen = ({ navigation }: any) => {
-  const [tasks, setTasks] = useState([
+  const [tasks, setTasks] = useState<Task[]>([
     {
       id: 1,
-      title: 'Hydrate: 1L Water',
-      category: 'Health',
-      subcategory: 'Low Energy',
-      completed: false,
+      title: 'Morning meditation',
+      category: 'routine',
+      completed: true,
+      time: '7:00 AM',
     },
     {
       id: 2,
-      title: '10-minute mindfulness',
-      category: 'Wellness',
-      subcategory: 'Meditation',
+      title: 'Take vitamins',
+      category: 'medication',
       completed: false,
+      time: '8:00 AM',
     },
     {
       id: 3,
-      title: 'Make the bed',
-      category: 'Routine',
-      subcategory: 'Done',
-      completed: true,
-    },
-  ]);
-
-  const [medications, setMedications] = useState([
-    {
-      id: 1,
-      name: 'Morning Vitamins',
-      time: '8:00 AM',
-      details: '2 capsules',
-      taken: false,
+      title: 'Journal entry',
+      category: 'personal',
+      completed: false,
+      time: '9:00 PM',
     },
     {
-      id: 2,
-      name: 'SSRI Medication',
-      time: 'Done at 6:15 AM',
-      details: '',
-      taken: true,
+      id: 4,
+      title: 'Evening walk',
+      category: 'routine',
+      completed: false,
+      time: '6:00 PM',
     },
   ]);
-
-  const dayStreak = 5;
-  const completedTasks = tasks.filter(t => t.completed).length;
-  const totalTasks = tasks.length;
+  const [newTask, setNewTask] = useState('');
+  const [showAddTask, setShowAddTask] = useState(false);
 
   const toggleTask = (id: number) => {
     setTasks(
@@ -64,204 +65,182 @@ const TasksScreen = ({ navigation }: any) => {
     );
   };
 
-  const takeMedication = (id: number) => {
-    setMedications(
-      medications.map(med => (med.id === id ? { ...med, taken: true } : med)),
-    );
+  const addTask = () => {
+    if (!newTask.trim()) {
+      Alert.alert('Error', 'Please enter a task');
+      return;
+    }
+
+    const task: Task = {
+      id: tasks.length + 1,
+      title: newTask,
+      category: 'personal',
+      completed: false,
+    };
+
+    setTasks([...tasks, task]);
+    setNewTask('');
+    setShowAddTask(false);
+  };
+
+  const deleteTask = (id: number) => {
+    Alert.alert('Delete Task', 'Are you sure you want to delete this task?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          setTasks(tasks.filter(task => task.id !== id));
+        },
+      },
+    ]);
+  };
+
+  const completedCount = tasks.filter(t => t.completed).length;
+  const totalCount = tasks.length;
+  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'medication':
+        return COLORS.ERROR;
+      case 'routine':
+        return COLORS.PRIMARY;
+      default:
+        return COLORS.INFO;
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F0F9F6" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Today's Focus</Text>
-        <TouchableOpacity style={styles.notificationButton}>
-          <Text style={styles.notificationIcon}>🔔</Text>
-        </TouchableOpacity>
-      </View>
-
       <ScrollView
-        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Streak Card */}
-        <View style={styles.streakCard}>
-          <View style={styles.streakLeft}>
-            <Text style={styles.streakMessage}>
-              Keep it up, you're doing great!
-            </Text>
-            <View style={styles.streakBadge}>
-              <Text style={styles.streakNumber}>{dayStreak}</Text>
-              <Text style={styles.streakLabel}>day streak</Text>
-            </View>
-          </View>
-          <View style={styles.fireIconContainer}>
-            <Text style={styles.fireIcon}>🔥</Text>
-          </View>
-        </View>
+        {/* Header */}
+        <BackButton />
 
-        {/* Daily Progress */}
-        <View style={styles.progressSection}>
+        <Text style={styles.title}>My Tasks</Text>
+        <Text style={styles.subtitle}>Stay organized and on track</Text>
+
+        {/* Progress Card */}
+        <View style={styles.progressCard}>
           <View style={styles.progressHeader}>
-            <Text style={styles.sectionTitle}>Daily Progress</Text>
-            <Text style={styles.progressText}>
-              {completedTasks} of {totalTasks} completed
+            <Text style={styles.progressTitle}>Today's Progress</Text>
+            <Text style={styles.progressNumber}>
+              {completedCount}/{totalCount}
             </Text>
           </View>
           <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBarFill,
-                { width: `${(completedTasks / totalTasks) * 100}%` },
-              ]}
-            />
+            <View style={[styles.progressBar, { width: `${progress}%` }]} />
+          </View>
+          <Text style={styles.progressText}>
+            {progress === 100
+              ? '🎉 All tasks completed!'
+              : `${Math.round(progress)}% complete`}
+          </Text>
+        </View>
+
+        {/* Streak Card */}
+        <View style={styles.streakCard}>
+          <Text style={styles.streakEmoji}>🔥</Text>
+          <View>
+            <Text style={styles.streakNumber}>7 Day Streak</Text>
+            <Text style={styles.streakText}>Keep it up!</Text>
           </View>
         </View>
 
-        {/* Medication Reminders */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Medication Reminders</Text>
-          {medications.map(med => (
-            <View
-              key={med.id}
-              style={[
-                styles.medicationCard,
-                med.taken && styles.medicationCardDone,
-              ]}
-            >
-              <View style={styles.medicationLeft}>
-                <View
-                  style={[
-                    styles.medicationIcon,
-                    med.taken && styles.medicationIconDone,
-                  ]}
-                >
-                  <Text style={styles.pillIcon}>{med.taken ? '✓' : '💊'}</Text>
-                </View>
-                <View style={styles.medicationInfo}>
-                  <Text
-                    style={[
-                      styles.medicationName,
-                      med.taken && styles.medicationNameDone,
-                    ]}
-                  >
-                    {med.name}
-                  </Text>
-                  <Text style={styles.medicationTime}>
-                    {med.time}
-                    {med.details ? ` • ${med.details}` : ''}
-                  </Text>
-                </View>
-              </View>
-              {!med.taken && (
-                <TouchableOpacity
-                  style={styles.takeButton}
-                  onPress={() => takeMedication(med.id)}
-                >
-                  <Text style={styles.takeButtonText}>Take</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          ))}
-        </View>
+        {/* Tasks List */}
+        <View style={styles.tasksSection}>
+          <Text style={styles.sectionTitle}>Tasks</Text>
 
-        {/* Today's Tasks */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's Tasks</Text>
           {tasks.map(task => (
-            <TouchableOpacity
-              key={task.id}
-              style={styles.taskCard}
-              onPress={() => toggleTask(task.id)}
-            >
-              <View style={styles.taskLeft}>
+            <View key={task.id} style={styles.taskCard}>
+              <TouchableOpacity
+                style={styles.checkbox}
+                onPress={() => toggleTask(task.id)}
+              >
                 <View
                   style={[
-                    styles.checkbox,
+                    styles.checkboxInner,
                     task.completed && styles.checkboxChecked,
                   ]}
                 >
                   {task.completed && <Text style={styles.checkmark}>✓</Text>}
                 </View>
-                <View style={styles.taskInfo}>
-                  <Text
-                    style={[
-                      styles.taskTitle,
-                      task.completed && styles.taskTitleCompleted,
-                    ]}
-                  >
-                    {task.title}
-                  </Text>
-                  <Text style={styles.taskCategory}>
-                    {task.category} • {task.subcategory}
-                  </Text>
-                </View>
-              </View>
-              <TouchableOpacity>
-                <Text style={styles.moreIcon}>⋮</Text>
               </TouchableOpacity>
-            </TouchableOpacity>
+
+              <View style={styles.taskContent}>
+                <Text
+                  style={[
+                    styles.taskTitle,
+                    task.completed && styles.taskTitleCompleted,
+                  ]}
+                >
+                  {task.title}
+                </Text>
+                {task.time && (
+                  <Text style={styles.taskTime}>⏰ {task.time}</Text>
+                )}
+              </View>
+
+              <View
+                style={[
+                  styles.categoryBadge,
+                  { backgroundColor: getCategoryColor(task.category) },
+                ]}
+              >
+                <Text style={styles.categoryText}>{task.category}</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => deleteTask(task.id)}
+              >
+                <Text style={styles.deleteIcon}>🗑️</Text>
+              </TouchableOpacity>
+            </View>
           ))}
         </View>
 
-        {/* Add Task Button */}
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-
-        {/* Bean Quote */}
-        <View style={styles.quoteCard}>
-          <Text style={styles.quoteText}>
-            "One step at a time is still moving forward. You're doing great
-            today!"
-          </Text>
-          <Text style={styles.quoteAuthor}>— BEAN</Text>
-        </View>
-
-        {/* Extra padding for scroll */}
-        <View style={{ height: 100 }} />
+        {/* Add Task Section */}
+        {showAddTask ? (
+          <View style={styles.addTaskContainer}>
+            <TextInput
+              style={styles.addTaskInput}
+              placeholder="Enter new task..."
+              value={newTask}
+              onChangeText={setNewTask}
+              autoFocus
+            />
+            <View style={styles.addTaskButtons}>
+              <PrimaryButton
+                title="Add"
+                onPress={addTask}
+                variant="primary"
+                size="medium"
+              />
+              <PrimaryButton
+                title="Cancel"
+                onPress={() => {
+                  setShowAddTask(false);
+                  setNewTask('');
+                }}
+                variant="outline"
+                size="medium"
+              />
+            </View>
+          </View>
+        ) : (
+          <PrimaryButton
+            title="+ Add New Task"
+            onPress={() => setShowAddTask(true)}
+            variant="outline"
+            size="large"
+            fullWidth
+          />
+        )}
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Home')}
-        >
-          <Text style={styles.navIconInactive}>⌂</Text>
-          <Text style={styles.navLabelInactive}>Today</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIconActive}>✓</Text>
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Stats</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Games')}
-        >
-          <Text style={styles.navIconInactive}>◆</Text>
-          <Text style={styles.navLabelInactive}>Bean</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Text style={styles.navIconInactive}>◉</Text>
-          <Text style={styles.navLabelInactive}>Profile</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 };
@@ -269,335 +248,169 @@ const TasksScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0F9F6',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#F0F9F6',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
-  },
-  notificationButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  notificationIcon: {
-    fontSize: 24,
-  },
-  scrollView: {
-    flex: 1,
+    backgroundColor: COLORS.BACKGROUND,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    flexGrow: 1,
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XL,
+    paddingBottom: SPACING.XXL,
   },
-  streakCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+  title: {
+    ...TYPOGRAPHY.H1,
+    color: COLORS.TEXT_PRIMARY,
+    marginTop: SPACING.XL,
   },
-  streakLeft: {
-    flex: 1,
+  subtitle: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: SPACING.XXL,
   },
-  streakMessage: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  streakBadge: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  streakNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#4CAF50',
-    marginRight: 6,
-  },
-  streakLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#4CAF50',
-  },
-  fireIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#E8F5E9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fireIcon: {
-    fontSize: 32,
-  },
-  progressSection: {
-    marginBottom: 24,
+  progressCard: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.XL,
+    marginBottom: SPACING.LG,
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.MD,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 16,
+  progressTitle: {
+    ...TYPOGRAPHY.H4,
+    color: COLORS.TEXT_PRIMARY,
   },
-  progressText: {
-    fontSize: 14,
-    color: '#666',
+  progressNumber: {
+    ...TYPOGRAPHY.H3,
+    color: COLORS.PRIMARY,
   },
   progressBarContainer: {
-    height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
+    height: 12,
+    backgroundColor: COLORS.GRAY_200,
+    borderRadius: 6,
+    marginBottom: SPACING.SM,
     overflow: 'hidden',
   },
-  progressBarFill: {
+  progressBar: {
     height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 4,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 6,
   },
-  section: {
-    marginBottom: 24,
+  progressText: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
   },
-  medicationCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  medicationCardDone: {
-    backgroundColor: '#F5F5F5',
-  },
-  medicationLeft: {
+  streakCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    backgroundColor: COLORS.SUCCESS_LIGHT,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
+    marginBottom: SPACING.XL,
+    gap: SPACING.LG,
   },
-  medicationIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFF9C4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
+  streakEmoji: {
+    fontSize: 40,
   },
-  medicationIconDone: {
-    backgroundColor: '#E8F5E9',
+  streakNumber: {
+    ...TYPOGRAPHY.H3,
+    color: COLORS.SUCCESS,
   },
-  pillIcon: {
-    fontSize: 24,
+  streakText: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
   },
-  medicationInfo: {
-    flex: 1,
+  tasksSection: {
+    marginBottom: SPACING.XL,
   },
-  medicationName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  medicationNameDone: {
-    color: '#999',
-  },
-  medicationTime: {
-    fontSize: 13,
-    color: '#666',
-  },
-  takeButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  takeButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
+  sectionTitle: {
+    ...TYPOGRAPHY.H3,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.LG,
   },
   taskCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  taskLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
+    marginBottom: SPACING.MD,
+    gap: SPACING.MD,
   },
   checkbox: {
+    padding: SPACING.XS,
+  },
+  checkboxInner: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#4CAF50',
-    marginRight: 12,
+    borderColor: COLORS.GRAY_400,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: COLORS.PRIMARY,
+    borderColor: COLORS.PRIMARY,
   },
   checkmark: {
+    color: COLORS.WHITE,
     fontSize: 14,
-    color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  taskInfo: {
+  taskContent: {
     flex: 1,
   },
   taskTitle: {
-    fontSize: 16,
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_PRIMARY,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
   },
   taskTitleCompleted: {
     textDecorationLine: 'line-through',
-    color: '#999',
+    color: COLORS.TEXT_TERTIARY,
   },
-  taskCategory: {
-    fontSize: 13,
-    color: '#666',
+  taskTime: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: SPACING.XXS,
   },
-  moreIcon: {
-    fontSize: 20,
-    color: '#999',
-    paddingHorizontal: 8,
+  categoryBadge: {
+    paddingHorizontal: SPACING.SM,
+    paddingVertical: SPACING.XXS,
+    borderRadius: SPACING.SM,
   },
-  addButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    marginBottom: 24,
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  addButtonText: {
-    fontSize: 32,
-    color: '#FFFFFF',
-    fontWeight: '300',
-  },
-  quoteCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
-  },
-  quoteText: {
-    fontSize: 14,
-    color: '#333',
-    fontStyle: 'italic',
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  quoteAuthor: {
-    fontSize: 12,
-    color: '#666',
+  categoryText: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.WHITE,
+    fontSize: 10,
     fontWeight: '600',
-    textAlign: 'right',
   },
-  bottomNav: {
+  deleteButton: {
+    padding: SPACING.XS,
+  },
+  deleteIcon: {
+    fontSize: 18,
+  },
+  addTaskContainer: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.LG,
+    padding: SPACING.LG,
+  },
+  addTaskInput: {
+    ...TYPOGRAPHY.BODY,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
+    borderRadius: SPACING.MD,
+    padding: SPACING.MD,
+    marginBottom: SPACING.MD,
+  },
+  addTaskButtons: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 6,
-  },
-  navIconActive: {
-    fontSize: 26,
-    marginBottom: 2,
-    color: '#4CAF50',
-    fontWeight: 'bold',
-  },
-  navIconInactive: {
-    fontSize: 26,
-    marginBottom: 2,
-    color: '#9E9E9E',
-  },
-  navLabel: {
-    fontSize: 11,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  navLabelActive: {
-    color: '#4CAF50',
-    fontWeight: '600',
-  },
-  navLabelInactive: {
-    color: '#9E9E9E',
-    fontWeight: '500',
+    gap: SPACING.MD,
   },
 });
 
