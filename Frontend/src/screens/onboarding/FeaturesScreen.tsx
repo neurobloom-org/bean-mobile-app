@@ -55,27 +55,27 @@ const FeaturesScreen = ({ navigation }: any) => {
         {/* Features List */}
         <View style={styles.featuresContainer}>
           <FeatureItem
-            iconSource={require('../../assets/images/mood-tracking.png')}
+            iconSource={require('../../../assets/images/mood-tracking.png')}
             title="Mood Tracking"
             subtitle="Track how you feel daily"
           />
           <FeatureItem
-            iconSource={require('../../assets/images/tasks-and-routines.png')}
+            iconSource={require('../../../assets/images/tasks-and-routines.png')}
             title="Tasks & Routines"
             subtitle="Stay organized"
           />
           <FeatureItem
-            iconSource={require('../../assets/images/focus-timer.png')}
+            iconSource={require('../../../assets/images/focus-timer.png')}
             title="Focus Timer"
             subtitle="Stay productive"
           />
           <FeatureItem
-            iconSource={require('../../assets/images/sos-alert.png')}
+            iconSource={require('../../../assets/images/sos-alert.png')}
             title="SOS Alert"
             subtitle="Quick help when needed"
           />
           <FeatureItem
-            iconSource={require('../../assets/images/meditation.png')}
+            iconSource={require('../../../assets/images/meditation.png')}
             title="Meditation"
             subtitle="Find your calm"
           />

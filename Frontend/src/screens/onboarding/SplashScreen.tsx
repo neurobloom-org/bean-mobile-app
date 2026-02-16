@@ -92,7 +92,7 @@ const SplashScreen = ({ navigation }: any) => {
         ]}
       >
         <Image
-          source={require('../../assets/images/Bean-image.png')}
+          source={require('../../../assets/images/Bean-image.png')}
           style={styles.beanLogoImage}
           resizeMode="contain"
         />
@@ -108,7 +108,7 @@ const SplashScreen = ({ navigation }: any) => {
         ]}
       >
         <Image
-          source={require('../../assets/images/select-user.png')}
+          source={require('../../../assets/images/select-user.png')}
           style={styles.faceIcon}
           resizeMode="contain"
         />
@@ -125,7 +125,7 @@ const SplashScreen = ({ navigation }: any) => {
         ]}
       >
         <Image
-          source={require('../../assets/images/neurobloom-logo.png')}
+          source={require('../../../assets/images/neurobloom-logo.png')}
           style={styles.neurobloomLogo}
           resizeMode="contain"
         />

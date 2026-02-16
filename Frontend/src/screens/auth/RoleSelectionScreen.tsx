@@ -88,8 +88,8 @@ const RoleSelectionScreen = ({ navigation }: any) => {
                 <Image
                   source={
                     selectedRole === 'user'
-                      ? require('../../assets/images/select-user-green.png')
-                      : require('../../assets/images/select-user.png')
+                      ? require('../../../assets/images/select-user-green.png')
+                      : require('../../../assets/images/select-user.png')
                   }
                   style={styles.roleIcon}
                   resizeMode="contain"
@@ -136,8 +136,8 @@ const RoleSelectionScreen = ({ navigation }: any) => {
                 <Image
                   source={
                     selectedRole === 'guardian'
-                      ? require('../../assets/images/select-guardian-green.png')
-                      : require('../../assets/images/select-guardian.png')
+                      ? require('../../../assets/images/select-guardian-green.png')
+                      : require('../../../assets/images/select-guardian.png')
                   }
                   style={styles.roleIcon}
                   resizeMode="contain"
