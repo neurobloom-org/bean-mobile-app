@@ -30,7 +30,7 @@ const PrivacyScreen = ({ navigation }: any) => {
         {/* Privacy Icon */}
         <View style={styles.iconContainer}>
           <Image
-            source={require('../../assets/images/privacy-page-image.png')}
+            source={require('../../../assets/images/privacy-page-image.png')}
             style={styles.privacyIcon}
             resizeMode="contain"
           />

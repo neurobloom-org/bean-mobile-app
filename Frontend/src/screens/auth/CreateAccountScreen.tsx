@@ -1,6 +1,6 @@
 // src/screens/auth/CreateAccountScreen.tsx
 // ✅ REFACTORED VERSION
-
+import { supabase } from '../../lib/supabase';
 import React, { useState } from 'react';
 import {
   View,
@@ -24,35 +24,46 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateAccount = () => {
-    if (userType === 'user') {
-      console.log('User account created - navigating to HomeScreen');
-      navigation.navigate('Home');
-      return;
-    }
+  const handleCreateAccount = async () => {
+  // Validation (Apply to both types for safety)
+  if (!fullName.trim() || !email.trim() || password.length < 6) {
+    Alert.alert('Error', 'Please fill in all fields correctly (Password min 6 chars)');
+    return;
+  }
 
-    // Validation for guardians
-    if (!fullName.trim()) {
-      Alert.alert('Error', 'Please enter your full name');
-      return;
-    }
-    if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
-    }
-    if (!phoneNumber.trim() || phoneNumber.length < 9) {
-      Alert.alert('Error', 'Please enter a valid phone number');
-      return;
-    }
-    if (!password.trim() || password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
-      return;
-    }
+  setIsLoading(true);
 
-    console.log('Guardian account created - navigating to CaregiverDashboard');
-    navigation.navigate('CaregiverDashboard');
-  };
+  try {
+    // 2. Call Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          full_name: fullName,
+          phone: phoneNumber,
+          user_type: userType, // 'user' or 'guardian'
+        },
+      },
+    });
+
+    if (error) throw error;
+
+    // 3. Success Feedback
+    Alert.alert(
+      'Registration Successful',
+      'Please check your email to verify your account before signing in.',
+      [{ text: 'OK', onPress: () => navigation.navigate(userType === 'user' ? 'LoginUser' : 'LoginGuardian') }]
+    );
+
+  } catch (error: any) {
+    Alert.alert('Registration Error', error.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleSocialLogin = (provider: string) => {
     console.log(`${provider} login`);
@@ -132,8 +143,9 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
 
           {/* Create Account Button */}
           <PrimaryButton
-            title="Create Account"
+            title={isLoading ? "Creating Account..." : "Create Account"}
             onPress={handleCreateAccount}
+            disabled={isLoading}
             variant="primary"
             size="large"
             fullWidth
@@ -161,7 +173,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               onPress={() => handleSocialLogin('Google')}
             >
               <Image
-                source={require('../../assets/images/google.png')}
+                source={require('../../../assets/images/google.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
@@ -172,7 +184,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               onPress={() => handleSocialLogin('Facebook')}
             >
               <Image
-                source={require('../../assets/images/fb.png')}
+                source={require('../../../assets/images/fb.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
@@ -183,7 +195,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               onPress={() => handleSocialLogin('Apple')}
             >
               <Image
-                source={require('../../assets/images/apple.png')}
+                source={require('../../../assets/images/apple.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />

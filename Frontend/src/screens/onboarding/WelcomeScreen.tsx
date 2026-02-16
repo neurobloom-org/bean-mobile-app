@@ -26,7 +26,7 @@ const WelcomeScreen = ({ navigation }: any) => {
         {/* Robot Image */}
         <View style={styles.imageContainer}>
           <Image
-            source={require('../../assets/images/robot-first-page.png')}
+            source={require('../../../assets/images/robot-first-page.png')}
             style={styles.robotImage}
             resizeMode="contain"
           />

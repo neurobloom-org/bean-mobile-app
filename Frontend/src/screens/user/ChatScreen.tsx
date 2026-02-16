@@ -87,7 +87,7 @@ const ChatScreen = ({ navigation }: any) => {
           <BackButton />
           <View style={styles.headerCenter}>
             <Image
-              source={require('../../assets/images/robot-first-page.png')}
+              source={require('../../../assets/images/robot-first-page.png')}
               style={styles.headerImage}
               resizeMode="contain"
             />
@@ -115,7 +115,7 @@ const ChatScreen = ({ navigation }: any) => {
             >
               {msg.sender === 'bean' && (
                 <Image
-                  source={require('../../assets/images/robot-first-page.png')}
+                  source={require('../../../assets/images/robot-first-page.png')}
                   style={styles.beanAvatar}
                   resizeMode="contain"
                 />
@@ -152,7 +152,7 @@ const ChatScreen = ({ navigation }: any) => {
           {isTyping && (
             <View style={[styles.messageBubble, styles.beanBubble]}>
               <Image
-                source={require('../../assets/images/robot-first-page.png')}
+                source={require('../../../assets/images/robot-first-page.png')}
                 style={styles.beanAvatar}
                 resizeMode="contain"
               />

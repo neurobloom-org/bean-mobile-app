@@ -79,7 +79,7 @@ const FocusModeScreen = ({ navigation }: any) => {
           {/* Bean Character */}
           <View style={styles.beanContainer}>
             <Image
-              source={require('../../assets/images/robot-first-page.png')}
+              source={require('../../../assets/images/robot-first-page.png')}
               style={styles.beanImage}
               resizeMode="contain"
             />
