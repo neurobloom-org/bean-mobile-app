@@ -1,5 +1,5 @@
 // src/screens/auth/ConnectBeanScreen.tsx
-// ✅ Connect Bean Robot Screen - Enter 6-digit code
+// ✅ UPDATED - No validation, navigates to BeanConnected
 
 import React, { useState, useRef } from 'react';
 import {
@@ -44,21 +44,12 @@ const ConnectBeanScreen = ({ navigation }: any) => {
   };
 
   const handleConfirm = () => {
+    // NO VALIDATION - Just navigate to BeanConnected screen
     const fullCode = code.join('');
-
-    if (fullCode.length < 6) {
-      Alert.alert(
-        'Incomplete Code',
-        'Please enter all 6 digits of the robot code.',
-      );
-      return;
-    }
-
-    // Here you would validate the code with your backend
     console.log('Robot code entered:', fullCode);
 
-    // Navigate to Home screen
-    navigation.navigate('Home');
+    // Navigate to Bean Connected success screen
+    navigation.navigate('BeanConnected');
   };
 
   const handleCheckPaperWorks = () => {
@@ -142,7 +133,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Confirm Button */}
+        {/* Confirm Button - No validation! */}
         <PrimaryButton
           title="Confirm"
           onPress={handleConfirm}

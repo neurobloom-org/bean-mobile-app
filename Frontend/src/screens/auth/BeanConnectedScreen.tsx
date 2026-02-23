@@ -57,7 +57,7 @@ const BeanConnectedScreen = ({ navigation }: any) => {
             </View>
             <Text style={styles.statusLabel}>Battery Level</Text>
             <View style={styles.statusBadge}>
-              <Text style={styles.statusBadgeText}>85%</Text>
+              <Text style={styles.statusBadgeText}>0%</Text>
             </View>
           </View>
         </View>
