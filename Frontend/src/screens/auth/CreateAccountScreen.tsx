@@ -1,5 +1,5 @@
 // src/screens/auth/CreateAccountScreen.tsx
-// ✅ REFACTORED VERSION
+// ✅ UPDATED VERSION - Matches new design
 
 import React, { useState } from 'react';
 import {
@@ -22,17 +22,11 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleCreateAccount = () => {
-    if (userType === 'user') {
-      console.log('User account created - navigating to HomeScreen');
-      navigation.navigate('Home');
-      return;
-    }
-
-    // Validation for guardians
+    // Validation
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -41,17 +35,25 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
-    if (!phoneNumber.trim() || phoneNumber.length < 9) {
-      Alert.alert('Error', 'Please enter a valid phone number');
-      return;
-    }
     if (!password.trim() || password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
 
-    console.log('Guardian account created - navigating to CaregiverDashboard');
-    navigation.navigate('CaregiverDashboard');
+    // Navigate based on user type
+    if (userType === 'user') {
+      console.log('User account created - navigating to HomeScreen');
+      navigation.navigate('Home');
+    } else {
+      console.log(
+        'Guardian account created - navigating to CaregiverDashboard',
+      );
+      navigation.navigate('CaregiverDashboard');
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -84,45 +86,52 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           <BackButton />
 
           {/* Title */}
-          <Text style={styles.title}>Create Account!</Text>
+          <Text style={styles.screenTitle}>Create Account</Text>
+
+          {/* Sign Up Type Title */}
+          <Text style={styles.title}>
+            {userType === 'guardian' ? 'Guardian Sign Up' : 'User Sign Up'}
+          </Text>
+
+          {/* Robot Icon */}
+          <View style={styles.iconContainer}>
+            <Image
+              source={require('../../../assets/images/select-user.png')}
+              style={styles.robotIcon}
+              resizeMode="contain"
+            />
+          </View>
+
+          {/* Subtitle */}
           <Text style={styles.subtitle}>
-            Join Bean today as{' '}
-            {userType === 'guardian' ? 'a Guardian' : 'a User'}!
+            {userType === 'guardian'
+              ? 'Create an account to support your loved one'
+              : 'Sign up to start your journey with Bean, your mental health companion.'}
           </Text>
 
           {/* Full Name Input */}
+          <Text style={styles.label}>FULL NAME</Text>
           <Input
-            placeholder="Full Name"
+            placeholder="John Doe"
             value={fullName}
             onChangeText={setFullName}
             autoCapitalize="words"
           />
 
           {/* Email Input */}
+          <Text style={styles.label}>EMAIL ADDRESS</Text>
           <Input
-            placeholder="Email"
+            placeholder="bean@example.com"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
 
-          {/* Phone Number Input */}
-          <View style={styles.phoneInputContainer}>
-            <Text style={styles.phoneIcon}>📱</Text>
-            <Input
-              placeholder="Phone Number (+94......)"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              keyboardType="phone-pad"
-            />
-          </View>
-
           {/* Password Input */}
+          <Text style={styles.label}>PASSWORD</Text>
           <Input
-            placeholder={`Password (${
-              userType === 'guardian' ? 'Guardian / Therapist' : 'User'
-            })`}
+            placeholder="••••••••"
             value={password}
             onChangeText={setPassword}
             isPassword
@@ -130,28 +139,29 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Create Account Button */}
+          {/* Confirm Password Input */}
+          <Text style={styles.label}>CONFIRM PASSWORD</Text>
+          <Input
+            placeholder="••••••••"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            isPassword
+            showPasswordToggle
+            autoCapitalize="none"
+          />
+
+          {/* Sign Up Button */}
           <PrimaryButton
-            title="Create Account"
+            title="Sign Up"
             onPress={handleCreateAccount}
             variant="primary"
             size="large"
             fullWidth
           />
 
-          {/* Already have account link */}
-          <View style={styles.signInContainer}>
-            <Text style={styles.signInText}>Already have an account? </Text>
-            <TouchableOpacity onPress={handleSignIn}>
-              <Text style={styles.signInLink}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
-
           {/* Divider */}
           <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>or continue with</Text>
-            <View style={styles.divider} />
+            <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
           </View>
 
           {/* Social Login Buttons */}
@@ -189,6 +199,14 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               />
             </TouchableOpacity>
           </View>
+
+          {/* Sign In Link */}
+          <View style={styles.signInContainer}>
+            <Text style={styles.signInText}>Already have an account? </Text>
+            <TouchableOpacity onPress={handleSignIn}>
+              <Text style={styles.signInLink}>Sign In</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -203,36 +221,89 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
-    paddingTop: SPACING.XL,
+    paddingTop: SPACING.MD,
     paddingBottom: SPACING.XXL,
   },
-  title: {
-    ...TYPOGRAPHY.H1,
+  screenTitle: {
+    ...TYPOGRAPHY.H3,
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: SPACING.SM,
+    marginBottom: SPACING.LG,
+    fontWeight: '600',
   },
-  subtitle: {
-    ...TYPOGRAPHY.BODY_LARGE,
-    color: COLORS.TEXT_SECONDARY,
+  title: {
+    ...TYPOGRAPHY.H2,
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: SPACING.XXL,
+    marginBottom: SPACING.LG,
+    fontWeight: 'bold',
   },
-  phoneInputContainer: {
-    flexDirection: 'row',
+  iconContainer: {
     alignItems: 'center',
     marginBottom: SPACING.LG,
   },
-  phoneIcon: {
-    fontSize: 20,
-    marginRight: SPACING.SM,
+  robotIcon: {
+    width: 80,
+    height: 80,
+  },
+  subtitle: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    marginBottom: SPACING.XXL,
+    lineHeight: 20,
+    paddingHorizontal: SPACING.LG,
+  },
+  label: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_TERTIARY,
+    marginBottom: SPACING.XS,
+    marginTop: SPACING.SM,
+    letterSpacing: 0.5,
+    fontWeight: '600',
+  },
+  dividerContainer: {
+    alignItems: 'center',
+    marginVertical: SPACING.XL,
+  },
+  dividerText: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_TERTIARY,
+    letterSpacing: 1,
+  },
+  socialContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: SPACING.XL,
+    marginBottom: SPACING.XL,
+  },
+  socialButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.WHITE,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.BORDER,
+    shadowColor: COLORS.BLACK,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  socialIcon: {
+    width: 28,
+    height: 28,
   },
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: SPACING.LG,
-    marginBottom: SPACING.XL,
+    marginTop: SPACING.MD,
   },
   signInText: {
     ...TYPOGRAPHY.BODY,
@@ -242,41 +313,6 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.BODY,
     color: COLORS.LINK,
     fontWeight: '600',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.XL,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: COLORS.BORDER,
-  },
-  dividerText: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
-    marginHorizontal: SPACING.LG,
-  },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: SPACING.XL,
-    marginBottom: SPACING.XL,
-  },
-  socialButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: COLORS.GRAY_50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: COLORS.BORDER,
-  },
-  socialIcon: {
-    width: 30,
-    height: 30,
   },
 });
 
