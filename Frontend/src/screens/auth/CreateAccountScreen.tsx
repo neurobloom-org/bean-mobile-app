@@ -161,7 +161,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               onPress={() => handleSocialLogin('Google')}
             >
               <Image
-                source={require('../../assets/images/google.png')}
+                source={require('../../../assets/images/google.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
@@ -172,7 +172,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               onPress={() => handleSocialLogin('Facebook')}
             >
               <Image
-                source={require('../../assets/images/fb.png')}
+                source={require('../../../assets/images/fb.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
@@ -183,7 +183,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               onPress={() => handleSocialLogin('Apple')}
             >
               <Image
-                source={require('../../assets/images/apple.png')}
+                source={require('../../../assets/images/apple.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />

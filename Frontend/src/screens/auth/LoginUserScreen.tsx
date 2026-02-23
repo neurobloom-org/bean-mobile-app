@@ -54,7 +54,7 @@ const LoginUserScreen = ({ navigation }: any) => {
           {/* Robot Icon */}
           <View style={styles.iconContainer}>
             <Image
-              source={require('../../assets/images/robot-first-page.png')}
+              source={require('../../../assets/images/robot-first-page.png')}
               style={styles.robotIcon}
               resizeMode="contain"
             />
@@ -96,7 +96,7 @@ const LoginUserScreen = ({ navigation }: any) => {
               onPress={() => handleSocialLogin('Google')}
             >
               <Image
-                source={require('../../assets/images/google.png')}
+                source={require('../../../assets/images/google.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
@@ -107,7 +107,7 @@ const LoginUserScreen = ({ navigation }: any) => {
               onPress={() => handleSocialLogin('Facebook')}
             >
               <Image
-                source={require('../../assets/images/fb.png')}
+                source={require('../../../assets/images/fb.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
@@ -118,7 +118,7 @@ const LoginUserScreen = ({ navigation }: any) => {
               onPress={() => handleSocialLogin('Apple')}
             >
               <Image
-                source={require('../../assets/images/apple.png')}
+                source={require('../../../assets/images/apple.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
