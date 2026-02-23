@@ -1,5 +1,5 @@
 // src/screens/auth/CreateAccountScreen.tsx
-// ✅ UPDATED VERSION - Matches new design
+// ✅ UPDATED - Navigates to ConnectBean for users
 
 import React, { useState } from 'react';
 import {
@@ -46,12 +46,14 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
 
     // Navigate based on user type
     if (userType === 'user') {
-      console.log('User account created - navigating to HomeScreen');
-      navigation.navigate('Home');
+      console.log('User account created - navigating to ConnectBean');
+      // Users need to connect their Bean robot
+      navigation.navigate('ConnectBean');
     } else {
       console.log(
         'Guardian account created - navigating to CaregiverDashboard',
       );
+      // Guardians go directly to dashboard
       navigation.navigate('CaregiverDashboard');
     }
   };
@@ -220,67 +222,67 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: SPACING.XL,
-    paddingTop: SPACING.MD,
-    paddingBottom: SPACING.XXL,
+    paddingHorizontal: SPACING.XL, // 24px
+    paddingTop: SPACING.XS, // 4px
+    paddingBottom: SPACING.XL, // 24px
   },
   screenTitle: {
-    ...TYPOGRAPHY.H3,
+    fontSize: 18,
+    fontWeight: '600',
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: SPACING.LG,
-    fontWeight: '600',
+    marginBottom: SPACING.SM, // 8px
   },
   title: {
-    ...TYPOGRAPHY.H2,
+    fontSize: 26,
+    fontWeight: 'bold',
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: SPACING.LG,
-    fontWeight: 'bold',
+    marginBottom: SPACING.MD, // 12px
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: SPACING.LG,
+    marginBottom: SPACING.SM, // 8px
   },
   robotIcon: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
   },
   subtitle: {
-    ...TYPOGRAPHY.BODY,
+    fontSize: 13,
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: SPACING.XXL,
-    lineHeight: 20,
-    paddingHorizontal: SPACING.LG,
+    marginBottom: SPACING.LG, // 16px
+    lineHeight: 18,
+    paddingHorizontal: SPACING.MD,
   },
   label: {
-    ...TYPOGRAPHY.CAPTION,
+    fontSize: 11,
     color: COLORS.TEXT_TERTIARY,
-    marginBottom: SPACING.XS,
-    marginTop: SPACING.SM,
+    marginBottom: 6,
+    marginTop: 6,
     letterSpacing: 0.5,
     fontWeight: '600',
   },
   dividerContainer: {
     alignItems: 'center',
-    marginVertical: SPACING.XL,
+    marginVertical: SPACING.MD, // 12px
   },
   dividerText: {
-    ...TYPOGRAPHY.CAPTION,
+    fontSize: 11,
     color: COLORS.TEXT_TERTIARY,
     letterSpacing: 1,
   },
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: SPACING.XL,
-    marginBottom: SPACING.XL,
+    gap: SPACING.LG, // 16px
+    marginBottom: SPACING.MD, // 12px
   },
   socialButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: COLORS.WHITE,
     justifyContent: 'center',
     alignItems: 'center',
@@ -292,25 +294,26 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 3,
+    elevation: 2,
   },
   socialIcon: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
   },
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: SPACING.MD,
+    marginTop: SPACING.XS, // 4px
+    marginBottom: SPACING.SM, // 8px
   },
   signInText: {
-    ...TYPOGRAPHY.BODY,
+    fontSize: 13,
     color: COLORS.TEXT_SECONDARY,
   },
   signInLink: {
-    ...TYPOGRAPHY.BODY,
+    fontSize: 13,
     color: COLORS.LINK,
     fontWeight: '600',
   },
