@@ -16,6 +16,7 @@ import ChatScreen from '../screens/user/ChatScreen';
 import FocusModeScreen from '../screens/user/FocusModeScreen';
 import TasksScreen from '../screens/user/TasksScreen';
 import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
+import PairingScreen from '../screens/user/PairingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +43,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="FocusMode" component={FocusModeScreen} />
         <Stack.Screen name="Tasks" component={TasksScreen} />
+        <Stack.Screen name="PairingScreen" component={PairingScreen} />
         <Stack.Screen
           name="CaregiverDashboard"
           component={CaregiverDashboard}
