@@ -1,3 +1,6 @@
+// src/navigation/AppNavigator.tsx
+// ✅ UPDATED - Added BeanConnectedScreen
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -7,6 +10,8 @@ import FeaturesScreen from '../screens/onboarding/FeaturesScreen';
 import PrivacyScreen from '../screens/onboarding/PrivacyScreen';
 import RoleSelectionScreen from '../screens/auth/RoleSelectionScreen';
 import CreateAccountScreen from '../screens/auth/CreateAccountScreen';
+import ConnectBeanScreen from '../screens/auth/ConnectBeanScreen';
+import BeanConnectedScreen from '../screens/auth/BeanConnectedScreen';
 import LoginUserScreen from '../screens/auth/LoginUserScreen';
 import LoginGuardianScreen from '../screens/auth/LoginGuardianScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
@@ -35,6 +40,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Privacy" component={PrivacyScreen} />
         <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
         <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+        <Stack.Screen name="ConnectBean" component={ConnectBeanScreen} />
+        <Stack.Screen name="BeanConnected" component={BeanConnectedScreen} />
         <Stack.Screen name="LoginUser" component={LoginUserScreen} />
         <Stack.Screen name="LoginGuardian" component={LoginGuardianScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />

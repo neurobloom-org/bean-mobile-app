@@ -1,7 +1,7 @@
 // src/screens/user/ChatScreen.tsx
-// ✅ REFACTORED VERSION
+// ✅ UPDATED - Using real image icons (chat-voice-icon, chat-add-file-icon)
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { BackButton } from '../../components';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 interface Message {
@@ -29,12 +28,25 @@ const ChatScreen = ({ navigation }: any) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: "Hi! I'm Bean, your mental health companion. How can I help you today?",
+      text: "Hi there! I'm here to listen. How are you feeling today?",
       sender: 'bean',
-      timestamp: '10:00 AM',
+      timestamp: '10:24 AM',
+    },
+    {
+      id: 2,
+      text: "I'm feeling a bit overwhelmed with work today. It's hard to focus.",
+      sender: 'user',
+      timestamp: '10:24 AM',
+    },
+    {
+      id: 3,
+      text: "I understand. When things feel like a mountain, it's okay to take one step at a time.",
+      sender: 'bean',
+      timestamp: '10:24 AM',
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -44,23 +56,26 @@ const ChatScreen = ({ navigation }: any) => {
       text: message,
       sender: 'user',
       timestamp: new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
+        hour: 'numeric',
         minute: '2-digit',
+        hour12: true,
       }),
     };
 
     setMessages([...messages, newMessage]);
     setMessage('');
 
+    // Show typing indicator
     setIsTyping(true);
     setTimeout(() => {
       const beanResponse: Message = {
         id: messages.length + 2,
-        text: "I understand. Can you tell me more about how you're feeling?",
+        text: "I'm here for you. Tell me more about what's on your mind.",
         sender: 'bean',
         timestamp: new Date().toLocaleTimeString('en-US', {
-          hour: '2-digit',
+          hour: 'numeric',
           minute: '2-digit',
+          hour12: true,
         }),
       };
       setMessages(prev => [...prev, beanResponse]);
@@ -68,39 +83,55 @@ const ChatScreen = ({ navigation }: any) => {
     }, 1500);
   };
 
-  const quickReplies = [
-    'I feel anxious',
-    'I feel stressed',
-    'I need help',
-    'Tell me more',
-  ];
+  const quickReplies = ['Yes, please', 'Maybe later', 'Tell me a joke'];
+
+  const handleQuickReply = (reply: string) => {
+    setMessage(reply);
+  };
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, [messages, isTyping]);
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        keyboardVerticalOffset={0}
       >
         {/* Header */}
         <View style={styles.header}>
-          <BackButton />
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
+
           <View style={styles.headerCenter}>
-            <Image
-              source={require('../../../assets/images/robot-first-page.png')}
-              style={styles.headerImage}
-              resizeMode="contain"
-            />
-            <View>
-              <Text style={styles.headerTitle}>Bean</Text>
-              <Text style={styles.headerStatus}>Online</Text>
+            <View style={styles.headerIconContainer}>
+              <Image
+                source={require('../../../assets/images/select-user.png')}
+                style={styles.headerIcon}
+                resizeMode="contain"
+              />
             </View>
+            <Text style={styles.headerTitle}>Let's Chat</Text>
           </View>
+
           <View style={{ width: 40 }} />
+        </View>
+
+        {/* Date/Time Label */}
+        <View style={styles.dateContainer}>
+          <Text style={styles.dateText}>Today, 10:24 AM</Text>
         </View>
 
         {/* Messages */}
         <ScrollView
+          ref={scrollViewRef}
           style={styles.messagesContainer}
           contentContainerStyle={styles.messagesContent}
           showsVerticalScrollIndicator={false}
@@ -109,23 +140,28 @@ const ChatScreen = ({ navigation }: any) => {
             <View
               key={msg.id}
               style={[
-                styles.messageBubble,
-                msg.sender === 'user' ? styles.userBubble : styles.beanBubble,
+                styles.messageRow,
+                msg.sender === 'user'
+                  ? styles.userMessageRow
+                  : styles.beanMessageRow,
               ]}
             >
+              {/* Bean Avatar - Only for Bean messages */}
               {msg.sender === 'bean' && (
-                <Image
-                  source={require('../../../assets/images/robot-first-page.png')}
-                  style={styles.beanAvatar}
-                  resizeMode="contain"
-                />
+                <View style={styles.avatarContainer}>
+                  <Image
+                    source={require('../../../assets/images/select-user.png')}
+                    style={styles.avatar}
+                    resizeMode="contain"
+                  />
+                </View>
               )}
+
+              {/* Message Bubble */}
               <View
                 style={[
-                  styles.bubbleContent,
-                  msg.sender === 'user'
-                    ? styles.userBubbleContent
-                    : styles.beanBubbleContent,
+                  styles.messageBubble,
+                  msg.sender === 'user' ? styles.userBubble : styles.beanBubble,
                 ]}
               >
                 <Text
@@ -136,66 +172,97 @@ const ChatScreen = ({ navigation }: any) => {
                 >
                   {msg.text}
                 </Text>
-                <Text
-                  style={[
-                    styles.timestamp,
-                    msg.sender === 'user' && styles.userTimestamp,
-                  ]}
-                >
-                  {msg.timestamp}
-                </Text>
               </View>
+
+              {/* User Avatar - Only for user messages */}
+              {msg.sender === 'user' && (
+                <View style={styles.avatarContainer}>
+                  <View style={styles.userAvatar}>
+                    <Text style={styles.userAvatarText}>A</Text>
+                  </View>
+                </View>
+              )}
             </View>
           ))}
 
           {/* Typing Indicator */}
           {isTyping && (
-            <View style={[styles.messageBubble, styles.beanBubble]}>
-              <Image
-                source={require('../../../assets/images/robot-first-page.png')}
-                style={styles.beanAvatar}
-                resizeMode="contain"
-              />
+            <View style={[styles.messageRow, styles.beanMessageRow]}>
+              <View style={styles.avatarContainer}>
+                <Image
+                  source={require('../../../assets/images/select-user.png')}
+                  style={styles.avatar}
+                  resizeMode="contain"
+                />
+              </View>
               <View style={styles.typingIndicator}>
-                <Text style={styles.typingDot}>●</Text>
-                <Text style={styles.typingDot}>●</Text>
-                <Text style={styles.typingDot}>●</Text>
+                <View style={styles.typingDot} />
+                <View style={styles.typingDot} />
+                <View style={styles.typingDot} />
               </View>
             </View>
           )}
+
+          {/* Extra spacing at bottom */}
+          <View style={{ height: 20 }} />
         </ScrollView>
 
         {/* Quick Replies */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.quickRepliesContainer}
-        >
-          {quickReplies.map((reply, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.quickReplyButton}
-              onPress={() => setMessage(reply)}
-            >
-              <Text style={styles.quickReplyText}>{reply}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <View style={styles.quickRepliesContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.quickRepliesContent}
+          >
+            {quickReplies.map((reply, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.quickReplyButton}
+                onPress={() => handleQuickReply(reply)}
+              >
+                <Text style={styles.quickReplyText}>{reply}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-        {/* Input */}
+        {/* Input Container */}
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.input}
-              placeholder="Type your message..."
-              placeholderTextColor={COLORS.TEXT_TERTIARY}
+              placeholder="Type a message..."
+              placeholderTextColor={COLORS.GRAY_400}
               value={message}
               onChangeText={setMessage}
               multiline
+              maxLength={500}
             />
-            <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-              <Text style={styles.sendIcon}>➤</Text>
-            </TouchableOpacity>
+
+            <View style={styles.inputActions}>
+              {/* Add File Icon - Using chat-add-file-icon.png */}
+              <TouchableOpacity style={styles.actionButton}>
+                <Image
+                  source={require('../../../assets/images/chat-add-file-icon.png')}
+                  style={styles.actionIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+
+              {/* Voice Icon - Using chat-voice-icon.png */}
+              <TouchableOpacity style={styles.voiceButton}>
+                <Image
+                  source={require('../../../assets/images/chat-voice-icon.png')}
+                  style={styles.voiceIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+
+              {/* Send Button */}
+              <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+                <Text style={styles.sendIcon}>➤</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -208,6 +275,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.WHITE,
   },
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -218,94 +286,145 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER,
   },
-  headerCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.SM,
-  },
-  headerImage: {
+  backButton: {
     width: 40,
     height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  headerTitle: {
-    ...TYPOGRAPHY.H4,
+  backIcon: {
+    fontSize: 24,
     color: COLORS.TEXT_PRIMARY,
   },
-  headerStatus: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.SUCCESS,
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
   },
+  headerIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.PRIMARY,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.XS,
+  },
+  headerIcon: {
+    width: 24,
+    height: 24,
+  },
+  headerTitle: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_PRIMARY,
+    fontWeight: '600',
+  },
+  // Date Label
+  dateContainer: {
+    alignItems: 'center',
+    paddingVertical: SPACING.MD,
+  },
+  dateText: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
+    fontSize: 12,
+  },
+  // Messages
   messagesContainer: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
+    backgroundColor: COLORS.WHITE,
   },
   messagesContent: {
-    padding: SPACING.LG,
+    paddingHorizontal: SPACING.LG,
+    paddingTop: SPACING.SM,
   },
-  messageBubble: {
+  messageRow: {
     flexDirection: 'row',
     marginBottom: SPACING.LG,
     alignItems: 'flex-end',
   },
-  userBubble: {
+  userMessageRow: {
     justifyContent: 'flex-end',
   },
-  beanBubble: {
+  beanMessageRow: {
     justifyContent: 'flex-start',
   },
-  beanAvatar: {
-    width: 30,
-    height: 30,
-    marginRight: SPACING.SM,
+  avatarContainer: {
+    width: 32,
+    height: 32,
+    marginHorizontal: SPACING.SM,
   },
-  bubbleContent: {
-    maxWidth: '75%',
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.GRAY_100,
+  },
+  userAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.PRIMARY,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userAvatarText: {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.WHITE,
+    fontWeight: 'bold',
+  },
+  messageBubble: {
+    maxWidth: '70%',
     borderRadius: SPACING.LG,
     padding: SPACING.MD,
+    paddingHorizontal: SPACING.LG,
   },
-  userBubbleContent: {
+  beanBubble: {
     backgroundColor: COLORS.PRIMARY,
-    borderBottomRightRadius: 4,
-  },
-  beanBubbleContent: {
-    backgroundColor: COLORS.WHITE,
     borderBottomLeftRadius: 4,
+  },
+  userBubble: {
+    backgroundColor: COLORS.GRAY_100,
+    borderBottomRightRadius: 4,
   },
   messageText: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: SPACING.XS,
+    color: COLORS.WHITE,
+    lineHeight: 20,
   },
   userMessageText: {
-    color: COLORS.WHITE,
+    color: COLORS.TEXT_PRIMARY,
   },
-  timestamp: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
-    fontSize: 10,
-  },
-  userTimestamp: {
-    color: COLORS.WHITE,
-    opacity: 0.8,
-  },
+  // Typing Indicator
   typingIndicator: {
     flexDirection: 'row',
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: COLORS.GRAY_100,
     borderRadius: SPACING.LG,
+    borderBottomLeftRadius: 4,
     padding: SPACING.MD,
+    paddingHorizontal: SPACING.LG,
     gap: SPACING.XS,
   },
   typingDot: {
-    fontSize: 20,
-    color: COLORS.PRIMARY,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.GRAY_400,
   },
+  // Quick Replies
   quickRepliesContainer: {
-    paddingHorizontal: SPACING.LG,
-    paddingVertical: SPACING.SM,
     backgroundColor: COLORS.WHITE,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.BORDER,
+    paddingVertical: SPACING.MD,
+  },
+  quickRepliesContent: {
+    paddingHorizontal: SPACING.LG,
+    gap: SPACING.SM,
   },
   quickReplyButton: {
-    backgroundColor: COLORS.SECONDARY_LIGHT,
+    backgroundColor: COLORS.WHITE,
+    borderWidth: 1,
+    borderColor: COLORS.PRIMARY,
     borderRadius: SPACING.XL,
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.SM,
@@ -316,6 +435,7 @@ const styles = StyleSheet.create({
     color: COLORS.PRIMARY,
     fontWeight: '600',
   },
+  // Input
   inputContainer: {
     backgroundColor: COLORS.WHITE,
     paddingHorizontal: SPACING.LG,
@@ -326,28 +446,55 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.GRAY_50,
+    backgroundColor: COLORS.WHITE,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
     borderRadius: SPACING.XL,
-    paddingHorizontal: SPACING.LG,
-    paddingVertical: SPACING.SM,
+    paddingHorizontal: SPACING.MD,
+    paddingVertical: SPACING.XS,
   },
   input: {
     flex: 1,
     ...TYPOGRAPHY.BODY,
     color: COLORS.TEXT_PRIMARY,
     maxHeight: 100,
+    paddingVertical: SPACING.SM,
   },
-  sendButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 20,
+  inputActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.XS,
+  },
+  actionButton: {
+    width: 32,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: SPACING.SM,
+  },
+  actionIcon: {
+    width: 24,
+    height: 24,
+  },
+  voiceButton: {
+    width: 38,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  voiceIcon: {
+    width: 38,
+    height: 40,
+  },
+  sendButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.PRIMARY,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sendIcon: {
-    fontSize: 18,
+    fontSize: 16,
     color: COLORS.WHITE,
   },
 });

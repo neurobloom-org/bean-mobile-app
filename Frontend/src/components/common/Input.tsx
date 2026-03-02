@@ -1,5 +1,5 @@
 // src/components/common/Input.tsx
-// Reusable input component with label, error, and password toggle
+// ✅ UPDATED - Reusable input component with professional colorless eye icon
 
 import React, { useState } from 'react';
 import {
@@ -19,6 +19,28 @@ interface InputProps extends TextInputProps {
   isPassword?: boolean;
   showPasswordToggle?: boolean;
 }
+
+// Professional Eye Icon Component - Colorless
+const EyeIcon = ({ visible }: { visible: boolean }) => (
+  <View style={styles.eyeIconSvg}>
+    {visible ? (
+      // Eye Open Icon
+      <View style={styles.eyeOpen}>
+        <View style={styles.eyeOutline}>
+          <View style={styles.eyePupil} />
+        </View>
+      </View>
+    ) : (
+      // Eye Closed Icon with slash
+      <View style={styles.eyeClosed}>
+        <View style={styles.eyeOutline}>
+          <View style={styles.eyePupil} />
+        </View>
+        <View style={styles.eyeSlash} />
+      </View>
+    )}
+  </View>
+);
 
 export const Input: React.FC<InputProps> = ({
   label,
@@ -61,13 +83,14 @@ export const Input: React.FC<InputProps> = ({
           {...textInputProps}
         />
 
-        {/* Password Toggle */}
+        {/* Password Toggle - Professional Eye Icon */}
         {isPassword && showPasswordToggle && (
           <TouchableOpacity
             style={styles.eyeIconContainer}
             onPress={togglePasswordVisibility}
+            activeOpacity={0.7}
           >
-            <Text style={styles.eyeIcon}>{secureTextEntry ? '👁️‍🗨️' : '👁️'}</Text>
+            <EyeIcon visible={!secureTextEntry} />
           </TouchableOpacity>
         )}
       </View>
@@ -114,13 +137,54 @@ const styles = StyleSheet.create({
   },
   eyeIconContainer: {
     padding: SPACING.XS,
-  },
-  eyeIcon: {
-    fontSize: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   errorText: {
     ...TYPOGRAPHY.CAPTION,
     color: COLORS.ERROR,
     marginTop: SPACING.XS,
+  },
+  // Professional Eye Icon Styles
+  eyeIconSvg: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeOpen: {
+    width: 24,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeOutline: {
+    width: 24,
+    height: 14,
+    borderWidth: 2,
+    borderColor: COLORS.GRAY_400,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyePupil: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.GRAY_400,
+  },
+  eyeClosed: {
+    width: 24,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeSlash: {
+    position: 'absolute',
+    width: 26,
+    height: 2,
+    backgroundColor: COLORS.GRAY_400,
+    transform: [{ rotate: '45deg' }],
+    top: 7,
   },
 });
