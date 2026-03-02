@@ -1,6 +1,7 @@
 // src/screens/auth/LoginGuardianScreen.tsx
 // ✅ REFACTORED VERSION
 
+import { supabase  } from '../../lib/supabase';
 import React, { useState } from 'react';
 import {
   View,
@@ -12,6 +13,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
@@ -20,10 +22,33 @@ const LoginGuardianScreen = ({ navigation }: any) => {
   const [emailWard, setEmailWard] = useState('');
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignIn = () => {
-    console.log('Sign in as Guardian - navigating to CaregiverDashboard');
+  const handleSignIn = async () => {
+  if (!emailGuardian || !password) {
+    Alert.alert('Error', 'Please enter both your email and password');
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    // 2. Call Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: emailGuardian,
+      password: password,
+    });
+
+    if (error) throw error;
+
+    // 3. Success - Navigate to Dashboard
+    console.log('Login successful');
     navigation.navigate('CaregiverDashboard');
+
+  } catch (error: any) {
+    Alert.alert('Login Error', error.message);
+  } finally {
+    setIsLoading(false);
+  }
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -144,8 +169,9 @@ const LoginGuardianScreen = ({ navigation }: any) => {
 
           {/* Sign In Button */}
           <PrimaryButton
-            title="Sign In"
+            title={isLoading ? "Signing In..." : "Sign In"}
             onPress={handleSignIn}
+            disabled={isLoading}
             variant="primary"
             size="large"
             fullWidth
