@@ -8,13 +8,13 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LoginGuardianScreen = ({ navigation }: any) => {
   const [emailWard, setEmailWard] = useState('');
