@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Bean",
+    "displayName": "Bean",
     "slug": "bean-mobile-app",
     "version": "1.0.0",
     "platforms": [

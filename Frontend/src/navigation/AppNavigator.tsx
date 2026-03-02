@@ -1,3 +1,6 @@
+// src/navigation/AppNavigator.tsx
+// ✅ UPDATED - Added BeanConnectedScreen
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -7,6 +10,8 @@ import FeaturesScreen from '../screens/onboarding/FeaturesScreen';
 import PrivacyScreen from '../screens/onboarding/PrivacyScreen';
 import RoleSelectionScreen from '../screens/auth/RoleSelectionScreen';
 import CreateAccountScreen from '../screens/auth/CreateAccountScreen';
+import ConnectBeanScreen from '../screens/auth/ConnectBeanScreen';
+import BeanConnectedScreen from '../screens/auth/BeanConnectedScreen';
 import LoginUserScreen from '../screens/auth/LoginUserScreen';
 import LoginGuardianScreen from '../screens/auth/LoginGuardianScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
@@ -16,7 +21,7 @@ import ChatScreen from '../screens/user/ChatScreen';
 import FocusModeScreen from '../screens/user/FocusModeScreen';
 import TasksScreen from '../screens/user/TasksScreen';
 import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
-import PairingScreen from '../screens/auth/ConnectBeanScreen';
+import PairingScreen from '../screens/user/PairingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +40,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Privacy" component={PrivacyScreen} />
         <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
         <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+        <Stack.Screen name="ConnectBean" component={ConnectBeanScreen} />
+        <Stack.Screen name="BeanConnected" component={BeanConnectedScreen} />
         <Stack.Screen name="LoginUser" component={LoginUserScreen} />
         <Stack.Screen name="LoginGuardian" component={LoginGuardianScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
@@ -43,6 +50,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="FocusMode" component={FocusModeScreen} />
         <Stack.Screen name="Tasks" component={TasksScreen} />
+        <Stack.Screen name="PairingScreen" component={PairingScreen} />
         <Stack.Screen
           name="CaregiverDashboard"
           component={CaregiverDashboard}
