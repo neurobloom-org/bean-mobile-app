@@ -1,10 +1,11 @@
 // src/screens/onboarding/PrivacyScreen.tsx
-// ✅ FIGMA-MATCHED — 4 white policy cards, scrollable
+// ✅ FIGMA-MATCHED — 4 white policy cards with real icon assets
 
 import React from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   SafeAreaView,
   ScrollView,
@@ -18,28 +19,28 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 const POLICIES = [
   {
     id: '1',
-    icon: '🛡️',
+    iconSource: require('../../../assets/images/privacy-first.png'),
     title: 'Privacy First',
     description:
       'At our platform, your mental well-being is our priority. This includes the safety and confidentiality of your data. We design our systems to protect your sensitive information from the ground up.',
   },
   {
     id: '2',
-    icon: '🗄️',
+    iconSource: require('../../../assets/images/data-collection.png'),
     title: 'Data Collection',
     description:
       'We collect information you provide directly to us, such as when you create an account, fill out a mood check-in, or communicate with our support team.',
   },
   {
     id: '3',
-    icon: '🔏',
+    iconSource: require('../../../assets/images/your-rights.png'),
     title: 'Your Rights',
     description:
       'You have the right to access, update, or delete your personal information at any time. We ensure your data remains under your absolute control within our ecosystem.',
   },
   {
     id: '4',
-    icon: '🔒',
+    iconSource: require('../../../assets/images/data-usage.png'),
     title: 'Data Usage',
     description:
       'Your data is used solely to provide and improve our services. We never sell your personal information. All health data is encrypted at rest and in transit.',
@@ -48,19 +49,17 @@ const POLICIES = [
 
 // ─── Policy Card ──────────────────────────────────────────────────────────────
 interface PolicyCardProps {
-  icon: string;
+  iconSource: any;
   title: string;
   description: string;
 }
 
-const PolicyCard = ({ icon, title, description }: PolicyCardProps) => (
+const PolicyCard = ({ iconSource, title, description }: PolicyCardProps) => (
   <View style={styles.card}>
-    {/* Green icon circle */}
-    <View style={styles.cardIconCircle}>
-      <Text style={styles.cardIconEmoji}>{icon}</Text>
-    </View>
+    {/* Real rounded icon image */}
+    <Image source={iconSource} style={styles.cardIcon} resizeMode="contain" />
 
-    {/* Card content */}
+    {/* Card text */}
     <View style={styles.cardContent}>
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardDescription}>{description}</Text>
@@ -76,7 +75,7 @@ const PrivacyScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* ── Fixed Header ── */}
+      {/* Fixed Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -86,29 +85,29 @@ const PrivacyScreen = ({ navigation }: any) => {
           <Text style={styles.backArrow}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Privacy Policy</Text>
-        <View style={styles.backButton} /> {/* spacer to center title */}
+        <View style={styles.backButton} />
       </View>
 
-      {/* ── Scrollable Content ── */}
+      {/* Scrollable Content */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         bounces
       >
-        {/* Last updated label */}
+        {/* Last updated */}
         <Text style={styles.lastUpdated}>LAST UPDATED: OCTOBER 2025</Text>
 
         {/* 4 Policy Cards */}
         {POLICIES.map(policy => (
           <PolicyCard
             key={policy.id}
-            icon={policy.icon}
+            iconSource={policy.iconSource}
             title={policy.title}
             description={policy.description}
           />
         ))}
 
-        {/* Contact link */}
+        {/* Contact */}
         <Text style={styles.contactText}>
           Questions?{' '}
           <Text style={styles.contactLink}>Contact us at Neurobloom.pro</Text>
@@ -136,10 +135,10 @@ const PrivacyScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND_LIGHT, // '#F8F9FA' light grey bg
+    backgroundColor: COLORS.BACKGROUND_LIGHT, // '#F8F9FA'
   },
 
-  // ── Header
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -167,14 +166,14 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
   },
 
-  // ── Scroll content
+  // Scroll
   scrollContent: {
     paddingHorizontal: SPACING.LG, // 16
     paddingTop: SPACING.LG, // 16
     paddingBottom: SPACING.XXXL, // 30
   },
 
-  // ── Last updated
+  // Last updated
   lastUpdated: {
     fontSize: 11,
     fontWeight: '600',
@@ -184,7 +183,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG, // 16
   },
 
-  // ── Policy Card
+  // Card
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -199,28 +198,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
-  // ── Card icon circle (green)
-  cardIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.SECONDARY_DARK, // '#2E7D32' deep green
-    justifyContent: 'center',
-    alignItems: 'center',
+  // Icon — uses the real rounded PNG directly, no wrapper needed
+  cardIcon: {
+    width: 52,
+    height: 52,
     marginRight: SPACING.MD, // 12
     flexShrink: 0,
   },
-  cardIconEmoji: {
-    fontSize: 22,
-  },
 
-  // ── Card text
+  // Card text
   cardContent: {
     flex: 1,
   },
   cardTitle: {
-    ...TYPOGRAPHY.H4, // fontSize:18, weight:600
     fontSize: 16,
+    fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS, // 4
   },
@@ -230,7 +222,7 @@ const styles = StyleSheet.create({
     lineHeight: 21,
   },
 
-  // ── Contact
+  // Contact
   contactText: {
     ...TYPOGRAPHY.CAPTION, // fontSize:12
     color: COLORS.TEXT_TERTIARY,
@@ -243,7 +235,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // ── Button
+  // Button
   buttonWrapper: {
     marginBottom: SPACING.MD, // 12
   },
