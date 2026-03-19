@@ -1,5 +1,5 @@
 // src/screens/onboarding/PrivacyScreen.tsx
-// ✅ FIGMA-MATCHED — 4 white policy cards with real icon assets
+// ✅ FIGMA-MATCHED — 4 white policy cards with real icon assets + tappable link
 
 import React from 'react';
 import {
@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Linking, // ✅ Added for URL opening
 } from 'react-native';
 import { PrimaryButton, PaginationDots } from '../../components';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
@@ -56,10 +57,7 @@ interface PolicyCardProps {
 
 const PolicyCard = ({ iconSource, title, description }: PolicyCardProps) => (
   <View style={styles.card}>
-    {/* Real rounded icon image */}
     <Image source={iconSource} style={styles.cardIcon} resizeMode="contain" />
-
-    {/* Card text */}
     <View style={styles.cardContent}>
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardDescription}>{description}</Text>
@@ -71,6 +69,11 @@ const PolicyCard = ({ iconSource, title, description }: PolicyCardProps) => (
 const PrivacyScreen = ({ navigation }: any) => {
   const handleUnderstand = () => {
     navigation.navigate('RoleSelection');
+  };
+
+  // ✅ Opens the Neurobloom website in the device's default browser
+  const handleOpenWebsite = () => {
+    Linking.openURL('https://www.neurobloom.pro/');
   };
 
   return (
@@ -107,10 +110,15 @@ const PrivacyScreen = ({ navigation }: any) => {
           />
         ))}
 
-        {/* Contact */}
+        {/* ✅ Tappable contact line */}
         <Text style={styles.contactText}>
           Questions?{' '}
-          <Text style={styles.contactLink}>Contact us at Neurobloom.pro</Text>
+          <Text
+            style={styles.contactLink}
+            onPress={handleOpenWebsite} // ✅ opens https://www.neurobloom.pro/
+          >
+            Contact us at Neurobloom.pro
+          </Text>
         </Text>
 
         {/* I Understand Button */}
@@ -135,7 +143,7 @@ const PrivacyScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND_LIGHT, // '#F8F9FA'
+    backgroundColor: COLORS.BACKGROUND_LIGHT,
   },
 
   // Header
@@ -143,11 +151,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.LG, // 16
-    paddingVertical: SPACING.MD, // 12
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
     backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT, // '#F0F0F0'
+    borderBottomColor: COLORS.BORDER_LIGHT,
   },
   backButton: {
     width: 36,
@@ -162,25 +170,25 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
   headerTitle: {
-    ...TYPOGRAPHY.H4, // fontSize:18, weight:600
+    ...TYPOGRAPHY.H4,
     color: COLORS.TEXT_PRIMARY,
   },
 
   // Scroll
   scrollContent: {
-    paddingHorizontal: SPACING.LG, // 16
-    paddingTop: SPACING.LG, // 16
-    paddingBottom: SPACING.XXXL, // 30
+    paddingHorizontal: SPACING.LG,
+    paddingTop: SPACING.LG,
+    paddingBottom: SPACING.XXXL,
   },
 
   // Last updated
   lastUpdated: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.TEXT_TERTIARY, // '#999999'
+    color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
     letterSpacing: 0.8,
-    marginBottom: SPACING.LG, // 16
+    marginBottom: SPACING.LG,
   },
 
   // Card
@@ -188,25 +196,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: COLORS.WHITE,
-    borderRadius: BORDER_RADIUS.XL, // 16
-    padding: SPACING.LG, // 16
-    marginBottom: SPACING.MD, // 12
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.LG,
+    marginBottom: SPACING.MD,
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
     shadowRadius: 6,
     elevation: 3,
   },
-
-  // Icon — uses the real rounded PNG directly, no wrapper needed
   cardIcon: {
     width: 52,
     height: 52,
-    marginRight: SPACING.MD, // 12
+    marginRight: SPACING.MD,
     flexShrink: 0,
   },
-
-  // Card text
   cardContent: {
     flex: 1,
   },
@@ -214,30 +218,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
-    marginBottom: SPACING.XS, // 4
+    marginBottom: SPACING.XS,
   },
   cardDescription: {
-    ...TYPOGRAPHY.BODY, // fontSize:14, weight:400
-    color: COLORS.TEXT_SECONDARY, // '#666666'
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.TEXT_SECONDARY,
     lineHeight: 21,
   },
 
   // Contact
   contactText: {
-    ...TYPOGRAPHY.CAPTION, // fontSize:12
+    ...TYPOGRAPHY.CAPTION,
     color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
-    marginTop: SPACING.SM, // 8
-    marginBottom: SPACING.XL, // 20
+    marginTop: SPACING.SM,
+    marginBottom: SPACING.XL,
   },
   contactLink: {
-    color: COLORS.PRIMARY, // '#4ECCA3'
+    color: COLORS.PRIMARY, // '#4ECCA3' — looks like a link ✅
     fontWeight: '600',
+    textDecorationLine: 'underline', // ✅ underline shows it's tappable
   },
 
   // Button
   buttonWrapper: {
-    marginBottom: SPACING.MD, // 12
+    marginBottom: SPACING.MD,
   },
 });
 

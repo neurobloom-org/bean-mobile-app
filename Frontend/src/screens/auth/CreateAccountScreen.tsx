@@ -1,5 +1,5 @@
 // src/screens/auth/CreateAccountScreen.tsx
-// ✅ UPDATED - Navigates to ConnectBean for users
+// ✅ UPDATED - Green title highlight + correct social icon order
 
 import React, { useState } from 'react';
 import {
@@ -26,7 +26,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleCreateAccount = () => {
-    // Validation
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -44,22 +43,14 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       return;
     }
 
-    // Navigate based on user type
     if (userType === 'user') {
-      console.log('User account created - navigating to ConnectBean');
-      // Users need to connect their Bean robot
       navigation.navigate('ConnectBean');
     } else {
-      console.log(
-        'Guardian account created - navigating to CaregiverDashboard',
-      );
-      // Guardians go directly to dashboard
       navigation.navigate('CaregiverDashboard');
     }
   };
 
   const handleSocialLogin = (provider: string) => {
-    console.log(`${provider} login`);
     Alert.alert(
       'Coming Soon',
       `${provider} authentication will be available soon!`,
@@ -87,12 +78,19 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           {/* Back Button */}
           <BackButton />
 
-          {/* Title */}
-          <Text style={styles.screenTitle}>Create Account</Text>
-
-          {/* Sign Up Type Title */}
+          {/* ✅ Title — green highlight on user type word */}
           <Text style={styles.title}>
-            {userType === 'guardian' ? 'Guardian Sign Up' : 'User Sign Up'}
+            {userType === 'guardian' ? (
+              <>
+                <Text style={styles.titleHighlight}>Guardian/Therapist </Text>
+                <Text style={styles.titleNormal}>Sign Up</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.titleHighlight}>User </Text>
+                <Text style={styles.titleNormal}>Sign Up</Text>
+              </>
+            )}
           </Text>
 
           {/* Robot Icon */}
@@ -111,7 +109,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               : 'Sign up to start your journey with Bean, your mental health companion.'}
           </Text>
 
-          {/* Full Name Input */}
+          {/* Full Name */}
           <Text style={styles.label}>FULL NAME</Text>
           <Input
             placeholder="John Doe"
@@ -120,7 +118,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="words"
           />
 
-          {/* Email Input */}
+          {/* Email */}
           <Text style={styles.label}>EMAIL ADDRESS</Text>
           <Input
             placeholder="bean@example.com"
@@ -130,7 +128,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Password Input */}
+          {/* Password */}
           <Text style={styles.label}>PASSWORD</Text>
           <Input
             placeholder="••••••••"
@@ -141,7 +139,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Confirm Password Input */}
+          {/* Confirm Password */}
           <Text style={styles.label}>CONFIRM PASSWORD</Text>
           <Input
             placeholder="••••••••"
@@ -166,19 +164,8 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
           </View>
 
-          {/* Social Login Buttons */}
+          {/* ✅ Social Login — Facebook · Apple · Google (matches Figma order) */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Google')}
-            >
-              <Image
-                source={require('../../../assets/images/google.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Facebook')}
@@ -196,6 +183,17 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             >
               <Image
                 source={require('../../../assets/images/apple.png')}
+                style={styles.socialIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={() => handleSocialLogin('Google')}
+            >
+              <Image
+                source={require('../../../assets/images/google.png')}
                 style={styles.socialIcon}
                 resizeMode="contain"
               />
@@ -222,27 +220,32 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: SPACING.XL, // 24px
-    paddingTop: SPACING.XS, // 4px
-    paddingBottom: SPACING.XL, // 24px
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.XS,
+    paddingBottom: SPACING.XL,
   },
-  screenTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: SPACING.SM, // 8px
-  },
+
+  // ✅ Title — split into green + black parts
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
-    marginBottom: SPACING.MD, // 12px
+    marginBottom: SPACING.MD,
   },
+  titleHighlight: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#07882C', // '#4ECCA3' Bean green ✅
+  },
+  titleNormal: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: COLORS.TEXT_PRIMARY, // '#000000'
+  },
+
   iconContainer: {
     alignItems: 'center',
-    marginBottom: SPACING.SM, // 8px
+    marginBottom: SPACING.SM,
   },
   robotIcon: {
     width: 60,
@@ -252,7 +255,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: SPACING.LG, // 16px
+    marginBottom: SPACING.LG,
     lineHeight: 18,
     paddingHorizontal: SPACING.MD,
   },
@@ -266,7 +269,7 @@ const styles = StyleSheet.create({
   },
   dividerContainer: {
     alignItems: 'center',
-    marginVertical: SPACING.MD, // 12px
+    marginVertical: SPACING.MD,
   },
   dividerText: {
     fontSize: 11,
@@ -276,8 +279,8 @@ const styles = StyleSheet.create({
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: SPACING.LG, // 16px
-    marginBottom: SPACING.MD, // 12px
+    gap: SPACING.LG,
+    marginBottom: SPACING.MD,
   },
   socialButton: {
     width: 50,
@@ -289,10 +292,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: COLORS.BORDER,
     shadowColor: COLORS.BLACK,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
@@ -305,8 +305,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: SPACING.XS, // 4px
-    marginBottom: SPACING.SM, // 8px
+    marginTop: SPACING.XS,
+    marginBottom: SPACING.SM,
   },
   signInText: {
     fontSize: 13,
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
   signInLink: {
     fontSize: 13,
-    color: COLORS.LINK,
+    color: COLORS.LINK, // '#4169E1' blue
     fontWeight: '600',
   },
 });
