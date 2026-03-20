@@ -1,5 +1,5 @@
 // src/screens/user/HomeScreen.tsx
-// ✅ Feature tile color #94A3B8 · Uses BottomTabBar + DropdownMenu
+// ✅ Merged Mood+Progress card · Big icons · Bean robot after Calming Exercises
 
 import React, { useState } from 'react';
 import {
@@ -19,86 +19,34 @@ import BottomTabBar from '../../components/navigation/BottomTabBar';
 
 const { width } = Dimensions.get('window');
 
-// ─── Feature tile color — Figma slate ────────────────────────────────────────
-const TILE_BG = '#F1F5F9'; // very light slate — readable and clean ✅
-// (pure #94A3B8 is too dark for text, using its light tint)
+const TILE_BG = '#F1F5F9';
+const TILE_GAP = SPACING.MD; // 12
+const TILE_SIZE = (width - SPACING.XL * 2 - TILE_GAP) / 2;
 
-// ─── Feature Grid Data ────────────────────────────────────────────────────────
-const FEATURES = [
-  {
-    id: '1',
-    iconSource: require('../../../assets/images/talk-to-bean.png'),
-    label: 'Talk to Bean',
-    route: 'Chat',
-    fullWidth: false,
-  },
-  {
-    id: '2',
-    iconSource: require('../../../assets/images/timer-icon.png'),
-    label: 'Start Focus Mode',
-    route: 'FocusMode',
-    fullWidth: false,
-  },
-  {
-    id: '3',
-    iconSource: require('../../../assets/images/games.png'),
-    label: 'Games',
-    route: 'Home',
-    fullWidth: false,
-  },
-  {
-    id: '4',
-    iconSource: require('../../../assets/images/play-calm-music.png'),
-    label: 'Play calm music',
-    route: 'Home',
-    fullWidth: false,
-  },
-  {
-    id: '5',
-    iconSource: require('../../../assets/images/detecting-SOS.png'),
-    label: 'Detecting SOS',
-    route: 'Home',
-    fullWidth: false,
-  },
-  {
-    id: '6',
-    iconSource: require('../../../assets/images/calming-exercises.png'),
-    label: 'Calming Exercises',
-    route: 'Home',
-    fullWidth: false,
-  },
-  {
-    id: '7',
-    iconSource: require('../../../assets/images/therapeutic-conversation.png'),
-    label: 'Therapeutic Conversations',
-    route: 'Chat',
-    fullWidth: true,
-  },
-];
-
-// ─── Donut Chart ──────────────────────────────────────────────────────────────
+// ─── Donut Chart (3 shades of green, all 0%) ─────────────────────────────────
 const DonutChart = () => {
-  const DONUT_SIZE = 110;
-  const THICKNESS = 14;
-  const INNER = DONUT_SIZE - THICKNESS * 2;
+  const SIZE = 120;
+  const THICKNESS = 16;
+  const INNER = SIZE - THICKNESS * 2;
 
   return (
-    <View style={donutStyles.wrapper}>
+    <View style={donut.wrapper}>
+      {/* Single green ring — values are 0 so just show the ring in PRIMARY */}
       <View
         style={[
-          donutStyles.ring,
+          donut.ring,
           {
-            width: DONUT_SIZE,
-            height: DONUT_SIZE,
-            borderRadius: DONUT_SIZE / 2,
+            width: SIZE,
+            height: SIZE,
+            borderRadius: SIZE / 2,
             borderWidth: THICKNESS,
-            borderColor: COLORS.PRIMARY,
+            borderColor: COLORS.PRIMARY, // '#4ECCA3'
           },
         ]}
       >
         <View
           style={[
-            donutStyles.inner,
+            donut.hole,
             {
               width: INNER,
               height: INNER,
@@ -108,16 +56,17 @@ const DonutChart = () => {
         />
       </View>
 
-      <View style={donutStyles.legend}>
+      {/* Legend */}
+      <View style={donut.legend}>
         {[
-          { label: 'Calm', color: COLORS.PRIMARY },
-          { label: 'Joy', color: COLORS.PRIMARY_LIGHT },
+          { label: 'Calm', color: COLORS.PRIMARY_LIGHT },
+          { label: 'Joy', color: COLORS.PRIMARY },
           { label: 'Active', color: COLORS.PRIMARY_DARK },
         ].map(item => (
-          <View key={item.label} style={donutStyles.legendRow}>
-            <View style={[donutStyles.dot, { backgroundColor: item.color }]} />
-            <Text style={donutStyles.legendText}>{item.label}</Text>
-            <Text style={donutStyles.legendValue}>0%</Text>
+          <View key={item.label} style={donut.row}>
+            <View style={[donut.dot, { backgroundColor: item.color }]} />
+            <Text style={donut.label}>{item.label}</Text>
+            <Text style={donut.value}>0%</Text>
           </View>
         ))}
       </View>
@@ -125,68 +74,41 @@ const DonutChart = () => {
   );
 };
 
-const donutStyles = StyleSheet.create({
+const donut = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.XL,
+    marginBottom: SPACING.LG,
   },
-  ring: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inner: {
-    backgroundColor: COLORS.WHITE,
-  },
-  legend: {
-    gap: SPACING.XS,
-  },
-  legendRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.XS,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendText: {
-    fontSize: 12,
-    color: COLORS.TEXT_SECONDARY,
-    width: 44,
-  },
-  legendValue: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.TEXT_PRIMARY,
-  },
+  ring: { justifyContent: 'center', alignItems: 'center' },
+  hole: { backgroundColor: COLORS.WHITE },
+  legend: { gap: SPACING.SM },
+  row: { flexDirection: 'row', alignItems: 'center', gap: SPACING.XS },
+  dot: { width: 9, height: 9, borderRadius: 5 },
+  label: { fontSize: 13, color: COLORS.TEXT_SECONDARY, width: 48 },
+  value: { fontSize: 13, fontWeight: '700', color: COLORS.TEXT_PRIMARY },
 });
 
 // ─── Feature Tile ─────────────────────────────────────────────────────────────
-const TILE_GAP = SPACING.MD;
-const TILE_SIZE = (width - SPACING.XL * 2 - TILE_GAP) / 2;
-
-interface FeatureTileProps {
+interface TileProps {
   iconSource: any;
   label: string;
-  fullWidth: boolean;
+  fullWidth?: boolean;
   onPress: () => void;
 }
 
-const FeatureTile = ({
-  iconSource,
-  label,
-  fullWidth,
-  onPress,
-}: FeatureTileProps) => (
+const FeatureTile = ({ iconSource, label, fullWidth, onPress }: TileProps) => (
   <TouchableOpacity
     style={[styles.tile, fullWidth && styles.tileFullWidth]}
     onPress={onPress}
     activeOpacity={0.8}
   >
+    {/* ✅ Much bigger icon — 52x52 */}
     <Image source={iconSource} style={styles.tileIcon} resizeMode="contain" />
-    <Text style={styles.tileLabel}>{label}</Text>
+    <Text style={[styles.tileLabel, fullWidth && styles.tileLabelFull]}>
+      {label}
+    </Text>
   </TouchableOpacity>
 );
 
@@ -196,87 +118,127 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Top Header Bar */}
+      {/* Top bar */}
       <View style={styles.topBar}>
         <View style={styles.topBarLeft}>
           <Image
             source={require('../../../assets/images/login-page.png')}
-            style={styles.topBarRobotIcon}
+            style={styles.topBarIcon}
             resizeMode="contain"
           />
           <Text style={styles.topBarName}>Bean</Text>
         </View>
-
-        <TouchableOpacity
-          style={styles.hamburgerBtn}
-          onPress={() => setDropdownVisible(true)}
-        >
-          <Text style={styles.hamburgerIcon}>≡</Text>
+        <TouchableOpacity onPress={() => setDropdownVisible(true)}>
+          <Text style={styles.hamburger}>≡</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Scrollable Content */}
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
+        {/* Greeting */}
         <Text style={styles.greeting}>Hey Alex!</Text>
         <Text style={styles.focusLabel}>Today's Focus</Text>
 
-        {/* Mood Balance Card */}
-        <View style={styles.card}>
+        {/* ✅ ONE combined card — Mood Balance + Daily Progress */}
+        <View style={styles.combinedCard}>
+          {/* Mood Balance section */}
           <Text style={styles.cardTitle}>Mood Balance</Text>
           <DonutChart />
-        </View>
 
-        {/* Daily Progress Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Daily Progress</Text>
-          <Text style={styles.progressSubtitle}>
-            0/5 Tasks Done • 0m Focus Time
+          {/* Divider inside card */}
+          <View style={styles.inCardDivider} />
+
+          {/* Daily Progress section */}
+          <Text style={[styles.cardTitle, { marginTop: SPACING.LG }]}>
+            Daily Progress
           </Text>
+          <Text style={styles.progressSub}>0/5 Tasks Done • 0m Focus Time</Text>
           <View style={styles.progressRow}>
             <View style={styles.streakBadge}>
               <Text style={styles.streakText}>🔥 0 Day Streak</Text>
             </View>
             <TouchableOpacity style={styles.calendarBtn}>
-              <Text style={styles.calendarBtnText}>Mood Calendar</Text>
+              <Text style={styles.calendarText}>Mood Calendar</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Bean Thinking */}
-        <View style={styles.beanThinkingContainer}>
-          <Image
-            source={require('../../../assets/images/user-dashboard-bean-thinking.png')}
-            style={styles.beanThinkingImage}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Features */}
+        {/* Features heading */}
         <Text style={styles.sectionTitle}>Features</Text>
-        <View style={styles.featureGrid}>
-          {FEATURES.map(feature => (
-            <FeatureTile
-              key={feature.id}
-              iconSource={feature.iconSource}
-              label={feature.label}
-              fullWidth={feature.fullWidth}
-              onPress={() => {
-                try {
-                  navigation.navigate(feature.route);
-                } catch {}
-              }}
+
+        {/* ✅ Grid — first 6 tiles, then bean robot, then full-width tile */}
+        <View style={styles.grid}>
+          {/* Row 1 — Talk to Bean + Start Focus Mode */}
+          <FeatureTile
+            iconSource={require('../../../assets/images/talk-to-bean.png')}
+            label="Talk to Bean"
+            onPress={() => {
+              try {
+                navigation.navigate('Chat');
+              } catch {}
+            }}
+          />
+          <FeatureTile
+            iconSource={require('../../../assets/images/timer-icon.png')}
+            label="Start Focus Mode"
+            onPress={() => {
+              try {
+                navigation.navigate('FocusMode');
+              } catch {}
+            }}
+          />
+
+          {/* Row 2 — Games + Play calm music */}
+          <FeatureTile
+            iconSource={require('../../../assets/images/games.png')}
+            label="Games"
+            onPress={() => {}}
+          />
+          <FeatureTile
+            iconSource={require('../../../assets/images/play-calm-music.png')}
+            label="Play calm music"
+            onPress={() => {}}
+          />
+
+          {/* Row 3 — Detecting SOS + Calming Exercises */}
+          <FeatureTile
+            iconSource={require('../../../assets/images/detecting-SOS.png')}
+            label="Detecting SOS"
+            onPress={() => {}}
+          />
+          <FeatureTile
+            iconSource={require('../../../assets/images/calming-exercises.png')}
+            label="Calming Exercises"
+            onPress={() => {}}
+          />
+
+          {/* ✅ Bean robot — full width row, right-aligned, AFTER calming exercises */}
+          <View style={styles.beanRow}>
+            <Image
+              source={require('../../../assets/images/user-dashboard-bean-thinking.png')}
+              style={styles.beanImage}
+              resizeMode="contain"
             />
-          ))}
+          </View>
+
+          {/* Row 4 — Therapeutic Conversations (full width) */}
+          <FeatureTile
+            iconSource={require('../../../assets/images/therapeutic-conversation.png')}
+            label="Therapeutic Conversations"
+            fullWidth
+            onPress={() => {
+              try {
+                navigation.navigate('Chat');
+              } catch {}
+            }}
+          />
         </View>
       </ScrollView>
 
-      {/* Bottom Tab Bar */}
       <BottomTabBar navigation={navigation} activeTab="Home" />
 
-      {/* Dropdown Menu */}
       <DropdownMenu
         visible={dropdownVisible}
         onClose={() => setDropdownVisible(false)}
@@ -293,6 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
   },
 
+  // Top bar
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -308,25 +271,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.SM,
   },
-  topBarRobotIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-  topBarName: {
-    ...TYPOGRAPHY.H4,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  hamburgerBtn: {
-    padding: SPACING.XS,
-  },
-  hamburgerIcon: {
-    fontSize: 26,
-    color: COLORS.TEXT_PRIMARY,
-    lineHeight: 28,
-  },
+  topBarIcon: { width: 32, height: 32, borderRadius: 16 },
+  topBarName: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
+  hamburger: { fontSize: 26, color: COLORS.TEXT_PRIMARY, lineHeight: 28 },
 
-  scrollContent: {
+  // Scroll
+  scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.MASSIVE,
@@ -344,11 +294,12 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG,
   },
 
-  card: {
+  // ✅ ONE combined card
+  combinedCard: {
     backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
-    marginBottom: SPACING.MD,
+    marginBottom: SPACING.XL,
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
@@ -356,12 +307,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.LG,
   },
-  progressSubtitle: {
+  inCardDivider: {
+    height: 1,
+    backgroundColor: COLORS.BORDER_LIGHT,
+  },
+  progressSub: {
     ...TYPOGRAPHY.BODY_SMALL,
     color: COLORS.TEXT_SECONDARY,
     marginBottom: SPACING.MD,
@@ -377,31 +332,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.MD,
     paddingVertical: SPACING.XS,
   },
-  streakText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.PRIMARY_DARK,
-  },
+  streakText: { fontSize: 12, fontWeight: '600', color: COLORS.PRIMARY_DARK },
   calendarBtn: {
     backgroundColor: COLORS.PRIMARY,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.XS,
   },
-  calendarBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.WHITE,
-  },
-
-  beanThinkingContainer: {
-    alignItems: 'flex-end',
-    marginBottom: SPACING.SM,
-  },
-  beanThinkingImage: {
-    width: 80,
-    height: 80,
-  },
+  calendarText: { fontSize: 12, fontWeight: '700', color: COLORS.WHITE },
 
   sectionTitle: {
     ...TYPOGRAPHY.H3,
@@ -409,44 +347,64 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.MD,
   },
 
-  featureGrid: {
+  // Grid
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: TILE_GAP,
   },
 
-  // ✅ Tile background = #F1F5F9 (light version of #94A3B8 slate)
+  // Standard tile
   tile: {
     width: TILE_SIZE,
     backgroundColor: TILE_BG,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    minHeight: TILE_SIZE * 0.85,
+    justifyContent: 'flex-start',
+    minHeight: TILE_SIZE,
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowRadius: 3,
     elevation: 1,
   },
+  // Full-width tile
   tileFullWidth: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 70,
+    minHeight: 80,
     gap: SPACING.MD,
   },
+
+  // ✅ Big icon — 52x52
   tileIcon: {
-    width: 38,
-    height: 38,
-    marginBottom: SPACING.SM,
+    width: 52,
+    height: 52,
+    marginBottom: SPACING.MD,
   },
   tileLabel: {
     fontSize: 13,
     fontWeight: '600',
     color: COLORS.TEXT_PRIMARY,
     lineHeight: 18,
+  },
+  tileLabelFull: {
+    marginBottom: 0,
+    fontSize: 14,
+  },
+
+  // ✅ Bean robot row — full width, right-aligned, AFTER calming exercises
+  beanRow: {
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingRight: SPACING.MD,
+    marginTop: -SPACING.SM, // slight overlap looks nice
+    marginBottom: -SPACING.SM,
+  },
+  beanImage: {
+    width: 110, // ✅ much bigger than before
+    height: 110,
   },
 });
 
