@@ -169,7 +169,7 @@ const HomeScreen = ({ navigation }: any) => {
           <FeatureTile
             iconSource={require('../../../assets/images/talk-to-bean.png')}
             label="Talk to Bean"
-            onPress={() => goTo('Chat')}
+            onPress={() => goTo('CasualConvo')} // ✅ → CasualConvoScreen
           />
           <FeatureTile
             iconSource={require('../../../assets/images/timer-icon.png')}
