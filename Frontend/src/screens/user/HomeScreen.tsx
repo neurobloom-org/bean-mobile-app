@@ -34,7 +34,7 @@ const FEATURES = [
   },
   {
     id: '2',
-    iconSource: require('../../../assets/images/focus-mode-bean.png'),
+    iconSource: require('../../../assets/images/timer-icon.png'),
     label: 'Start Focus Mode',
     route: 'FocusMode',
     fullWidth: false,
