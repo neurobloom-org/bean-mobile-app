@@ -1,10 +1,11 @@
 // src/screens/user/FocusModeScreen.tsx
-// ✅ FIGMA-MATCHED — Timer circle · During Focus · How to Start
+// ✅ Real icons · Bigger images · Green section labels · Dark play button
 
 import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
+  Image,
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
@@ -16,7 +17,6 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 
 const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = width * 0.62;
-const RING_WIDTH = 8;
 
 const FocusModeScreen = ({ navigation }: any) => {
   const TOTAL = 25 * 60;
@@ -41,15 +41,9 @@ const FocusModeScreen = ({ navigation }: any) => {
       .padStart(2, '0')}`;
   };
 
-  const handleStartPause = () => setIsRunning(prev => !prev);
-  const handleReset = () => {
-    setIsRunning(false);
-    setTimeLeft(TOTAL);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      {/* ── Header ── */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -66,32 +60,38 @@ const FocusModeScreen = ({ navigation }: any) => {
         showsVerticalScrollIndicator={false}
       >
         {/* ── Timer Circle ── */}
-        <View style={styles.timerWrap}>
-          {/* Outer green ring */}
-          <View style={styles.timerRing}>
-            {/* Inner white circle */}
-            <View style={styles.timerInner}>
-              <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+        <View style={styles.timerRing}>
+          <View style={styles.timerInner}>
+            <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
 
-              {/* Play / Pause button below time */}
-              <TouchableOpacity
-                style={styles.playBtn}
-                onPress={handleStartPause}
-              >
-                <Text style={styles.playIcon}>{isRunning ? '⏸' : '▶'}</Text>
-              </TouchableOpacity>
-            </View>
+            {/* ✅ Play/Pause — stays dark always */}
+            <TouchableOpacity
+              style={styles.playBtn}
+              onPress={() => setIsRunning(prev => !prev)}
+            >
+              <Image
+                source={require('../../../assets/images/manual-trigger.png')}
+                style={styles.playBtnIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Reset — only shown after timer starts */}
+        {/* Reset */}
         {!isRunning && timeLeft !== TOTAL && (
-          <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
+          <TouchableOpacity
+            style={styles.resetBtn}
+            onPress={() => {
+              setIsRunning(false);
+              setTimeLeft(TOTAL);
+            }}
+          >
             <Text style={styles.resetText}>Reset</Text>
           </TouchableOpacity>
         )}
 
-        {/* ── Subtitle ── */}
+        {/* Subtitle */}
         <Text style={styles.subtitle}>
           Boost your productivity. While in Focus Mode,{'\n'}
           your robot helps you stay in the zone.
@@ -101,22 +101,26 @@ const FocusModeScreen = ({ navigation }: any) => {
         <Text style={styles.sectionGreen}>During the Focus Mode...</Text>
 
         <View style={styles.duringRow}>
-          {/* Silent card */}
+          {/* Silent */}
           <View style={styles.duringCard}>
-            <View style={styles.duringIconBox}>
-              <Text style={styles.duringIcon}>🔕</Text>
-            </View>
+            <Image
+              source={require('../../../assets/images/silent.png')}
+              style={styles.duringIconImg}
+              resizeMode="contain"
+            />
             <Text style={styles.duringCardTitle}>Silent</Text>
             <Text style={styles.duringCardSub}>
               Notifications are muted on all devices
             </Text>
           </View>
 
-          {/* Ambient card */}
+          {/* Ambient */}
           <View style={styles.duringCard}>
-            <View style={styles.duringIconBox}>
-              <Text style={styles.duringIcon}>🎵</Text>
-            </View>
+            <Image
+              source={require('../../../assets/images/ambient.png')}
+              style={styles.duringIconImg}
+              resizeMode="contain"
+            />
             <Text style={styles.duringCardTitle}>Ambient</Text>
             <Text style={styles.duringCardSub}>
               Bean plays soft white noise
@@ -124,18 +128,17 @@ const FocusModeScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* ── How to Start ── */}
-        <Text style={styles.sectionDark}>How to start</Text>
+        {/* ── How to Start — ✅ green label like During ── */}
+        <Text style={styles.sectionGreen}>How to start</Text>
 
         {/* Voice Command */}
         <View style={styles.howCard}>
-          <View
-            style={[
-              styles.howIconCircle,
-              { backgroundColor: COLORS.SECONDARY_LIGHT },
-            ]}
-          >
-            <Text style={styles.howIcon}>🔊</Text>
+          <View style={styles.howIconCircle}>
+            <Image
+              source={require('../../../assets/images/voice-command.png')}
+              style={styles.howIconImg}
+              resizeMode="contain"
+            />
           </View>
           <View style={styles.howText}>
             <Text style={styles.howTitle}>Voice Command</Text>
@@ -147,13 +150,12 @@ const FocusModeScreen = ({ navigation }: any) => {
 
         {/* Physical Interaction */}
         <View style={styles.howCard}>
-          <View
-            style={[
-              styles.howIconCircle,
-              { backgroundColor: COLORS.SECONDARY_LIGHT },
-            ]}
-          >
-            <Text style={styles.howIcon}>👆</Text>
+          <View style={styles.howIconCircle}>
+            <Image
+              source={require('../../../assets/images/physical-interation.png')}
+              style={styles.howIconImg}
+              resizeMode="contain"
+            />
           </View>
           <View style={styles.howText}>
             <Text style={styles.howTitle}>Physical Interaction</Text>
@@ -166,8 +168,12 @@ const FocusModeScreen = ({ navigation }: any) => {
 
         {/* Manual Trigger */}
         <View style={styles.howCard}>
-          <View style={[styles.howIconCircle, { backgroundColor: '#22C55E' }]}>
-            <Text style={styles.howIcon}>▶</Text>
+          <View style={[styles.howIconCircle, styles.howIconCircleGreen]}>
+            <Image
+              source={require('../../../assets/images/manual-trigger.png')}
+              style={styles.howIconImg}
+              resizeMode="contain"
+            />
           </View>
           <View style={styles.howText}>
             <Text style={styles.howTitle}>Manual Trigger</Text>
@@ -189,7 +195,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND_LIGHT,
   },
 
-  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -211,16 +216,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // ── Timer
-  timerWrap: {
-    marginBottom: SPACING.LG,
-  },
+  // ── Timer ring
   timerRing: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
     borderRadius: CIRCLE_SIZE / 2,
-    borderWidth: RING_WIDTH,
-    borderColor: COLORS.PRIMARY, // ✅ green ring
+    borderWidth: 8,
+    borderColor: COLORS.PRIMARY, // green ring ✅
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.WHITE,
@@ -229,10 +231,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 5,
+    marginBottom: SPACING.LG,
   },
   timerInner: {
     alignItems: 'center',
-    gap: SPACING.MD,
+    gap: SPACING.LG,
   },
   timerText: {
     fontSize: 52,
@@ -240,17 +243,20 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
     letterSpacing: 2,
   },
+
+  // ✅ Play button — dark circle, no colour change when playing
   playBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.TEXT_PRIMARY, // dark circle like Figma
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.TEXT_PRIMARY, // always dark ✅
     justifyContent: 'center',
     alignItems: 'center',
   },
-  playIcon: {
-    fontSize: 14,
-    color: COLORS.WHITE,
+  playBtnIcon: {
+    width: 28,
+    height: 28,
+    tintColor: COLORS.WHITE, // white icon inside dark circle
   },
 
   // Reset
@@ -275,32 +281,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: SPACING.XL,
-    paddingHorizontal: SPACING.SM,
   },
 
-  // Section labels
+  // ✅ Both section labels now green
   sectionGreen: {
     alignSelf: 'flex-start',
     fontSize: 15,
     fontWeight: '700' as const,
-    color: COLORS.PRIMARY_DARK, // ✅ green label like Figma
+    color: COLORS.PRIMARY_DARK, // green ✅
     marginBottom: SPACING.MD,
-  },
-  sectionDark: {
-    alignSelf: 'flex-start',
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: SPACING.MD,
-    marginTop: SPACING.LG,
   },
 
-  // ── During row
+  // ── During row — 2 cards
   duringRow: {
     flexDirection: 'row',
     gap: SPACING.MD,
     width: '100%',
-    marginBottom: SPACING.LG,
+    marginBottom: SPACING.XL,
   },
   duringCard: {
     flex: 1,
@@ -314,16 +311,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  duringIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.SECONDARY_LIGHT,
-    justifyContent: 'center',
-    alignItems: 'center',
+  // ✅ Bigger during icons — 52x52
+  duringIconImg: {
+    width: 52,
+    height: 52,
     marginBottom: SPACING.SM,
   },
-  duringIcon: { fontSize: 22 },
   duringCardTitle: {
     fontSize: 14,
     fontWeight: '700' as const,
@@ -355,14 +348,22 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   howIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.SECONDARY_LIGHT, // light green bg
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
   },
-  howIcon: { fontSize: 20 },
+  howIconCircleGreen: {
+    backgroundColor: '#22C55E', // solid green for manual trigger ✅
+  },
+  // ✅ Bigger how-to icons — 34x34
+  howIconImg: {
+    width: 34,
+    height: 34,
+  },
   howText: { flex: 1 },
   howTitle: {
     fontSize: 15,
