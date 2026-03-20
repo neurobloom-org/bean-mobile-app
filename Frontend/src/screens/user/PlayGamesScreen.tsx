@@ -173,17 +173,19 @@ const styles = StyleSheet.create({
 
   // Mic circle
   micCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.SECONDARY_LIGHT, // light green ✅
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: COLORS.SECONDARY_LIGHT,
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
+    overflow: 'hidden', // ✅ clips any uneven padding
   },
   micIcon: {
-    width: 24,
-    height: 24,
+    width: 58,
+    height: 58,
+    alignSelf: 'center', // ✅ forces true centre
   },
 
   // Command text

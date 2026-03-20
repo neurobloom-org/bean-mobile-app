@@ -9,6 +9,7 @@ import ChatScreen from '../screens/user/ChatScreen';
 import FocusModeScreen from '../screens/user/FocusModeScreen';
 import TasksScreen from '../screens/user/TasksScreen';
 import PlayGamesScreen from '../screens/user/PlayGamesScreen';
+import PlayCalmMusicScreen from '../screens/user/PlayCalmMusicScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ const UserNavigator = () => {
       <Stack.Screen name="FocusMode" component={FocusModeScreen} />
       <Stack.Screen name="Tasks" component={TasksScreen} />
       <Stack.Screen name="PlayGames" component={PlayGamesScreen} />
+      <Stack.Screen name="PlayCalmMusic" component={PlayCalmMusicScreen} />
     </Stack.Navigator>
   );
 };
