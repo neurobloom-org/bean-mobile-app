@@ -1,13 +1,17 @@
 // src/navigation/AppNavigator.tsx
-// ✅ UPDATED - Added BeanConnectedScreen
+// ✅ Uses UserNavigator for all user screens
 
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// Onboarding
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import FeaturesScreen from '../screens/onboarding/FeaturesScreen';
 import PrivacyScreen from '../screens/onboarding/PrivacyScreen';
+
+// Auth
 import RoleSelectionScreen from '../screens/auth/RoleSelectionScreen';
 import CreateAccountScreen from '../screens/auth/CreateAccountScreen';
 import ConnectBeanScreen from '../screens/auth/ConnectBeanScreen';
@@ -16,10 +20,9 @@ import LoginUserScreen from '../screens/auth/LoginUserScreen';
 import LoginGuardianScreen from '../screens/auth/LoginGuardianScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import VerifyCodeScreen from '../screens/auth/VerifyCodeScreen';
-import HomeScreen from '../screens/user/HomeScreen';
-import ChatScreen from '../screens/user/ChatScreen';
-import FocusModeScreen from '../screens/user/FocusModeScreen';
-import TasksScreen from '../screens/user/TasksScreen';
+
+// Navigators
+import UserNavigator from './UserNavigator';
 import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
 
 const Stack = createNativeStackNavigator();
@@ -29,14 +32,15 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Splash"
-        screenOptions={{
-          headerShown: false,
-        }}
+        screenOptions={{ headerShown: false }}
       >
+        {/* ── Onboarding ── */}
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Features" component={FeaturesScreen} />
         <Stack.Screen name="Privacy" component={PrivacyScreen} />
+
+        {/* ── Auth ── */}
         <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
         <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
         <Stack.Screen name="ConnectBean" component={ConnectBeanScreen} />
@@ -45,10 +49,11 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginGuardian" component={LoginGuardianScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyCode" component={VerifyCodeScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Chat" component={ChatScreen} />
-        <Stack.Screen name="FocusMode" component={FocusModeScreen} />
-        <Stack.Screen name="Tasks" component={TasksScreen} />
+
+        {/* ✅ User screens — all handled by UserNavigator */}
+        <Stack.Screen name="UserApp" component={UserNavigator} />
+
+        {/* ── Caregiver ── */}
         <Stack.Screen
           name="CaregiverDashboard"
           component={CaregiverDashboard}

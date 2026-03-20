@@ -15,7 +15,7 @@ import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const BeanConnectedScreen = ({ navigation }: any) => {
   const handleNext = () => {
-    navigation.navigate('Home');
+    navigation.navigate('UserApp'); // ✅ goes into UserNavigator
   };
 
   return (
