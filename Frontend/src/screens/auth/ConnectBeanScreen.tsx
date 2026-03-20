@@ -1,10 +1,11 @@
 // src/screens/auth/ConnectBeanScreen.tsx
-// ✅ UPDATED - No validation, navigates to BeanConnected
+// ✅ UPDATED - Uses connect-bean-final.png icon
 
 import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
+  Image,
   TextInput,
   StyleSheet,
   SafeAreaView,
@@ -20,35 +21,26 @@ const ConnectBeanScreen = ({ navigation }: any) => {
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
   const handleCodeChange = (text: string, index: number) => {
-    // Only allow single digit
     if (text.length > 1) {
       text = text.charAt(0);
     }
-
-    // Update code array
     const newCode = [...code];
     newCode[index] = text;
     setCode(newCode);
-
-    // Auto-focus next input
     if (text && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyPress = (key: string, index: number) => {
-    // Handle backspace
     if (key === 'Backspace' && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleConfirm = () => {
-    // NO VALIDATION - Just navigate to BeanConnected screen
     const fullCode = code.join('');
     console.log('Robot code entered:', fullCode);
-
-    // Navigate to Bean Connected success screen
     navigation.navigate('BeanConnected');
   };
 
@@ -66,9 +58,13 @@ const ConnectBeanScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Bluetooth Icon */}
+        {/* ✅ connect-bean-final.png instead of emoji */}
         <View style={styles.iconContainer}>
-          <Text style={styles.bluetoothIcon}>📶</Text>
+          <Image
+            source={require('../../../assets/images/connect-bean-final.png')}
+            style={styles.connectIcon}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Title */}
@@ -79,7 +75,6 @@ const ConnectBeanScreen = ({ navigation }: any) => {
 
         {/* Steps */}
         <View style={styles.stepsContainer}>
-          {/* Step 1 */}
           <View style={styles.stepCard}>
             <View style={styles.stepNumber}>
               <Text style={styles.stepNumberText}>01</Text>
@@ -87,7 +82,6 @@ const ConnectBeanScreen = ({ navigation }: any) => {
             <Text style={styles.stepText}>Turn on your robot</Text>
           </View>
 
-          {/* Step 2 */}
           <View style={styles.stepCard}>
             <View style={styles.stepNumber}>
               <Text style={styles.stepNumberText}>02</Text>
@@ -95,7 +89,6 @@ const ConnectBeanScreen = ({ navigation }: any) => {
             <Text style={styles.stepText}>Turn on your device's Bluetooth</Text>
           </View>
 
-          {/* Step 3 */}
           <View style={styles.stepCard}>
             <View style={styles.stepNumber}>
               <Text style={styles.stepNumberText}>03</Text>
@@ -103,7 +96,6 @@ const ConnectBeanScreen = ({ navigation }: any) => {
             <Text style={styles.stepText}>Pair the Bean</Text>
           </View>
 
-          {/* Step 4 */}
           <View style={styles.stepCard}>
             <View style={styles.stepNumber}>
               <Text style={styles.stepNumberText}>04</Text>
@@ -133,7 +125,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Confirm Button - No validation! */}
+        {/* Confirm Button */}
         <PrimaryButton
           title="Confirm"
           onPress={handleConfirm}
@@ -165,13 +157,17 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.XXL,
     paddingBottom: SPACING.XXL,
   },
+
+  // ✅ Image icon instead of emoji
   iconContainer: {
     alignItems: 'center',
     marginBottom: SPACING.LG,
   },
-  bluetoothIcon: {
-    fontSize: 48,
+  connectIcon: {
+    width: 80,
+    height: 80,
   },
+
   title: {
     ...TYPOGRAPHY.H2,
     color: COLORS.TEXT_PRIMARY,
