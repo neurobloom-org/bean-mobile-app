@@ -1,14 +1,20 @@
 // src/screens/auth/BeanConnectedScreen.tsx
-// ✅ Bean Connected Success Screen
+// ✅ Bean Connected Success Screen - Real icon images
 
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
 import { PrimaryButton } from '../../components';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const BeanConnectedScreen = ({ navigation }: any) => {
   const handleNext = () => {
-    // Navigate to Home screen
     navigation.navigate('Home');
   };
 
@@ -18,7 +24,7 @@ const BeanConnectedScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Success Icon - Green Checkmark in Circles */}
+        {/* Success Icon */}
         <View style={styles.iconContainer}>
           <View style={styles.outerCircle}>
             <View style={styles.middleCircle}>
@@ -42,7 +48,12 @@ const BeanConnectedScreen = ({ navigation }: any) => {
           {/* Connection Status Card */}
           <View style={styles.statusCard}>
             <View style={styles.statusIconContainer}>
-              <Text style={styles.statusIcon}>📶</Text>
+              {/* ✅ Real image instead of 📶 emoji */}
+              <Image
+                source={require('../../../assets/images/connection-status.png')}
+                style={styles.statusIconImage}
+                resizeMode="contain"
+              />
             </View>
             <Text style={styles.statusLabel}>Connection Status</Text>
             <View style={styles.statusBadge}>
@@ -53,7 +64,12 @@ const BeanConnectedScreen = ({ navigation }: any) => {
           {/* Battery Level Card */}
           <View style={styles.statusCard}>
             <View style={styles.statusIconContainer}>
-              <Text style={styles.statusIcon}>🔋</Text>
+              {/* ✅ Real image instead of 🔋 emoji */}
+              <Image
+                source={require('../../../assets/images/battery-level.png')}
+                style={styles.statusIconImage}
+                resizeMode="contain"
+              />
             </View>
             <Text style={styles.statusLabel}>Battery Level</Text>
             <View style={styles.statusBadge}>
@@ -94,7 +110,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: '#E0F7F1', // Very light green
+    backgroundColor: '#E0F7F1',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -102,7 +118,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#7FE4C4', // Light green
+    backgroundColor: '#7FE4C4',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -110,7 +126,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: COLORS.PRIMARY, // Main green
+    backgroundColor: COLORS.PRIMARY,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -155,9 +171,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.MD,
+    overflow: 'hidden',
   },
-  statusIcon: {
-    fontSize: 20,
+  // ✅ New style for real images
+  statusIconImage: {
+    width: 28,
+    height: 28,
   },
   statusLabel: {
     ...TYPOGRAPHY.BODY,
