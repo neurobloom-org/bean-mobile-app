@@ -1,5 +1,5 @@
 // src/screens/user/TasksScreen.tsx
-// ✅ REFACTORED VERSION
+// ✅ FIGMA-MATCHED — Streak · Progress · Medication Reminders · Tasks · Quote
 
 import React, { useState } from 'react';
 import {
@@ -11,58 +11,93 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  Dimensions,
 } from 'react-native';
-import { BackButton, PrimaryButton } from '../../components';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { BORDER_RADIUS } from '../../constants/spacing';
+import BottomTabBar from '../../components/navigation/BottomTabBar';
 
+const { width } = Dimensions.get('window');
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Task {
   id: number;
   title: string;
-  category: 'personal' | 'medication' | 'routine';
+  category: string;
   completed: boolean;
-  time?: string;
 }
 
+interface Medication {
+  id: number;
+  title: string;
+  time: string;
+  dose: string;
+  taken: boolean;
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 const TasksScreen = ({ navigation }: any) => {
+  // ── All tasks start incomplete ✅
   const [tasks, setTasks] = useState<Task[]>([
+    { id: 1, title: 'Hydrate: 1L Water', category: 'Health', completed: false },
+    {
+      id: 2,
+      title: '10-minute mindfulness',
+      category: 'Wellness • Meditation',
+      completed: false,
+    },
+    { id: 3, title: 'Make-the-bed', category: 'Routine', completed: false },
+  ]);
+
+  // ── Medications start not taken ✅
+  const [medications, setMedications] = useState<Medication[]>([
     {
       id: 1,
-      title: 'Morning meditation',
-      category: 'routine',
-      completed: true,
-      time: '7:00 AM',
+      title: 'Morning Vitamins',
+      time: '8:00 AM',
+      dose: '2 capsules',
+      taken: false,
     },
     {
       id: 2,
-      title: 'Take vitamins',
-      category: 'medication',
-      completed: false,
-      time: '8:00 AM',
-    },
-    {
-      id: 3,
-      title: 'Journal entry',
-      category: 'personal',
-      completed: false,
-      time: '9:00 PM',
-    },
-    {
-      id: 4,
-      title: 'Evening walk',
-      category: 'routine',
-      completed: false,
-      time: '6:00 PM',
+      title: 'SSRI Medication',
+      time: '8:15 AM',
+      dose: 'Done at 8:15 AM',
+      taken: false,
     },
   ]);
+
   const [newTask, setNewTask] = useState('');
   const [showAddTask, setShowAddTask] = useState(false);
 
+  // Streak is 0 at beginning ✅
+  const STREAK = 0;
+
+  const completedCount = tasks.filter(t => t.completed).length;
+  const totalCount = tasks.length;
+  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
   const toggleTask = (id: number) => {
     setTasks(
-      tasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
-      ),
+      tasks.map(t => (t.id === id ? { ...t, completed: !t.completed } : t)),
     );
+  };
+
+  const toggleMedication = (id: number) => {
+    setMedications(
+      medications.map(m => (m.id === id ? { ...m, taken: !m.taken } : m)),
+    );
+  };
+
+  const deleteTask = (id: number) => {
+    Alert.alert('Delete Task', 'Are you sure?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => setTasks(tasks.filter(t => t.id !== id)),
+      },
+    ]);
   };
 
   const addTask = () => {
@@ -70,347 +105,492 @@ const TasksScreen = ({ navigation }: any) => {
       Alert.alert('Error', 'Please enter a task');
       return;
     }
-
-    const task: Task = {
-      id: tasks.length + 1,
-      title: newTask,
-      category: 'personal',
-      completed: false,
-    };
-
-    setTasks([...tasks, task]);
+    setTasks([
+      ...tasks,
+      {
+        id: Date.now(),
+        title: newTask,
+        category: 'Personal',
+        completed: false,
+      },
+    ]);
     setNewTask('');
     setShowAddTask(false);
   };
 
-  const deleteTask = (id: number) => {
-    Alert.alert('Delete Task', 'Are you sure you want to delete this task?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          setTasks(tasks.filter(task => task.id !== id));
-        },
-      },
-    ]);
-  };
-
-  const completedCount = tasks.filter(t => t.completed).length;
-  const totalCount = tasks.length;
-  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'medication':
-        return COLORS.ERROR;
-      case 'routine':
-        return COLORS.PRIMARY;
-      default:
-        return COLORS.INFO;
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
+      {/* ── Fixed Header ── */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
+          <Text style={styles.backIcon}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Today's Focus</Text>
+        <View style={{ width: 36 }} />
+      </View>
+
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <BackButton />
+        {/* ── Streak Card ── */}
+        <View style={styles.streakCard}>
+          <Text style={styles.streakFlame}>🔥</Text>
+          <Text style={styles.streakNumber}>{STREAK}</Text>
+          <Text style={styles.streakLabel}>CURRENT STREAK!</Text>
+        </View>
 
-        <Text style={styles.title}>My Tasks</Text>
-        <Text style={styles.subtitle}>Stay organized and on track</Text>
-
-        {/* Progress Card */}
-        <View style={styles.progressCard}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Today's Progress</Text>
-            <Text style={styles.progressNumber}>
-              {completedCount}/{totalCount}
-            </Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBar, { width: `${progress}%` }]} />
-          </View>
-          <Text style={styles.progressText}>
-            {progress === 100
-              ? '🎉 All tasks completed!'
-              : `${Math.round(progress)}% complete`}
+        {/* ── Daily Progress ── */}
+        <View style={styles.progressRow}>
+          <Text style={styles.progressTitle}>Daily Progress</Text>
+          <Text style={styles.progressCount}>
+            {completedCount} of {totalCount} completed
           </Text>
         </View>
-
-        {/* Streak Card */}
-        <View style={styles.streakCard}>
-          <Text style={styles.streakEmoji}>🔥</Text>
-          <View>
-            <Text style={styles.streakNumber}>7 Day Streak</Text>
-            <Text style={styles.streakText}>Keep it up!</Text>
-          </View>
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
         </View>
 
-        {/* Tasks List */}
-        <View style={styles.tasksSection}>
-          <Text style={styles.sectionTitle}>Tasks</Text>
+        {/* ── Medication Reminders ── */}
+        <Text style={styles.sectionTitle}>Medication Reminders</Text>
 
-          {tasks.map(task => (
-            <View key={task.id} style={styles.taskCard}>
-              <TouchableOpacity
-                style={styles.checkbox}
-                onPress={() => toggleTask(task.id)}
-              >
-                <View
-                  style={[
-                    styles.checkboxInner,
-                    task.completed && styles.checkboxChecked,
-                  ]}
-                >
-                  {task.completed && <Text style={styles.checkmark}>✓</Text>}
-                </View>
-              </TouchableOpacity>
-
-              <View style={styles.taskContent}>
-                <Text
-                  style={[
-                    styles.taskTitle,
-                    task.completed && styles.taskTitleCompleted,
-                  ]}
-                >
-                  {task.title}
-                </Text>
-                {task.time && (
-                  <Text style={styles.taskTime}>⏰ {task.time}</Text>
-                )}
-              </View>
-
-              <View
-                style={[
-                  styles.categoryBadge,
-                  { backgroundColor: getCategoryColor(task.category) },
-                ]}
-              >
-                <Text style={styles.categoryText}>{task.category}</Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => deleteTask(task.id)}
-              >
-                <Text style={styles.deleteIcon}>🗑️</Text>
-              </TouchableOpacity>
+        {medications.map(med => (
+          <View key={med.id} style={styles.medCard}>
+            {/* Pill icon circle */}
+            <View
+              style={[
+                styles.medIconCircle,
+                med.taken && styles.medIconCircleDone,
+              ]}
+            >
+              <Text style={styles.medIconText}>💊</Text>
             </View>
-          ))}
-        </View>
 
-        {/* Add Task Section */}
+            {/* Text */}
+            <View style={styles.medContent}>
+              <Text style={styles.medTitle}>{med.title}</Text>
+              <Text style={styles.medSub}>
+                {med.time} • {med.dose}
+              </Text>
+            </View>
+
+            {/* Take / Done button */}
+            <TouchableOpacity
+              style={[styles.takeBtn, med.taken && styles.takeBtnDone]}
+              onPress={() => toggleMedication(med.id)}
+            >
+              <Text style={styles.takeBtnText}>
+                {med.taken ? 'Done' : 'Take'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+
+        {/* ── Today's Tasks ── */}
+        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+
+        {tasks.map(task => (
+          <View key={task.id} style={styles.taskCard}>
+            {/* Checkbox */}
+            <TouchableOpacity
+              onPress={() => toggleTask(task.id)}
+              style={styles.checkboxHit}
+            >
+              <View
+                style={[styles.checkbox, task.completed && styles.checkboxDone]}
+              >
+                {task.completed && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+            </TouchableOpacity>
+
+            {/* Text */}
+            <View style={styles.taskContent}>
+              <Text
+                style={[styles.taskTitle, task.completed && styles.taskDone]}
+              >
+                {task.title}
+              </Text>
+              <Text style={styles.taskCategory}>{task.category}</Text>
+            </View>
+
+            {/* Delete */}
+            <TouchableOpacity
+              onPress={() => deleteTask(task.id)}
+              style={styles.deleteBtn}
+            >
+              <Text style={styles.deleteIcon}>🗑️</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+
+        {/* ── Add Task ── */}
         {showAddTask ? (
-          <View style={styles.addTaskContainer}>
+          <View style={styles.addBox}>
             <TextInput
-              style={styles.addTaskInput}
+              style={styles.addInput}
               placeholder="Enter new task..."
+              placeholderTextColor={COLORS.TEXT_TERTIARY}
               value={newTask}
               onChangeText={setNewTask}
               autoFocus
             />
-            <View style={styles.addTaskButtons}>
-              <PrimaryButton
-                title="Add"
-                onPress={addTask}
-                variant="primary"
-                size="medium"
-              />
-              <PrimaryButton
-                title="Cancel"
+            <View style={styles.addBtnRow}>
+              <TouchableOpacity style={styles.addConfirmBtn} onPress={addTask}>
+                <Text style={styles.addConfirmText}>Add</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addCancelBtn}
                 onPress={() => {
                   setShowAddTask(false);
                   setNewTask('');
                 }}
-                variant="outline"
-                size="medium"
-              />
+              >
+                <Text style={styles.addCancelText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
           </View>
         ) : (
-          <PrimaryButton
-            title="+ Add New Task"
+          /* ── Green + FAB button ── */
+          <TouchableOpacity
+            style={styles.fab}
             onPress={() => setShowAddTask(true)}
-            variant="outline"
-            size="large"
-            fullWidth
-          />
+          >
+            <Text style={styles.fabIcon}>+</Text>
+          </TouchableOpacity>
         )}
+
+        {/* ── Quote ── */}
+        <View style={styles.quoteBox}>
+          <Text style={styles.quoteText}>
+            "One step at a time is still moving forward.{'\n'}You're doing great
+            today!"
+          </Text>
+          <Text style={styles.quoteAuthor}>— BEAN —</Text>
+        </View>
       </ScrollView>
+
+      {/* Bottom Tab Bar */}
+      <BottomTabBar navigation={navigation} activeTab="Tasks" />
     </SafeAreaView>
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
+    backgroundColor: COLORS.BACKGROUND_LIGHT, // '#F8F9FA'
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: SPACING.XL,
-    paddingTop: SPACING.XL,
-    paddingBottom: SPACING.XXL,
-  },
-  title: {
-    ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
-    marginTop: SPACING.XL,
-  },
-  subtitle: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: SPACING.XXL,
-  },
-  progressCard: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.XL,
-    marginBottom: SPACING.LG,
-  },
-  progressHeader: {
+
+  // Header
+  header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.MD,
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
+    backgroundColor: COLORS.WHITE,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.BORDER_LIGHT,
   },
-  progressTitle: {
+  backBtn: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+  },
+  backIcon: {
+    fontSize: 28,
+    color: COLORS.TEXT_PRIMARY,
+    lineHeight: 32,
+  },
+  headerTitle: {
     ...TYPOGRAPHY.H4,
     color: COLORS.TEXT_PRIMARY,
   },
-  progressNumber: {
-    ...TYPOGRAPHY.H3,
-    color: COLORS.PRIMARY,
+
+  scroll: {
+    paddingHorizontal: SPACING.LG, // 16
+    paddingTop: SPACING.LG,
+    paddingBottom: SPACING.MASSIVE, // clears BottomTabBar
   },
-  progressBarContainer: {
-    height: 12,
-    backgroundColor: COLORS.GRAY_200,
-    borderRadius: 6,
-    marginBottom: SPACING.SM,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 6,
-  },
-  progressText: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
-  },
+
+  // ── Streak card
   streakCard: {
-    flexDirection: 'row',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: BORDER_RADIUS.XL,
+    paddingVertical: SPACING.XL,
     alignItems: 'center',
-    backgroundColor: COLORS.SUCCESS_LIGHT,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
-    marginBottom: SPACING.XL,
-    gap: SPACING.LG,
+    marginBottom: SPACING.LG,
+    shadowColor: COLORS.SHADOW,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  streakEmoji: {
-    fontSize: 40,
+  streakFlame: {
+    fontSize: 44,
+    marginBottom: SPACING.XS,
   },
   streakNumber: {
-    ...TYPOGRAPHY.H3,
-    color: COLORS.SUCCESS,
+    fontSize: 52,
+    fontWeight: '900',
+    color: COLORS.PRIMARY, // '#4ECCA3'
+    lineHeight: 58,
   },
-  streakText: {
+  streakLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.PRIMARY,
+    letterSpacing: 1.2,
+    marginTop: SPACING.XS,
+  },
+
+  // ── Progress
+  progressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.SM,
+  },
+  progressTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.TEXT_PRIMARY,
+  },
+  progressCount: {
     ...TYPOGRAPHY.CAPTION,
     color: COLORS.TEXT_SECONDARY,
   },
-  tasksSection: {
+  progressBarBg: {
+    height: 10,
+    backgroundColor: COLORS.GRAY_200,
+    borderRadius: 5,
     marginBottom: SPACING.XL,
+    overflow: 'hidden',
   },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 5,
+  },
+
+  // ── Section title
   sectionTitle: {
-    ...TYPOGRAPHY.H3,
+    fontSize: 16,
+    fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
-    marginBottom: SPACING.LG,
+    marginBottom: SPACING.MD,
   },
+
+  // ── Medication card
+  medCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: BORDER_RADIUS.LG,
+    padding: SPACING.MD,
+    marginBottom: SPACING.SM,
+    shadowColor: COLORS.SHADOW,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  medIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.SECONDARY_LIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.MD,
+  },
+  medIconCircleDone: {
+    backgroundColor: COLORS.SUCCESS_LIGHT,
+  },
+  medIconText: {
+    fontSize: 20,
+  },
+  medContent: {
+    flex: 1,
+  },
+  medTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.TEXT_PRIMARY,
+  },
+  medSub: {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: 2,
+  },
+  takeBtn: {
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: BORDER_RADIUS.ROUND,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.XS,
+  },
+  takeBtnDone: {
+    backgroundColor: COLORS.GRAY_200,
+  },
+  takeBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.WHITE,
+  },
+
+  // ── Task card
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
-    marginBottom: SPACING.MD,
-    gap: SPACING.MD,
+    borderRadius: BORDER_RADIUS.LG,
+    padding: SPACING.MD,
+    marginBottom: SPACING.SM,
+    shadowColor: COLORS.SHADOW,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  checkboxHit: {
+    padding: SPACING.XS,
+    marginRight: SPACING.SM,
   },
   checkbox: {
-    padding: SPACING.XS,
-  },
-  checkboxInner: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: COLORS.GRAY_400,
+    borderColor: COLORS.GRAY_300,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxChecked: {
+  checkboxDone: {
     backgroundColor: COLORS.PRIMARY,
     borderColor: COLORS.PRIMARY,
   },
   checkmark: {
     color: COLORS.WHITE,
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 13,
+    fontWeight: '700',
   },
   taskContent: {
     flex: 1,
   },
   taskTitle: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
+    fontSize: 14,
     fontWeight: '600',
+    color: COLORS.TEXT_PRIMARY,
   },
-  taskTitleCompleted: {
+  taskDone: {
     textDecorationLine: 'line-through',
     color: COLORS.TEXT_TERTIARY,
   },
-  taskTime: {
+  taskCategory: {
     ...TYPOGRAPHY.CAPTION,
     color: COLORS.TEXT_SECONDARY,
-    marginTop: SPACING.XXS,
+    marginTop: 2,
   },
-  categoryBadge: {
-    paddingHorizontal: SPACING.SM,
-    paddingVertical: SPACING.XXS,
-    borderRadius: SPACING.SM,
-  },
-  categoryText: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.WHITE,
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  deleteButton: {
+  deleteBtn: {
     padding: SPACING.XS,
   },
   deleteIcon: {
-    fontSize: 18,
+    fontSize: 16,
   },
-  addTaskContainer: {
+
+  // ── FAB add button
+  fab: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.PRIMARY,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: SPACING.MD,
+    marginBottom: SPACING.LG,
+    shadowColor: COLORS.PRIMARY,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  fabIcon: {
+    fontSize: 28,
+    color: COLORS.WHITE,
+    lineHeight: 32,
+    fontWeight: '300',
+  },
+
+  // ── Add task box
+  addBox: {
     backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
+    borderRadius: BORDER_RADIUS.LG,
     padding: SPACING.LG,
+    marginBottom: SPACING.LG,
   },
-  addTaskInput: {
+  addInput: {
     ...TYPOGRAPHY.BODY,
     borderWidth: 1,
     borderColor: COLORS.BORDER,
-    borderRadius: SPACING.MD,
+    borderRadius: BORDER_RADIUS.MD,
     padding: SPACING.MD,
     marginBottom: SPACING.MD,
+    color: COLORS.TEXT_PRIMARY,
   },
-  addTaskButtons: {
+  addBtnRow: {
     flexDirection: 'row',
     gap: SPACING.MD,
+  },
+  addConfirmBtn: {
+    flex: 1,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: BORDER_RADIUS.ROUND,
+    paddingVertical: SPACING.MD,
+    alignItems: 'center',
+  },
+  addConfirmText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.WHITE,
+  },
+  addCancelBtn: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: COLORS.BORDER,
+    borderRadius: BORDER_RADIUS.ROUND,
+    paddingVertical: SPACING.MD,
+    alignItems: 'center',
+  },
+  addCancelText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.TEXT_SECONDARY,
+  },
+
+  // ── Quote
+  quoteBox: {
+    marginTop: SPACING.SM,
+    marginBottom: SPACING.MD,
+    alignItems: 'center',
+    paddingHorizontal: SPACING.LG,
+  },
+  quoteText: {
+    ...TYPOGRAPHY.BODY_SMALL,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    lineHeight: 20,
+  },
+  quoteAuthor: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.PRIMARY,
+    marginTop: SPACING.XS,
+    letterSpacing: 1,
   },
 });
 
