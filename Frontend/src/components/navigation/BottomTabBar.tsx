@@ -1,9 +1,9 @@
 // src/components/navigation/BottomTabBar.tsx
-// ✅ Bottom navigation bar — Home · Tasks · Profile
+// ✅ Smaller icons — no pixelation · Clean tab bar
 
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { COLORS, SPACING } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 
 // ─── Tab Data ─────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
             onPress={() => navigation.navigate(tab.route)}
             activeOpacity={0.7}
           >
-            {/* Icon */}
+            {/* ✅ Smaller icon — 20x20 prevents pixelation */}
             <Image
               source={tab.iconSource}
               style={[
@@ -67,7 +67,7 @@ const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
               {tab.label}
             </Text>
 
-            {/* Active indicator dot */}
+            {/* Active dot indicator */}
             {isActive && <View style={styles.activeDot} />}
           </TouchableOpacity>
         );
@@ -82,55 +82,54 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: COLORS.WHITE,
     borderTopWidth: 1,
-    borderTopColor: COLORS.BORDER_LIGHT, // '#F0F0F0'
+    borderTopColor: COLORS.BORDER_LIGHT,
     paddingTop: SPACING.SM, // 8
-    paddingBottom: SPACING.LG, // 16 — extra for home bar on newer phones
-    paddingHorizontal: SPACING.XL, // 20
+    paddingBottom: SPACING.LG, // 16
+    paddingHorizontal: SPACING.XL,
     shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 10,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 8,
   },
 
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: SPACING.XXS, // 2
+    gap: 3,
     position: 'relative',
   },
 
-  // Icon
+  // ✅ 20x20 — small enough to be crisp, not pixelated
   icon: {
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
   },
   iconActive: {
-    tintColor: COLORS.PRIMARY, // '#4ECCA3' Bean green ✅
+    tintColor: COLORS.PRIMARY, // '#4ECCA3' green
   },
   iconInactive: {
-    tintColor: COLORS.GRAY_400, // '#999999' muted
-    opacity: 0.6,
+    tintColor: COLORS.GRAY_400, // '#999999'
+    opacity: 0.55,
   },
 
-  // Label
   label: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
   },
   labelActive: {
-    color: COLORS.PRIMARY, // '#4ECCA3'
+    color: COLORS.PRIMARY,
     fontWeight: '700',
   },
   labelInactive: {
-    color: COLORS.TEXT_TERTIARY, // '#999999'
+    color: COLORS.TEXT_TERTIARY,
   },
 
-  // Small dot under active tab
+  // Small dot below active tab label
   activeDot: {
     position: 'absolute',
-    bottom: -SPACING.SM, // sits below label
+    bottom: -4,
     width: 4,
     height: 4,
     borderRadius: 2,
