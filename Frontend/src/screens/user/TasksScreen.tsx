@@ -11,13 +11,10 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  Dimensions,
 } from 'react-native';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import BottomTabBar from '../../components/navigation/BottomTabBar';
-
-const { width } = Dimensions.get('window');
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Task {
@@ -37,7 +34,6 @@ interface Medication {
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 const TasksScreen = ({ navigation }: any) => {
-  // ── All tasks start incomplete ✅
   const [tasks, setTasks] = useState<Task[]>([
     { id: 1, title: 'Hydrate: 1L Water', category: 'Health', completed: false },
     {
@@ -49,7 +45,6 @@ const TasksScreen = ({ navigation }: any) => {
     { id: 3, title: 'Make-the-bed', category: 'Routine', completed: false },
   ]);
 
-  // ── Medications start not taken ✅
   const [medications, setMedications] = useState<Medication[]>([
     {
       id: 1,
@@ -70,24 +65,20 @@ const TasksScreen = ({ navigation }: any) => {
   const [newTask, setNewTask] = useState('');
   const [showAddTask, setShowAddTask] = useState(false);
 
-  // Streak is 0 at beginning ✅
   const STREAK = 0;
-
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
-  const toggleTask = (id: number) => {
+  const toggleTask = (id: number) =>
     setTasks(
       tasks.map(t => (t.id === id ? { ...t, completed: !t.completed } : t)),
     );
-  };
 
-  const toggleMedication = (id: number) => {
+  const toggleMedication = (id: number) =>
     setMedications(
       medications.map(m => (m.id === id ? { ...m, taken: !m.taken } : m)),
     );
-  };
 
   const deleteTask = (id: number) => {
     Alert.alert('Delete Task', 'Are you sure?', [
@@ -120,7 +111,7 @@ const TasksScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* ── Fixed Header ── */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -136,14 +127,15 @@ const TasksScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Streak Card ── */}
+        {/* Streak Card */}
         <View style={styles.streakCard}>
+          <View style={styles.streakGlow} />
           <Text style={styles.streakFlame}>🔥</Text>
           <Text style={styles.streakNumber}>{STREAK}</Text>
           <Text style={styles.streakLabel}>CURRENT STREAK!</Text>
         </View>
 
-        {/* ── Daily Progress ── */}
+        {/* Daily Progress */}
         <View style={styles.progressRow}>
           <Text style={styles.progressTitle}>Daily Progress</Text>
           <Text style={styles.progressCount}>
@@ -154,12 +146,10 @@ const TasksScreen = ({ navigation }: any) => {
           <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
         </View>
 
-        {/* ── Medication Reminders ── */}
+        {/* Medication Reminders */}
         <Text style={styles.sectionTitle}>Medication Reminders</Text>
-
         {medications.map(med => (
           <View key={med.id} style={styles.medCard}>
-            {/* Pill icon circle */}
             <View
               style={[
                 styles.medIconCircle,
@@ -168,16 +158,12 @@ const TasksScreen = ({ navigation }: any) => {
             >
               <Text style={styles.medIconText}>💊</Text>
             </View>
-
-            {/* Text */}
             <View style={styles.medContent}>
               <Text style={styles.medTitle}>{med.title}</Text>
               <Text style={styles.medSub}>
                 {med.time} • {med.dose}
               </Text>
             </View>
-
-            {/* Take / Done button */}
             <TouchableOpacity
               style={[styles.takeBtn, med.taken && styles.takeBtnDone]}
               onPress={() => toggleMedication(med.id)}
@@ -189,12 +175,10 @@ const TasksScreen = ({ navigation }: any) => {
           </View>
         ))}
 
-        {/* ── Today's Tasks ── */}
+        {/* Today's Tasks */}
         <Text style={styles.sectionTitle}>Today's Tasks</Text>
-
         {tasks.map(task => (
           <View key={task.id} style={styles.taskCard}>
-            {/* Checkbox */}
             <TouchableOpacity
               onPress={() => toggleTask(task.id)}
               style={styles.checkboxHit}
@@ -205,8 +189,6 @@ const TasksScreen = ({ navigation }: any) => {
                 {task.completed && <Text style={styles.checkmark}>✓</Text>}
               </View>
             </TouchableOpacity>
-
-            {/* Text */}
             <View style={styles.taskContent}>
               <Text
                 style={[styles.taskTitle, task.completed && styles.taskDone]}
@@ -215,8 +197,6 @@ const TasksScreen = ({ navigation }: any) => {
               </Text>
               <Text style={styles.taskCategory}>{task.category}</Text>
             </View>
-
-            {/* Delete */}
             <TouchableOpacity
               onPress={() => deleteTask(task.id)}
               style={styles.deleteBtn}
@@ -226,7 +206,7 @@ const TasksScreen = ({ navigation }: any) => {
           </View>
         ))}
 
-        {/* ── Add Task ── */}
+        {/* Add Task */}
         {showAddTask ? (
           <View style={styles.addBox}>
             <TextInput
@@ -253,7 +233,6 @@ const TasksScreen = ({ navigation }: any) => {
             </View>
           </View>
         ) : (
-          /* ── Green + FAB button ── */
           <TouchableOpacity
             style={styles.fab}
             onPress={() => setShowAddTask(true)}
@@ -262,7 +241,7 @@ const TasksScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         )}
 
-        {/* ── Quote ── */}
+        {/* Quote */}
         <View style={styles.quoteBox}>
           <Text style={styles.quoteText}>
             "One step at a time is still moving forward.{'\n'}You're doing great
@@ -272,7 +251,6 @@ const TasksScreen = ({ navigation }: any) => {
         </View>
       </ScrollView>
 
-      {/* Bottom Tab Bar */}
       <BottomTabBar navigation={navigation} activeTab="Tasks" />
     </SafeAreaView>
   );
@@ -282,10 +260,9 @@ const TasksScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND_LIGHT, // '#F8F9FA'
+    backgroundColor: COLORS.BACKGROUND_LIGHT,
   },
 
-  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -312,23 +289,37 @@ const styles = StyleSheet.create({
   },
 
   scroll: {
-    paddingHorizontal: SPACING.LG, // 16
+    paddingHorizontal: SPACING.LG,
     paddingTop: SPACING.LG,
-    paddingBottom: SPACING.MASSIVE, // clears BottomTabBar
+    paddingBottom: SPACING.MASSIVE,
   },
 
   // ── Streak card
   streakCard: {
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     paddingVertical: SPACING.XL,
     alignItems: 'center',
     marginBottom: SPACING.LG,
+    backgroundColor: '#E8EDEA',
+    overflow: 'hidden',
     shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  streakGlow: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: '#C9F7E4',
+    opacity: 0.75,
+    alignSelf: 'center',
+    top: 0,
+    bottom: 0,
+    marginTop: 'auto' as any,
+    marginBottom: 'auto' as any,
   },
   streakFlame: {
     fontSize: 44,
@@ -336,14 +327,14 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     fontSize: 52,
-    fontWeight: '900',
-    color: COLORS.PRIMARY, // '#4ECCA3'
+    fontWeight: '900' as const,
+    color: '#0F172A',
     lineHeight: 58,
   },
   streakLabel: {
     fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.PRIMARY,
+    fontWeight: '700' as const,
+    color: '#07882C',
     letterSpacing: 1.2,
     marginTop: SPACING.XS,
   },
@@ -357,7 +348,7 @@ const styles = StyleSheet.create({
   },
   progressTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: COLORS.TEXT_PRIMARY,
   },
   progressCount: {
@@ -380,7 +371,7 @@ const styles = StyleSheet.create({
   // ── Section title
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.MD,
   },
@@ -419,7 +410,7 @@ const styles = StyleSheet.create({
   },
   medTitle: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: COLORS.TEXT_PRIMARY,
   },
   medSub: {
@@ -438,7 +429,7 @@ const styles = StyleSheet.create({
   },
   takeBtnText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: COLORS.WHITE,
   },
 
@@ -476,14 +467,14 @@ const styles = StyleSheet.create({
   checkmark: {
     color: COLORS.WHITE,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '700' as const,
   },
   taskContent: {
     flex: 1,
   },
   taskTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '600' as const,
     color: COLORS.TEXT_PRIMARY,
   },
   taskDone: {
@@ -502,7 +493,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  // ── FAB add button
+  // ── FAB
   fab: {
     width: 52,
     height: 52,
@@ -522,7 +513,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: COLORS.WHITE,
     lineHeight: 32,
-    fontWeight: '300',
+    fontWeight: '300' as const,
   },
 
   // ── Add task box
@@ -554,7 +545,7 @@ const styles = StyleSheet.create({
   },
   addConfirmText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: COLORS.WHITE,
   },
   addCancelBtn: {
@@ -567,7 +558,7 @@ const styles = StyleSheet.create({
   },
   addCancelText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '600' as const,
     color: COLORS.TEXT_SECONDARY,
   },
 
@@ -587,7 +578,7 @@ const styles = StyleSheet.create({
   },
   quoteAuthor: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: COLORS.PRIMARY,
     marginTop: SPACING.XS,
     letterSpacing: 1,
