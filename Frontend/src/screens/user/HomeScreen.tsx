@@ -181,7 +181,7 @@ const HomeScreen = ({ navigation }: any) => {
             }}
           />
           <FeatureTile
-            iconSource={require('../../../assets/images/timer-icon.png')}
+            iconSource={require('../../../assets/images/focus-mode-bean.png')}
             label="Start Focus Mode"
             onPress={() => {
               try {
@@ -202,26 +202,33 @@ const HomeScreen = ({ navigation }: any) => {
             onPress={() => {}}
           />
 
-          {/* Row 3 — Detecting SOS + Calming Exercises */}
+          {/* Row 3 — Detecting SOS + Calming Exercises (bean overlaps corner) */}
           <FeatureTile
             iconSource={require('../../../assets/images/detecting-SOS.png')}
             label="Detecting SOS"
             onPress={() => {}}
           />
-          <FeatureTile
-            iconSource={require('../../../assets/images/calming-exercises.png')}
-            label="Calming Exercises"
-            onPress={() => {}}
-          />
 
-          {/* ✅ Bean robot — full width row, right-aligned, AFTER calming exercises */}
-          <View style={styles.beanRow}>
+          {/* ✅ Calming Exercises tile with Bean robot at bottom-right corner */}
+          <TouchableOpacity
+            style={styles.tile}
+            activeOpacity={0.8}
+            onPress={() => {}}
+          >
             <Image
-              source={require('../../../assets/images/user-dashboard-bean-thinking.png')}
-              style={styles.beanImage}
+              source={require('../../../assets/images/calming-exercises.png')}
+              style={styles.tileIcon}
               resizeMode="contain"
             />
-          </View>
+            <Text style={styles.tileLabel}>Calming Exercises</Text>
+
+            {/* ✅ Bean robot — absolutely positioned bottom-right of THIS tile */}
+            <Image
+              source={require('../../../assets/images/user-dashboard-bean-thinking.png')}
+              style={styles.beanOnTile}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
 
           {/* Row 4 — Therapeutic Conversations (full width) */}
           <FeatureTile
@@ -362,6 +369,7 @@ const styles = StyleSheet.create({
     padding: SPACING.LG,
     justifyContent: 'flex-start',
     minHeight: TILE_SIZE,
+    overflow: 'visible', // ✅ lets bean hang outside tile
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -394,17 +402,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // ✅ Bean robot row — full width, right-aligned, AFTER calming exercises
-  beanRow: {
-    width: '100%',
-    alignItems: 'flex-end',
-    paddingRight: SPACING.MD,
-    marginTop: -SPACING.SM, // slight overlap looks nice
-    marginBottom: -SPACING.SM,
-  },
-  beanImage: {
-    width: 110, // ✅ much bigger than before
-    height: 110,
+  // ✅ Bean robot — absolute bottom-right corner of Calming Exercises tile
+  beanOnTile: {
+    position: 'absolute',
+    bottom: -16, // hangs slightly below tile bottom edge
+    right: -16, // hangs slightly outside right edge
+    width: 78,
+    height: 78,
   },
 });
 
