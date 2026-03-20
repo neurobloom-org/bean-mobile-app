@@ -39,42 +39,42 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'account',
     label: 'Account Info',
     type: 'image',
-    iconSource: require('../../../assets/images/account-info.png'),
+    iconSource: require('../../../assets/images/account-info.png'), // ✅
     route: 'AccountInfo',
   },
   {
     id: 'notifications',
     label: 'Notifications',
-    type: 'emoji',
-    emoji: '🔔',
+    type: 'image',
+    iconSource: require('../../../assets/images/notifications.png'), // ✅ now exists!
     route: 'Notifications',
   },
   {
     id: 'privacy',
     label: 'Privacy',
-    type: 'emoji',
-    emoji: '🔒',
+    type: 'image',
+    iconSource: require('../../../assets/images/privacy.png'), // ✅ now exists!
     route: 'Privacy',
   },
   {
     id: 'help',
     label: 'Help',
     type: 'image',
-    iconSource: require('../../../assets/images/help.png'),
+    iconSource: require('../../../assets/images/help.png'), // ✅
     route: 'Help',
   },
   {
     id: 'bean',
     label: 'Bean',
     type: 'image',
-    iconSource: require('../../../assets/images/login-page.png'),
+    iconSource: require('../../../assets/images/login-page.png'), // ✅
     route: 'Bean',
   },
   {
     id: 'display',
     label: 'Display & Brightness',
     type: 'image',
-    iconSource: require('../../../assets/images/display-and-brightness.png'),
+    iconSource: require('../../../assets/images/display-and-brightness.png'), // ✅
     route: 'Display',
   },
 ];
@@ -247,19 +247,21 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.LG, // 12
   },
 
-  // Icon container — consistent size for both image and emoji
+  // Icon container — bigger with soft green tint background ✅
   iconBox: {
-    width: 32,
-    height: 32,
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: COLORS.SECONDARY_LIGHT, // '#E0F7F1' soft green pill
     justifyContent: 'center',
     alignItems: 'center',
   },
   menuIconImage: {
-    width: 28, // nice big icons ✅
-    height: 28,
+    width: 26,
+    height: 26,
   },
   menuIconEmoji: {
-    fontSize: 24, // matches image icon size ✅
+    fontSize: 22,
   },
 
   // Menu label
