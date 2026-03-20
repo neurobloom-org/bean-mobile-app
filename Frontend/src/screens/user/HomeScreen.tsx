@@ -196,11 +196,11 @@ const HomeScreen = ({ navigation }: any) => {
             onPress={() => {}}
           />
 
-          {/* Calming Exercises — bean robot tappable separately → Chat ✅ */}
+          {/* Calming Exercises — tile → CalmingExercises · bean robot → Chat ✅ */}
           <TouchableOpacity
             style={styles.tile}
             activeOpacity={0.8}
-            onPress={() => {}}
+            onPress={() => goTo('CalmingExercises')}
           >
             <Image
               source={require('../../../assets/images/calming-exercises.png')}
