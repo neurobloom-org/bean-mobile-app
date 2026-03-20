@@ -1,5 +1,5 @@
 // src/screens/user/HomeScreen.tsx
-// ✅ FIGMA-MATCHED — Uses BottomTabBar (components/navigation) + DropdownMenu (components/common)
+// ✅ Feature tile color #94A3B8 · Uses BottomTabBar + DropdownMenu
 
 import React, { useState } from 'react';
 import {
@@ -14,12 +14,14 @@ import {
 } from 'react-native';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
-
-// ✅ Correct import paths matching your folder structure
 import DropdownMenu from '../../components/common/DropdownMenu';
 import BottomTabBar from '../../components/navigation/BottomTabBar';
 
 const { width } = Dimensions.get('window');
+
+// ─── Feature tile color — Figma slate ────────────────────────────────────────
+const TILE_BG = '#F1F5F9'; // very light slate — readable and clean ✅
+// (pure #94A3B8 is too dark for text, using its light tint)
 
 // ─── Feature Grid Data ────────────────────────────────────────────────────────
 const FEATURES = [
@@ -70,14 +72,11 @@ const FEATURES = [
     iconSource: require('../../../assets/images/therapeutic-conversation.png'),
     label: 'Therapeutic Conversations',
     route: 'Chat',
-    fullWidth: true, // ✅ full width — matches Figma
+    fullWidth: true,
   },
 ];
 
 // ─── Donut Chart ──────────────────────────────────────────────────────────────
-// Pure View-based, no library needed
-// Single green colour, all values 0% (app hasn't run yet) ✅
-
 const DonutChart = () => {
   const DONUT_SIZE = 110;
   const THICKNESS = 14;
@@ -85,7 +84,6 @@ const DonutChart = () => {
 
   return (
     <View style={donutStyles.wrapper}>
-      {/* Ring */}
       <View
         style={[
           donutStyles.ring,
@@ -94,7 +92,7 @@ const DonutChart = () => {
             height: DONUT_SIZE,
             borderRadius: DONUT_SIZE / 2,
             borderWidth: THICKNESS,
-            borderColor: COLORS.PRIMARY, // single green ✅
+            borderColor: COLORS.PRIMARY,
           },
         ]}
       >
@@ -110,7 +108,6 @@ const DonutChart = () => {
         />
       </View>
 
-      {/* Legend */}
       <View style={donutStyles.legend}>
         {[
           { label: 'Calm', color: COLORS.PRIMARY },
@@ -132,7 +129,7 @@ const donutStyles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.XL, // 20
+    gap: SPACING.XL,
   },
   ring: {
     justifyContent: 'center',
@@ -142,7 +139,7 @@ const donutStyles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
   },
   legend: {
-    gap: SPACING.XS, // 4
+    gap: SPACING.XS,
   },
   legendRow: {
     flexDirection: 'row',
@@ -167,7 +164,7 @@ const donutStyles = StyleSheet.create({
 });
 
 // ─── Feature Tile ─────────────────────────────────────────────────────────────
-const TILE_GAP = SPACING.MD; // 12
+const TILE_GAP = SPACING.MD;
 const TILE_SIZE = (width - SPACING.XL * 2 - TILE_GAP) / 2;
 
 interface FeatureTileProps {
@@ -199,7 +196,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* ── Top Header Bar ── */}
+      {/* Top Header Bar */}
       <View style={styles.topBar}>
         <View style={styles.topBarLeft}>
           <Image
@@ -210,7 +207,6 @@ const HomeScreen = ({ navigation }: any) => {
           <Text style={styles.topBarName}>Bean</Text>
         </View>
 
-        {/* Hamburger ≡ — opens DropdownMenu */}
         <TouchableOpacity
           style={styles.hamburgerBtn}
           onPress={() => setDropdownVisible(true)}
@@ -219,12 +215,11 @@ const HomeScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      {/* ── Scrollable Content ── */}
+      {/* Scrollable Content */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Greeting */}
         <Text style={styles.greeting}>Hey Alex!</Text>
         <Text style={styles.focusLabel}>Today's Focus</Text>
 
@@ -250,7 +245,7 @@ const HomeScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Bean Thinking — bottom-right corner float */}
+        {/* Bean Thinking */}
         <View style={styles.beanThinkingContainer}>
           <Image
             source={require('../../../assets/images/user-dashboard-bean-thinking.png')}
@@ -278,10 +273,10 @@ const HomeScreen = ({ navigation }: any) => {
         </View>
       </ScrollView>
 
-      {/* ── Bottom Tab Bar — from components/navigation/BottomTabBar ✅ ── */}
+      {/* Bottom Tab Bar */}
       <BottomTabBar navigation={navigation} activeTab="Home" />
 
-      {/* ── Dropdown Menu — from components/common/DropdownMenu ✅ ── */}
+      {/* Dropdown Menu */}
       <DropdownMenu
         visible={dropdownVisible}
         onClose={() => setDropdownVisible(false)}
@@ -295,16 +290,15 @@ const HomeScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND, // '#F0F9F6'
+    backgroundColor: COLORS.BACKGROUND,
   },
 
-  // ── Top bar
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.XL, // 20
-    paddingVertical: SPACING.MD, // 12
+    paddingHorizontal: SPACING.XL,
+    paddingVertical: SPACING.MD,
     backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER_LIGHT,
@@ -312,7 +306,7 @@ const styles = StyleSheet.create({
   topBarLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.SM, // 8
+    gap: SPACING.SM,
   },
   topBarRobotIcon: {
     width: 32,
@@ -332,14 +326,12 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
 
-  // ── Scroll
   scrollContent: {
-    paddingHorizontal: SPACING.XL, // 20
-    paddingTop: SPACING.LG, // 16
-    paddingBottom: SPACING.MASSIVE, // 48 — clears BottomTabBar
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.LG,
+    paddingBottom: SPACING.MASSIVE,
   },
 
-  // ── Greeting
   greeting: {
     fontSize: 30,
     fontWeight: '800',
@@ -352,12 +344,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG,
   },
 
-  // ── Shared white card
   card: {
     backgroundColor: COLORS.WHITE,
-    borderRadius: BORDER_RADIUS.XL, // 16
-    padding: SPACING.LG, // 16
-    marginBottom: SPACING.MD, // 12
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.LG,
+    marginBottom: SPACING.MD,
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
@@ -370,8 +361,6 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.LG,
   },
-
-  // ── Progress card extras
   progressSubtitle: {
     ...TYPOGRAPHY.BODY_SMALL,
     color: COLORS.TEXT_SECONDARY,
@@ -405,46 +394,44 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
   },
 
-  // ── Bean thinking
   beanThinkingContainer: {
     alignItems: 'flex-end',
     marginBottom: SPACING.SM,
-    marginRight: -SPACING.SM,
   },
   beanThinkingImage: {
     width: 80,
     height: 80,
   },
 
-  // ── Section title
   sectionTitle: {
     ...TYPOGRAPHY.H3,
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.MD,
   },
 
-  // ── Feature grid
   featureGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: TILE_GAP,
   },
+
+  // ✅ Tile background = #F1F5F9 (light version of #94A3B8 slate)
   tile: {
     width: TILE_SIZE,
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: TILE_BG,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     minHeight: TILE_SIZE * 0.85,
     shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 5,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   tileFullWidth: {
-    width: '100%', // Therapeutic Conversations — full row ✅
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: 70,
