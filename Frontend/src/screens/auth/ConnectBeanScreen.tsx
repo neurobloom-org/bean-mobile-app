@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.BODY,
     color: COLORS.TEXT_PRIMARY,
     flex: 1,
+    fontWeight: 'bold', // ✅ Bold step text
   },
   codeContainer: {
     flexDirection: 'row',
