@@ -29,26 +29,7 @@ const ChatScreen = ({ navigation }: any) => {
 
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: "Hi there! I'm here to listen. How are you feeling today?",
-      sender: 'bean',
-      timestamp: '10:24 AM',
-    },
-    {
-      id: 2,
-      text: "I'm feeling a bit overwhelmed with work today. It's hard to focus.",
-      sender: 'user',
-      timestamp: '10:25 AM',
-    },
-    {
-      id: 3,
-      text: "I understand. When things feel like a mountain, it's okay to take one step at a time.",
-      sender: 'bean',
-      timestamp: '10:25 AM',
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const quickReplies = ['Yes, please', 'Maybe later', 'Tell me a joke'];
 
