@@ -181,7 +181,7 @@ const HomeScreen = ({ navigation }: any) => {
           <FeatureTile
             iconSource={require('../../../assets/images/games.png')}
             label="Games"
-            onPress={() => {}}
+            onPress={() => goTo('PlayGames')} // ✅ → PlayGamesScreen
           />
           <FeatureTile
             iconSource={require('../../../assets/images/play-calm-music.png')}

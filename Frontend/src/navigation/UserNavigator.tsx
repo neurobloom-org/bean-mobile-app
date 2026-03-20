@@ -1,5 +1,5 @@
 // src/navigation/UserNavigator.tsx
-// ✅ All user screens including CasualConvoScreen
+// ✅ All user screens including CasualConvoScreen + PlayGamesScreen
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import CasualConvoScreen from '../screens/user/CasualConvoScreen';
 import ChatScreen from '../screens/user/ChatScreen';
 import FocusModeScreen from '../screens/user/FocusModeScreen';
 import TasksScreen from '../screens/user/TasksScreen';
+import PlayGamesScreen from '../screens/user/PlayGamesScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ const UserNavigator = () => {
       <Stack.Screen name="Chat" component={ChatScreen} />
       <Stack.Screen name="FocusMode" component={FocusModeScreen} />
       <Stack.Screen name="Tasks" component={TasksScreen} />
+      <Stack.Screen name="PlayGames" component={PlayGamesScreen} />
     </Stack.Navigator>
   );
 };
