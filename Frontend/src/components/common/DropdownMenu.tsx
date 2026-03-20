@@ -1,5 +1,5 @@
 // src/components/common/DropdownMenu.tsx
-// ✅ Reusable hamburger dropdown — sits under components/common/ like BackButton
+// ✅ Only requires images that EXIST in assets/images/
 
 import React from 'react';
 import {
@@ -16,41 +16,63 @@ import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 
 // ─── Menu Items ───────────────────────────────────────────────────────────────
-const MENU_ITEMS = [
+// ✅ account-info.png     → EXISTS in your assets
+// ✅ login-page.png       → EXISTS in your assets
+// ✅ display-and-brightness.png → EXISTS in your assets
+// ✅ help.png             → EXISTS in your assets
+// ❌ notification.png     → DOES NOT EXIST → using emoji
+// ❌ privacy.png          → DOES NOT EXIST → using emoji
+
+interface MenuItem {
+  id: string;
+  label: string;
+  type: 'image' | 'emoji';
+  iconSource?: any;
+  emoji?: string;
+  route: string;
+}
+
+const MENU_ITEMS: MenuItem[] = [
   {
     id: 'account',
     label: 'Account Info',
-    iconSource: require('../../../assets/images/account-info.png'),
+    type: 'image',
+    iconSource: require('../../../assets/images/account-info.png'), // ✅ exists
     route: 'AccountInfo',
   },
   {
     id: 'notifications',
     label: 'Notifications',
-    iconSource: require('../../../assets/images/notification.png'),
+    type: 'emoji',
+    emoji: '🔔', // ❌ notification.png missing
     route: 'Notifications',
   },
   {
     id: 'privacy',
     label: 'Privacy',
-    iconSource: require('../../../assets/images/privacy.png'),
+    type: 'emoji',
+    emoji: '🔒', // ❌ privacy.png missing
     route: 'Privacy',
   },
   {
     id: 'help',
     label: 'Help',
-    iconSource: require('../../../assets/images/help.png'),
+    type: 'image',
+    iconSource: require('../../../assets/images/help.png'), // ✅ exists
     route: 'Help',
   },
   {
     id: 'bean',
     label: 'Bean',
-    iconSource: require('../../../assets/images/login-page.png'),
+    type: 'image',
+    iconSource: require('../../../assets/images/login-page.png'), // ✅ exists
     route: 'Bean',
   },
   {
     id: 'display',
     label: 'Display & Brightness',
-    iconSource: require('../../../assets/images/display-and-brightness.png'),
+    type: 'image',
+    iconSource: require('../../../assets/images/display-and-brightness.png'), // ✅ exists
     route: 'Display',
   },
 ];
@@ -118,11 +140,16 @@ const DropdownMenu = ({
             onPress={() => handleMenuPress(item.route)}
             activeOpacity={0.7}
           >
-            <Image
-              source={item.iconSource}
-              style={styles.menuIcon}
-              resizeMode="contain"
-            />
+            {/* ✅ Render image OR emoji based on what exists */}
+            {item.type === 'image' ? (
+              <Image
+                source={item.iconSource}
+                style={styles.menuIconImage}
+                resizeMode="contain"
+              />
+            ) : (
+              <Text style={styles.menuIconEmoji}>{item.emoji}</Text>
+            )}
             <Text style={styles.menuLabel}>{item.label}</Text>
           </TouchableOpacity>
         ))}
@@ -155,12 +182,12 @@ const styles = StyleSheet.create({
   dropdown: {
     position: 'absolute',
     top: 60,
-    right: SPACING.LG, // 16
+    right: SPACING.LG,
     width: 210,
     backgroundColor: COLORS.WHITE,
-    borderRadius: BORDER_RADIUS.XL, // 16
-    paddingVertical: SPACING.MD, // 12
-    paddingHorizontal: SPACING.LG, // 16
+    borderRadius: BORDER_RADIUS.XL,
+    paddingVertical: SPACING.MD,
+    paddingHorizontal: SPACING.LG,
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.18,
@@ -179,12 +206,17 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.SM, // 8
-    gap: SPACING.MD, // 12
+    paddingVertical: SPACING.SM,
+    gap: SPACING.MD,
   },
-  menuIcon: {
+  menuIconImage: {
     width: 22,
     height: 22,
+  },
+  menuIconEmoji: {
+    fontSize: 18,
+    width: 22,
+    textAlign: 'center',
   },
   menuLabel: {
     ...TYPOGRAPHY.BODY,
@@ -198,7 +230,7 @@ const styles = StyleSheet.create({
   },
   logOutButton: {
     backgroundColor: '#FF4D6D',
-    borderRadius: BORDER_RADIUS.ROUND, // 30
+    borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.SM,
     paddingHorizontal: SPACING.LG,
     alignItems: 'center',
