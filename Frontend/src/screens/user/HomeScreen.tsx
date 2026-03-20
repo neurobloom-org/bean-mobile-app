@@ -181,7 +181,7 @@ const HomeScreen = ({ navigation }: any) => {
             }}
           />
           <FeatureTile
-            iconSource={require('../../../assets/images/focus-mode-bean.png')}
+            iconSource={require('../../../assets/images/timer-icon.png')}
             label="Start Focus Mode"
             onPress={() => {
               try {
@@ -405,10 +405,10 @@ const styles = StyleSheet.create({
   // ✅ Bean robot — absolute bottom-right corner of Calming Exercises tile
   beanOnTile: {
     position: 'absolute',
-    bottom: -16, // hangs slightly below tile bottom edge
-    right: -16, // hangs slightly outside right edge
-    width: 78,
-    height: 78,
+    bottom: -22,
+    right: -22,
+    width: 105,
+    height: 105,
   },
 });
 
