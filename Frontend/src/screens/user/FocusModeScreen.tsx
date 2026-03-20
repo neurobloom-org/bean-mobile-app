@@ -64,16 +64,25 @@ const FocusModeScreen = ({ navigation }: any) => {
           <View style={styles.timerInner}>
             <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
 
-            {/* ✅ Play/Pause — stays dark always */}
+            {/* ✅ Play = dark circle with green arrow | Pause = green circle with two bars */}
             <TouchableOpacity
-              style={styles.playBtn}
+              style={[styles.playBtn, isRunning && styles.pauseBtn]}
               onPress={() => setIsRunning(prev => !prev)}
             >
-              <Image
-                source={require('../../../assets/images/manual-trigger.png')}
-                style={styles.playBtnIcon}
-                resizeMode="contain"
-              />
+              {isRunning ? (
+                // PAUSE — two white vertical bars
+                <View style={styles.pauseIconWrap}>
+                  <View style={styles.pauseBar} />
+                  <View style={styles.pauseBar} />
+                </View>
+              ) : (
+                // PLAY — manual-trigger image
+                <Image
+                  source={require('../../../assets/images/manual-trigger.png')}
+                  style={styles.playBtnIcon}
+                  resizeMode="contain"
+                />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -244,19 +253,45 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  // ✅ Play button — dark circle, no colour change when playing
+  // ✅ PLAY — dark circle with green border
   playBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: COLORS.TEXT_PRIMARY, // always dark ✅
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.TEXT_PRIMARY, // dark ✅
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: COLORS.PRIMARY, // green ring around dark circle
+    shadowColor: COLORS.PRIMARY,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  // ✅ PAUSE — solid green circle (clearly different)
+  pauseBtn: {
+    backgroundColor: '#22C55E', // bright green when running ✅
+    borderColor: '#16A34A', // darker green border
+    shadowColor: '#22C55E',
   },
   playBtnIcon: {
     width: 28,
     height: 28,
-    tintColor: COLORS.WHITE, // white icon inside dark circle
+    tintColor: COLORS.WHITE,
+  },
+  // Pause icon — two white bars
+  pauseIconWrap: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pauseBar: {
+    width: 5,
+    height: 20,
+    borderRadius: 3,
+    backgroundColor: COLORS.WHITE,
   },
 
   // Reset
