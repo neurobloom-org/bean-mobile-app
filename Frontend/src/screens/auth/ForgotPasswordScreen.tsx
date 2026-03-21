@@ -1,10 +1,11 @@
 // src/screens/auth/ForgotPasswordScreen.tsx
-// ✅ REFACTORED VERSION
+// ✅ Updated — correct icon + navigates to OTPVerification
 
 import React, { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   SafeAreaView,
   ScrollView,
@@ -15,30 +16,29 @@ import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const ForgotPasswordScreen = ({ navigation, route }: any) => {
   const { userType } = route.params || { userType: 'user' };
-  const [email, setEmail] = useState('');
+  const [contact, setContact] = useState('');
 
-  const handleSetResetLink = () => {
-    if (!email.trim()) {
-      Alert.alert('Error', 'Please enter your email address');
-      return;
-    }
-    if (!email.includes('@')) {
-      Alert.alert('Error', 'Please enter a valid email address');
+  const handleSendCode = () => {
+    if (!contact.trim()) {
+      Alert.alert('Error', 'Please enter your email or phone number');
       return;
     }
 
-    navigation.navigate('VerifyCode', {
-      email: email,
-      userType: userType,
-    });
-  };
-
-  const handleBackToSignIn = () => {
-    if (userType === 'user') {
-      navigation.navigate('LoginUser');
+    // Mask the contact for display on next screen
+    let masked = '';
+    if (contact.includes('@')) {
+      // email masking
+      const [local, domain] = contact.split('@');
+      masked = local[0] + '****' + '@' + domain;
     } else {
-      navigation.navigate('LoginGuardian');
+      // phone masking
+      masked = '+1 (555) **** ' + contact.slice(-4);
     }
+
+    navigation.navigate('OTPVerification', {
+      maskedContact: masked,
+      userType,
+    });
   };
 
   return (
@@ -47,88 +47,102 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
         <BackButton />
 
         {/* Icon */}
         <View style={styles.iconContainer}>
-          <View style={styles.iconCircle}>
-            <Text style={styles.iconText}>✉️</Text>
+          <View style={styles.glowOuter}>
+            <View style={styles.glowInner}>
+              <Image
+                source={require('../../../assets/images/forgot-password-verification-top-icon.png')}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+            </View>
           </View>
         </View>
 
-        {/* Title */}
-        <Text style={styles.title}>Reset Password!</Text>
-        <Text style={styles.subtitle}>We'll send you a reset link</Text>
+        <Text style={styles.title}>Verification</Text>
+        <Text style={styles.subtitle}>
+          Enter your email or phone number. We'll send a verification code to
+          reset your password.
+        </Text>
 
-        {/* Email Input */}
+        <Text style={styles.label}>Email or Phone Number</Text>
         <Input
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
+          placeholder="Email or +1 (555) 000-0000"
+          value={contact}
+          onChangeText={setContact}
           keyboardType="email-address"
           autoCapitalize="none"
         />
 
-        {/* Set Reset Link Button */}
-        <PrimaryButton
-          title="Set Reset Link"
-          onPress={handleSetResetLink}
-          variant="primary"
-          size="large"
-          fullWidth
-        />
-
-        {/* Back to Sign In Button */}
-        <PrimaryButton
-          title="Back to Sign In"
-          onPress={handleBackToSignIn}
-          variant="outline"
-          size="medium"
-        />
+        <View style={styles.btnWrapper}>
+          <PrimaryButton
+            title="Send Code"
+            onPress={handleSendCode}
+            variant="primary"
+            size="large"
+            fullWidth
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1, backgroundColor: COLORS.WHITE },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
-    paddingTop: SPACING.MASSIVE,
+    paddingTop: SPACING.XS,
     paddingBottom: SPACING.XXL,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: SPACING.XXL,
+    marginTop: SPACING.XL,
+    marginBottom: SPACING.XL,
   },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.SECONDARY_LIGHT,
+  glowOuter: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(7, 136, 44, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  iconText: {
-    fontSize: 36,
+  glowInner: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: 'rgba(7, 136, 44, 0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  icon: { width: 52, height: 52 },
   title: {
-    ...TYPOGRAPHY.H1,
+    fontSize: 26,
+    fontWeight: '800',
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.SM,
   },
   subtitle: {
-    ...TYPOGRAPHY.BODY_LARGE,
+    fontSize: 14,
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: SPACING.XXL,
+    lineHeight: 21,
+    marginBottom: SPACING.XL,
+    paddingHorizontal: SPACING.MD,
   },
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.XS,
+  },
+  btnWrapper: { marginTop: SPACING.XL },
 });
 
 export default ForgotPasswordScreen;
