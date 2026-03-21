@@ -1,5 +1,5 @@
 // src/navigation/AppNavigator.tsx
-// ✅ Uses UserNavigator for all user screens
+// ✅ Uses UserNavigator + CaregiverNavigator
 
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -23,7 +23,7 @@ import VerifyCodeScreen from '../screens/auth/VerifyCodeScreen';
 
 // Navigators
 import UserNavigator from './UserNavigator';
-import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
+import CaregiverNavigator from './CaregiverNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -50,14 +50,11 @@ const AppNavigator = () => {
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyCode" component={VerifyCodeScreen} />
 
-        {/* ✅ User screens — all handled by UserNavigator */}
+        {/* ✅ User screens — handled by UserNavigator */}
         <Stack.Screen name="UserApp" component={UserNavigator} />
 
-        {/* ── Caregiver ── */}
-        <Stack.Screen
-          name="CaregiverDashboard"
-          component={CaregiverDashboard}
-        />
+        {/* ✅ Caregiver screens — handled by CaregiverNavigator */}
+        <Stack.Screen name="CaregiverApp" component={CaregiverNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: SPACING.XXL,
   },
-  boldText: { fontWeight: 'bold', color: COLORS.TEXT_PRIMARY },
+  boldText: { fontWeight: 'bold', color: '#07882C' },
   forgotPassword: {
     ...TYPOGRAPHY.BODY,
     color: COLORS.PRIMARY,

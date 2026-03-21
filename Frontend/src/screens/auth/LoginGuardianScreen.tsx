@@ -1,5 +1,5 @@
 // src/screens/auth/LoginGuardianScreen.tsx
-// ✅ REFACTORED VERSION
+// ✅ Same structure/style as LoginUserScreen
 
 import React, { useState } from 'react';
 import {
@@ -17,25 +17,23 @@ import { BackButton, PrimaryButton, Input } from '../../components';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 const LoginGuardianScreen = ({ navigation }: any) => {
-  const [emailWard, setEmailWard] = useState('');
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSignIn = () => {
-    console.log('Sign in as Guardian - navigating to CaregiverDashboard');
     navigation.navigate('CaregiverDashboard');
   };
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
-  };
-
-  const handleAddWard = () => {
-    console.log('Add ward');
+  const handleSocialLogin = () => {
+    navigation.navigate('CaregiverDashboard');
   };
 
   const handleSignUp = () => {
     navigation.navigate('CreateAccount', { userType: 'guardian' });
+  };
+
+  const handleForgotPassword = () => {
+    navigation.navigate('ForgotPassword', { userType: 'guardian' });
   };
 
   return (
@@ -48,42 +46,24 @@ const LoginGuardianScreen = ({ navigation }: any) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Back Button */}
           <BackButton />
 
-          {/* Robot Icon */}
+          {/* ✅ Same robot image as LoginUserScreen */}
           <View style={styles.iconContainer}>
             <Image
-              source={require('../../../assets/images/robot-first-page.png')}
+              source={require('../../../assets/images/login-page.png')}
               style={styles.robotIcon}
               resizeMode="contain"
             />
           </View>
 
-          {/* Title */}
           <Text style={styles.title}>Welcome back!</Text>
           <Text style={styles.subtitle}>
             Sign in to continue as a{' '}
             <Text style={styles.boldText}>Guardian</Text>
           </Text>
 
-          {/* Email (Ward) Input with Add Button */}
-          <View style={styles.inputWithButtonContainer}>
-            <View style={{ flex: 1 }}>
-              <Input
-                placeholder="Email (Ward)"
-                value={emailWard}
-                onChangeText={setEmailWard}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-            <TouchableOpacity onPress={handleAddWard} style={styles.addButton}>
-              <Text style={styles.addButtonText}>+</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Email (Guardian) Input */}
+          {/* Email (Guardian) */}
           <Input
             placeholder="Email (Guardian)"
             value={emailGuardian}
@@ -92,7 +72,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Password Input */}
+          {/* Password */}
           <Input
             placeholder="Password (Guardian)"
             value={password}
@@ -102,26 +82,15 @@ const LoginGuardianScreen = ({ navigation }: any) => {
           />
 
           {/* Forgot Password */}
-          <TouchableOpacity onPress={() => console.log('Forgot password')}>
+          <TouchableOpacity onPress={handleForgotPassword}>
             <Text style={styles.forgotPassword}>Forgot password?</Text>
           </TouchableOpacity>
 
-          {/* Social Login Buttons */}
+          {/* ✅ Same social order: fb · apple · google */}
           <View style={styles.socialContainer}>
             <TouchableOpacity
               style={styles.socialButton}
-              onPress={() => handleSocialLogin('Google')}
-            >
-              <Image
-                source={require('../../../assets/images/google.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Facebook')}
+              onPress={handleSocialLogin}
             >
               <Image
                 source={require('../../../assets/images/fb.png')}
@@ -129,10 +98,9 @@ const LoginGuardianScreen = ({ navigation }: any) => {
                 resizeMode="contain"
               />
             </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.socialButton}
-              onPress={() => handleSocialLogin('Apple')}
+              onPress={handleSocialLogin}
             >
               <Image
                 source={require('../../../assets/images/apple.png')}
@@ -140,9 +108,18 @@ const LoginGuardianScreen = ({ navigation }: any) => {
                 resizeMode="contain"
               />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={handleSocialLogin}
+            >
+              <Image
+                source={require('../../../assets/images/google.png')}
+                style={styles.socialIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
           </View>
 
-          {/* Sign In Button */}
           <PrimaryButton
             title="Sign In"
             onPress={handleSignIn}
@@ -151,7 +128,6 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             fullWidth
           />
 
-          {/* Sign Up Link */}
           <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>Don't have an account? </Text>
             <TouchableOpacity onPress={handleSignUp}>
@@ -165,24 +141,15 @@ const LoginGuardianScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1, backgroundColor: COLORS.WHITE },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.XXL,
   },
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: SPACING.XL,
-  },
-  robotIcon: {
-    width: 100,
-    height: 100,
-  },
+  iconContainer: { alignItems: 'center', marginBottom: SPACING.XL },
+  robotIcon: { width: 100, height: 100 },
   title: {
     ...TYPOGRAPHY.H1,
     color: COLORS.TEXT_PRIMARY,
@@ -195,30 +162,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: SPACING.XXL,
   },
-  boldText: {
-    fontWeight: 'bold',
-    color: COLORS.TEXT_PRIMARY,
-  },
-  inputWithButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: SPACING.SM,
-    marginBottom: SPACING.LG,
-  },
-  addButton: {
-    width: 50,
-    height: 50,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 0,
-  },
-  addButtonText: {
-    fontSize: 28,
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
+  boldText: { fontWeight: 'bold', color: '#07882C' },
   forgotPassword: {
     ...TYPOGRAPHY.BODY,
     color: COLORS.PRIMARY,
@@ -241,25 +185,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: COLORS.BORDER,
   },
-  socialIcon: {
-    width: 30,
-    height: 30,
-  },
+  socialIcon: { width: 30, height: 30 },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: SPACING.LG,
   },
-  signUpText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  signUpLink: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.LINK,
-    fontWeight: '600',
-  },
+  signUpText: { ...TYPOGRAPHY.BODY, color: COLORS.TEXT_SECONDARY },
+  signUpLink: { ...TYPOGRAPHY.BODY, color: COLORS.LINK, fontWeight: '600' },
 });
 
 export default LoginGuardianScreen;

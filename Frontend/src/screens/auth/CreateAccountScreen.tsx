@@ -46,7 +46,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
     if (userType === 'user') {
       navigation.navigate('ConnectBean');
     } else {
-      navigation.navigate('CaregiverDashboard');
+      navigation.navigate('CaregiverApp');
     }
   };
 
