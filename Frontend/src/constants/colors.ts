@@ -95,7 +95,7 @@ export const DARK_COLORS: ColorTheme = {
   PRIMARY_DARK: '#3DA88A',
   PRIMARY_LIGHT: '#7FE4C4',
   SECONDARY: '#4CAF50',
-  SECONDARY_LIGHT: '#1A3A32',
+  SECONDARY_LIGHT: '#1A2E25', // ✅ darker green tint
   SECONDARY_DARK: '#2E7D32',
   SUCCESS: '#4ECCA3',
   SUCCESS_LIGHT: '#1A3A32',
@@ -107,28 +107,28 @@ export const DARK_COLORS: ColorTheme = {
   INFO_LIGHT: '#1A2A3A',
   WHITE: '#1A1A2E',
   BLACK: '#FFFFFF',
-  GRAY_50: '#16213E',
-  GRAY_100: '#1A1A2E',
-  GRAY_200: '#222244',
-  GRAY_300: '#2A2A4A',
-  GRAY_400: '#666688',
-  GRAY_500: '#8888AA',
-  GRAY_600: '#AAAACC',
-  GRAY_700: '#CCCCEE',
-  GRAY_800: '#E0E0FF',
-  GRAY_900: '#F0F0FF',
-  TEXT_PRIMARY: '#E0E0FF',
-  TEXT_SECONDARY: '#AAAACC',
-  TEXT_TERTIARY: '#666688',
-  TEXT_DISABLED: '#444466',
+  GRAY_50: '#141B2D', // ✅ deep navy
+  GRAY_100: '#111827', // ✅ near black navy
+  GRAY_200: '#1C2541',
+  GRAY_300: '#1E2D45',
+  GRAY_400: '#4A5568',
+  GRAY_500: '#718096',
+  GRAY_600: '#A0AEC0',
+  GRAY_700: '#CBD5E0',
+  GRAY_800: '#E2E8F0',
+  GRAY_900: '#F7FAFC',
+  TEXT_PRIMARY: '#F0F4FF', // ✅ bright white-blue text
+  TEXT_SECONDARY: '#8892A4', // ✅ muted blue-grey
+  TEXT_TERTIARY: '#4A5568',
+  TEXT_DISABLED: '#2D3748',
   TEXT_INVERSE: '#000000',
-  BACKGROUND: '#0D0D1A',
-  BACKGROUND_LIGHT: '#12121F',
-  BACKGROUND_DARK: '#0A0A14',
-  SURFACE: '#16213E',
-  BORDER: '#2A2A4A',
-  BORDER_LIGHT: '#1E1E3A',
-  BORDER_DARK: '#333355',
+  BACKGROUND: '#0B0F19', // ✅ exact Figma near-black background
+  BACKGROUND_LIGHT: '#0D1117', // ✅ slightly lighter near-black
+  BACKGROUND_DARK: '#080C12', // ✅ deepest black
+  SURFACE: '#141E2E', // ✅ exact Figma dark blue card surface
+  BORDER: '#1E2D45',
+  BORDER_LIGHT: '#172035',
+  BORDER_DARK: '#243552',
   LINK: '#7EB8FF',
   LINK_VISITED: '#B09FFF',
   SHADOW: '#000000',
