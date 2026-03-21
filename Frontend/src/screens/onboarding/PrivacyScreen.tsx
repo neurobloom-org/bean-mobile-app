@@ -1,5 +1,5 @@
 // src/screens/onboarding/PrivacyScreen.tsx
-// ✅ FIGMA-MATCHED — 4 white policy cards with real icon assets + tappable link
+// ✅ Dark theme aware
 
 import React from 'react';
 import {
@@ -10,13 +10,13 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Linking, // ✅ Added for URL opening
+  Linking,
 } from 'react-native';
 import { PrimaryButton, PaginationDots } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
-// ─── Privacy Policy Data ──────────────────────────────────────────────────────
 const POLICIES = [
   {
     id: '1',
@@ -48,74 +48,91 @@ const POLICIES = [
   },
 ];
 
-// ─── Policy Card ──────────────────────────────────────────────────────────────
 interface PolicyCardProps {
   iconSource: any;
   title: string;
   description: string;
+  colors: any;
 }
 
-const PolicyCard = ({ iconSource, title, description }: PolicyCardProps) => (
-  <View style={styles.card}>
+const PolicyCard = ({
+  iconSource,
+  title,
+  description,
+  colors,
+}: PolicyCardProps) => (
+  <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>
     <Image source={iconSource} style={styles.cardIcon} resizeMode="contain" />
     <View style={styles.cardContent}>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardDescription}>{description}</Text>
+      <Text style={[styles.cardTitle, { color: colors.TEXT_PRIMARY }]}>
+        {title}
+      </Text>
+      <Text style={[styles.cardDescription, { color: colors.TEXT_SECONDARY }]}>
+        {description}
+      </Text>
     </View>
   </View>
 );
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const PrivacyScreen = ({ navigation }: any) => {
-  const handleUnderstand = () => {
-    navigation.navigate('RoleSelection');
-  };
-
-  // ✅ Opens the Neurobloom website in the device's default browser
-  const handleOpenWebsite = () => {
-    Linking.openURL('https://www.neurobloom.pro/');
-  };
+  const { colors } = useTheme(); // ✅
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Fixed Header */}
-      <View style={styles.header}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
+      {/* Header */}
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.backArrow}>‹</Text>
+          <Text style={[styles.backArrow, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Privacy Policy</Text>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Privacy Policy
+        </Text>
         <View style={styles.backButton} />
       </View>
 
-      {/* Scrollable Content */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         bounces
       >
         {/* Last updated */}
-        <Text style={styles.lastUpdated}>LAST UPDATED: OCTOBER 2025</Text>
+        <Text style={[styles.lastUpdated, { color: colors.TEXT_TERTIARY }]}>
+          LAST UPDATED: OCTOBER 2025
+        </Text>
 
-        {/* 4 Policy Cards */}
+        {/* Policy Cards */}
         {POLICIES.map(policy => (
           <PolicyCard
             key={policy.id}
             iconSource={policy.iconSource}
             title={policy.title}
             description={policy.description}
+            colors={colors}
           />
         ))}
 
-        {/* ✅ Tappable contact line */}
-        <Text style={styles.contactText}>
+        {/* Contact link */}
+        <Text style={[styles.contactText, { color: colors.TEXT_TERTIARY }]}>
           Questions?{' '}
           <Text
-            style={styles.contactLink}
-            onPress={handleOpenWebsite} // ✅ opens https://www.neurobloom.pro/
+            style={[styles.contactLink, { color: colors.PRIMARY }]}
+            onPress={() => Linking.openURL('https://www.neurobloom.pro/')}
           >
             Contact us at Neurobloom.pro
           </Text>
@@ -125,37 +142,28 @@ const PrivacyScreen = ({ navigation }: any) => {
         <View style={styles.buttonWrapper}>
           <PrimaryButton
             title="I Understand"
-            onPress={handleUnderstand}
+            onPress={() => navigation.navigate('RoleSelection')}
             variant="primary"
             size="large"
             fullWidth
           />
         </View>
 
-        {/* Pagination */}
         <PaginationDots currentStep={2} totalSteps={3} />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND_LIGHT,
-  },
-
-  // Header
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
   backButton: {
     width: 36,
@@ -163,87 +171,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backArrow: {
-    fontSize: 28,
-    color: COLORS.TEXT_PRIMARY,
-    lineHeight: 32,
-    marginTop: -2,
-  },
-  headerTitle: {
-    ...TYPOGRAPHY.H4,
-    color: COLORS.TEXT_PRIMARY,
-  },
-
-  // Scroll
+  backArrow: { fontSize: 28, lineHeight: 32, marginTop: -2 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scrollContent: {
     paddingHorizontal: SPACING.LG,
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.XXXL,
   },
-
-  // Last updated
   lastUpdated: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
     letterSpacing: 0.8,
     marginBottom: SPACING.LG,
   },
-
-  // Card
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
     marginBottom: SPACING.MD,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 6,
     elevation: 3,
   },
-  cardIcon: {
-    width: 52,
-    height: 52,
-    marginRight: SPACING.MD,
-    flexShrink: 0,
-  },
-  cardContent: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: SPACING.XS,
-  },
-  cardDescription: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 21,
-  },
-
-  // Contact
+  cardIcon: { width: 52, height: 52, marginRight: SPACING.MD, flexShrink: 0 },
+  cardContent: { flex: 1 },
+  cardTitle: { fontSize: 16, fontWeight: '700', marginBottom: SPACING.XS },
+  cardDescription: { ...TYPOGRAPHY.BODY, lineHeight: 21 },
   contactText: {
     ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
     marginTop: SPACING.SM,
     marginBottom: SPACING.XL,
   },
-  contactLink: {
-    color: COLORS.PRIMARY, // '#4ECCA3' — looks like a link ✅
-    fontWeight: '600',
-    textDecorationLine: 'underline', // ✅ underline shows it's tappable
-  },
-
-  // Button
-  buttonWrapper: {
-    marginBottom: SPACING.MD,
-  },
+  contactLink: { fontWeight: '600', textDecorationLine: 'underline' },
+  buttonWrapper: { marginBottom: SPACING.MD },
 });
 
 export default PrivacyScreen;
