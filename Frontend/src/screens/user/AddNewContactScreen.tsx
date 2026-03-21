@@ -111,7 +111,11 @@ const AddNewContactScreen = ({ navigation }: any) => {
             onPress={handleSync}
             activeOpacity={0.8}
           >
-            <Text style={styles.syncBtnIcon}>📋</Text>
+            <Image
+              source={require('../../../assets/images/sync-contact.png')}
+              style={styles.syncBtnIcon}
+              resizeMode="contain"
+            />
             <Text style={styles.syncBtnText}>Sync from Contacts</Text>
           </TouchableOpacity>
 
@@ -125,7 +129,11 @@ const AddNewContactScreen = ({ navigation }: any) => {
           {/* ── Full Name ── */}
           <Text style={styles.fieldLabel}>Full Name</Text>
           <View style={styles.inputWrap}>
-            <Text style={styles.inputIcon}>👤</Text>
+            <Image
+              source={require('../../../assets/images/full-name.png')}
+              style={styles.inputIcon}
+              resizeMode="contain"
+            />
             <TextInput
               style={styles.input}
               placeholder="e.g. Sarah Jenkins"
@@ -143,7 +151,11 @@ const AddNewContactScreen = ({ navigation }: any) => {
             onPress={() => setShowDropdown(!showDropdown)}
             activeOpacity={0.8}
           >
-            <Text style={styles.inputIcon}>👥</Text>
+            <Image
+              source={require('../../../assets/images/relationship.png')}
+              style={styles.inputIcon}
+              resizeMode="contain"
+            />
             <Text
               style={[
                 styles.input,
@@ -183,7 +195,11 @@ const AddNewContactScreen = ({ navigation }: any) => {
           {/* ── Phone Number ── */}
           <Text style={styles.fieldLabel}>Phone Number</Text>
           <View style={styles.inputWrap}>
-            <Text style={styles.inputIcon}>📞</Text>
+            <Image
+              source={require('../../../assets/images/phone-number.png')}
+              style={styles.inputIcon}
+              resizeMode="contain"
+            />
             <TextInput
               style={styles.input}
               placeholder="+1 (555) 000-0000"
@@ -280,14 +296,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: SPACING.SM,
   },
+  syncBtnIcon: {
+    width: 45, // ✅ real image size
+    height: 45,
+  },
   syncBtnText: {
     fontSize: 15,
     fontWeight: '600' as const,
-    color: '#22C55E', // ✅ green text like Figma
-  },
-  syncBtnIcon: {
-    fontSize: 16,
-    color: '#22C55E', // ✅ green icon
+    color: '#22C55E',
   },
 
   // Divider
@@ -332,9 +348,10 @@ const styles = StyleSheet.create({
     gap: SPACING.SM,
   },
   inputIcon: {
-    fontSize: 18,
-    color: '#94A3B8', // ✅ grey like Figma image
+    width: 26, // ✅ bigger real image icons
+    height: 26,
     flexShrink: 0,
+    tintColor: '#94A3B8', // ✅ grey color applied via tintColor
   },
   input: {
     flex: 1,
