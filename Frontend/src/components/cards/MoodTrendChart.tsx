@@ -1,29 +1,30 @@
 // src/components/cards/MoodTrendChart.tsx
-// ✅ Pure View-based line chart — no external library needed
+// ✅ Dark theme aware
 
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { COLORS, SPACING } from '../../constants';
+import { SPACING } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
-const CHART_WIDTH = width - SPACING.XL * 2 - SPACING.LG * 2 - 2; // card padding
+const CHART_WIDTH = width - SPACING.XL * 2 - SPACING.LG * 2 - 2;
 const CHART_HEIGHT = 80;
 const DAYS = ['Mon', 'Tu', 'Wed', 'Th', 'Fr', 'Sat', 'Sun'];
 
 interface MoodTrendChartProps {
-  // scores: 0–10 for each day. Defaults to all zeros.
   scores?: number[];
 }
 
 const MoodTrendChart = ({
   scores = [0, 0, 0, 0, 0, 0, 0],
 }: MoodTrendChartProps) => {
+  const { colors } = useTheme(); // ✅
+
   const pts = scores.map((s, i) => ({
     x: (i / (scores.length - 1)) * CHART_WIDTH,
     y: CHART_HEIGHT - (s / 10) * CHART_HEIGHT,
   }));
 
-  // Build SVG-style polyline points string — rendered as View segments
   const segments = pts.slice(0, -1).map((p, i) => {
     const next = pts[i + 1];
     const dx = next.x - p.x;
@@ -38,12 +39,16 @@ const MoodTrendChart = ({
   return (
     <View style={styles.wrapper}>
       {/* Label */}
-      <Text style={styles.chartLabel}>Weekly Emotional Well-being</Text>
+      <Text style={[styles.chartLabel, { color: colors.TEXT_TERTIARY }]}>
+        Weekly Emotional Well-being
+      </Text>
 
       {/* Status */}
       <View style={styles.statusRow}>
-        <Text style={styles.statusWord}>Stable</Text>
-        <Text style={styles.statusChange}>
+        <Text style={[styles.statusWord, { color: colors.TEXT_PRIMARY }]}>
+          Stable
+        </Text>
+        <Text style={[styles.statusChange, { color: colors.PRIMARY }]}>
           {allZero ? '  No data yet' : '  +0.0% improved'}
         </Text>
       </View>
@@ -51,10 +56,8 @@ const MoodTrendChart = ({
       {/* Chart area */}
       <View style={[styles.chartArea, { height: CHART_HEIGHT + 16 }]}>
         {allZero ? (
-          // Flat baseline when no data
-          <View style={styles.flatLine} />
+          <View style={[styles.flatLine, { backgroundColor: colors.BORDER }]} />
         ) : (
-          // Render line segments
           segments.map((seg, i) => (
             <View
               key={i}
@@ -64,6 +67,7 @@ const MoodTrendChart = ({
                   left: seg.x,
                   top: seg.y,
                   width: seg.len,
+                  backgroundColor: colors.PRIMARY,
                   transform: [{ rotate: `${seg.angle}deg` }],
                 },
               ]}
@@ -77,8 +81,12 @@ const MoodTrendChart = ({
             key={i}
             style={[
               styles.dot,
-              { left: p.x - 4, top: p.y - 4 },
-              allZero && styles.dotInactive,
+              {
+                left: p.x - 4,
+                top: p.y - 4,
+                backgroundColor: allZero ? colors.BORDER : colors.PRIMARY,
+                borderColor: colors.SURFACE,
+              },
             ]}
           />
         ))}
@@ -87,7 +95,10 @@ const MoodTrendChart = ({
       {/* Day labels */}
       <View style={styles.dayRow}>
         {DAYS.map(d => (
-          <Text key={d} style={styles.dayLabel}>
+          <Text
+            key={d}
+            style={[styles.dayLabel, { color: colors.TEXT_TERTIARY }]}
+          >
             {d}
           </Text>
         ))}
@@ -97,35 +108,16 @@ const MoodTrendChart = ({
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    width: '100%',
-  },
-  chartLabel: {
-    fontSize: 11,
-    color: COLORS.TEXT_TERTIARY,
-    marginBottom: SPACING.XS,
-  },
+  wrapper: { width: '100%' },
+  chartLabel: { fontSize: 11, marginBottom: SPACING.XS },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
     marginBottom: SPACING.MD,
   },
-  statusWord: {
-    fontSize: 22,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  statusChange: {
-    fontSize: 13,
-    fontWeight: '600' as const,
-    color: COLORS.PRIMARY,
-  },
-  chartArea: {
-    position: 'relative',
-    width: '100%',
-    marginBottom: SPACING.XS,
-  },
-  // Flat line for zero state
+  statusWord: { fontSize: 22, fontWeight: '700' as const },
+  statusChange: { fontSize: 13, fontWeight: '600' as const },
+  chartArea: { position: 'relative', width: '100%', marginBottom: SPACING.XS },
   flatLine: {
     position: 'absolute',
     left: 0,
@@ -133,40 +125,22 @@ const styles = StyleSheet.create({
     top: CHART_HEIGHT / 2 + 8,
     height: 2,
     borderRadius: 1,
-    backgroundColor: COLORS.GRAY_200,
   },
-  // Line segment
   segment: {
     position: 'absolute',
     height: 2,
     borderRadius: 1,
-    backgroundColor: COLORS.PRIMARY, // green line ✅
     transformOrigin: 'left center' as any,
   },
-  // Data point dot
   dot: {
     position: 'absolute',
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.PRIMARY,
     borderWidth: 2,
-    borderColor: COLORS.WHITE,
   },
-  dotInactive: {
-    backgroundColor: COLORS.GRAY_300,
-    borderColor: COLORS.WHITE,
-  },
-  dayRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dayLabel: {
-    fontSize: 10,
-    color: COLORS.TEXT_TERTIARY,
-    textAlign: 'center',
-    flex: 1,
-  },
+  dayRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  dayLabel: { fontSize: 10, textAlign: 'center', flex: 1 },
 });
 
 export default MoodTrendChart;

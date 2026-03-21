@@ -1,10 +1,10 @@
 // src/components/common/BackButton.tsx
-// Reusable back button component
+// ✅ Dark theme aware
 
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 interface BackButtonProps {
   onPress?: () => void;
@@ -14,22 +14,27 @@ interface BackButtonProps {
 
 export const BackButton: React.FC<BackButtonProps> = ({
   onPress,
-  color = COLORS.BLACK,
+  color,
   size = 28,
 }) => {
+  const { colors } = useTheme(); // ✅
   const navigation = useNavigation();
 
   const handlePress = () => {
-    if (onPress) {
-      onPress();
-    } else {
-      navigation.goBack();
-    }
+    if (onPress) onPress();
+    else navigation.goBack();
   };
 
   return (
     <TouchableOpacity style={styles.button} onPress={handlePress}>
-      <Text style={[styles.arrow, { color, fontSize: size }]}>←</Text>
+      <Text
+        style={[
+          styles.arrow,
+          { color: color ?? colors.TEXT_PRIMARY, fontSize: size },
+        ]}
+      >
+        ←
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -41,7 +46,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
-  arrow: {
-    fontWeight: '600',
-  },
+  arrow: { fontWeight: '600' },
 });

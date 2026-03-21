@@ -1,5 +1,5 @@
 // src/navigation/UserNavigator.tsx
-// ✅ All user screens + RobotConnectivityScreen + DisplayBrightnessScreen
+// ✅ All user screens + RobotConnectivity + DisplayBrightness + MoodCalendar
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -17,7 +17,8 @@ import AddNewContactScreen from '../screens/user/AddNewContactScreen';
 import TherapeuticConversationsScreen from '../screens/user/TherapeuticConversationsScreen';
 import ProfileScreen from '../screens/user/ProfileScreen';
 import RobotConnectivityScreen from '../screens/user/RobotConnectivityScreen';
-import DisplayBrightnessScreen from '../screens/user/DisplayBrightnessScreen'; // ✅ NEW
+import DisplayBrightnessScreen from '../screens/user/DisplayBrightnessScreen';
+import MoodCalendarScreen from '../screens/user/MoodCalendarScreen'; // ✅ NEW
 
 const Stack = createNativeStackNavigator();
 
@@ -50,8 +51,9 @@ const UserNavigator = () => {
         name="RobotConnectivity"
         component={RobotConnectivityScreen}
       />
-      {/* ✅ Display & Brightness screen */}
       <Stack.Screen name="Display" component={DisplayBrightnessScreen} />
+      {/* ✅ Mood Calendar screen */}
+      <Stack.Screen name="MoodCalendar" component={MoodCalendarScreen} />
     </Stack.Navigator>
   );
 };

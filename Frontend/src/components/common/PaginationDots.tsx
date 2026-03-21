@@ -1,9 +1,10 @@
 // src/components/common/PaginationDots.tsx
-// Reusable pagination dots component
+// ✅ Dark theme aware
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { COLORS, SPACING } from '../../constants';
+import { SPACING } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 interface PaginationDotsProps {
   currentStep: number;
@@ -14,12 +15,21 @@ export const PaginationDots: React.FC<PaginationDotsProps> = ({
   currentStep,
   totalSteps,
 }) => {
+  const { colors } = useTheme(); // ✅
+
   return (
     <View style={styles.container}>
       {Array.from({ length: totalSteps }).map((_, index) => (
         <View
           key={index}
-          style={[styles.dot, index === currentStep && styles.activeDot]}
+          style={[
+            styles.dot,
+            { backgroundColor: colors.BORDER },
+            index === currentStep && {
+              backgroundColor: colors.PRIMARY,
+              width: 24,
+            },
+          ]}
         />
       ))}
     </View>
@@ -37,10 +47,5 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.GRAY_300,
-  },
-  activeDot: {
-    backgroundColor: COLORS.PRIMARY,
-    width: 24,
   },
 });

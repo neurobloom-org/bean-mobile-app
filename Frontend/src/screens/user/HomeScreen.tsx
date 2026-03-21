@@ -221,8 +221,10 @@ const HomeScreen = ({ navigation }: any) => {
                 🔥 0 Day Streak
               </Text>
             </View>
+            {/* ✅ onPress added */}
             <TouchableOpacity
               style={[styles.calendarBtn, { backgroundColor: colors.PRIMARY }]}
+              onPress={() => goTo('MoodCalendar')}
             >
               <Text style={styles.calendarText}>Mood Calendar</Text>
             </TouchableOpacity>
