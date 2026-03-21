@@ -22,10 +22,7 @@ interface Contact {
 }
 
 const EmergencyContactsScreen = ({ navigation }: any) => {
-  const [contacts, setContacts] = useState<Contact[]>([
-    { id: '1', name: 'Mom', relationship: 'Mother' },
-    { id: '2', name: 'Dad', relationship: 'Father' },
-  ]);
+  const [contacts, setContacts] = useState<Contact[]>([]); // ✅ empty by default
 
   const handleDelete = (id: string) => {
     Alert.alert(
@@ -80,39 +77,45 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
         <Text style={styles.sectionGreen}>Your Trusted Circle</Text>
 
         <View style={styles.contactsList}>
-          {contacts.map(contact => (
-            <View key={contact.id} style={styles.contactCard}>
-              {/* Avatar */}
-              <View style={styles.avatarCircle}>
-                <Image
-                  source={require('../../../assets/images/contact.png')}
-                  style={styles.avatarIcon}
-                  resizeMode="contain"
-                />
-              </View>
-
-              {/* Info */}
-              <View style={styles.contactInfo}>
-                <Text style={styles.contactName}>{contact.name}</Text>
-                <Text style={styles.contactRel}>
-                  Relationship: {contact.relationship}
-                </Text>
-              </View>
-
-              {/* Delete */}
-              <TouchableOpacity
-                style={styles.deleteBtn}
-                onPress={() => handleDelete(contact.id)}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Image
-                  source={require('../../../assets/images/delete-contact.png')}
-                  style={styles.deleteIcon}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
+          {contacts.length === 0 ? (
+            // ✅ Empty state
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>👥</Text>
+              <Text style={styles.emptyTitle}>No contacts added yet</Text>
+              <Text style={styles.emptySubtitle}>
+                Add trusted people who Bean can alert in an emergency.
+              </Text>
             </View>
-          ))}
+          ) : (
+            contacts.map(contact => (
+              <View key={contact.id} style={styles.contactCard}>
+                <View style={styles.avatarCircle}>
+                  <Image
+                    source={require('../../../assets/images/contact.png')}
+                    style={styles.avatarIcon}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.contactInfo}>
+                  <Text style={styles.contactName}>{contact.name}</Text>
+                  <Text style={styles.contactRel}>
+                    Relationship: {contact.relationship}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.deleteBtn}
+                  onPress={() => handleDelete(contact.id)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Image
+                    source={require('../../../assets/images/delete-contact.png')}
+                    style={styles.deleteIcon}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
         </View>
 
         {/* ── Add New Contact button ── */}
@@ -184,6 +187,32 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     color: COLORS.PRIMARY_DARK,
     marginBottom: SPACING.MD,
+  },
+
+  // Empty state
+  emptyState: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: SPACING.HUGE,
+    backgroundColor: COLORS.WHITE,
+    borderRadius: BORDER_RADIUS.XL,
+    gap: SPACING.SM,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: SPACING.SM,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: COLORS.TEXT_PRIMARY,
+  },
+  emptySubtitle: {
+    ...TYPOGRAPHY.BODY_SMALL,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    paddingHorizontal: SPACING.XL,
+    lineHeight: 18,
   },
 
   // Contacts list

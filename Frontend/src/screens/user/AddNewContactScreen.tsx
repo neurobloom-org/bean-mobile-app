@@ -111,7 +111,8 @@ const AddNewContactScreen = ({ navigation }: any) => {
             onPress={handleSync}
             activeOpacity={0.8}
           >
-            <Text style={styles.syncBtnText}>📋 Sync from Contacts</Text>
+            <Text style={styles.syncBtnIcon}>📋</Text>
+            <Text style={styles.syncBtnText}>Sync from Contacts</Text>
           </TouchableOpacity>
 
           {/* ── OR ENTER MANUALLY ── */}
@@ -265,21 +266,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.MD,
   },
 
-  // Sync button
+  // Sync button — green border, green text, green icon ✅
   syncBtn: {
     width: '100%',
     backgroundColor: COLORS.SECONDARY_LIGHT,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.LG,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.PRIMARY,
     marginBottom: SPACING.LG,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: SPACING.SM,
   },
   syncBtnText: {
     fontSize: 15,
     fontWeight: '600' as const,
-    color: COLORS.PRIMARY_DARK,
+    color: '#22C55E', // ✅ green text like Figma
+  },
+  syncBtnIcon: {
+    fontSize: 16,
+    color: '#22C55E', // ✅ green icon
   },
 
   // Divider
@@ -324,7 +332,8 @@ const styles = StyleSheet.create({
     gap: SPACING.SM,
   },
   inputIcon: {
-    fontSize: 16,
+    fontSize: 18,
+    color: '#94A3B8', // ✅ grey like Figma image
     flexShrink: 0,
   },
   input: {
