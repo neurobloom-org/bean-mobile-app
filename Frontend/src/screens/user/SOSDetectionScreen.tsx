@@ -48,8 +48,8 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           Learn how to signal your Bean for{'\n'}immediate assistance.
         </Text>
 
-        {/* ── SOS hero image — large green circle ── */}
-        <View style={styles.heroCircle}>
+        {/* ✅ Light green outer ring only — image already has green circle baked in */}
+        <View style={styles.heroOuter}>
           <Image
             source={require('../../../assets/images/sos-front-image.png')}
             style={styles.heroImage}
@@ -166,24 +166,20 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XL,
   },
 
-  // Hero circle — large green circle with SOS image
-  heroCircle: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    backgroundColor: '#22C55E', // ✅ solid green like Figma
+  // ✅ Light green outer ring only
+  heroOuter: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(34, 197, 94, 0.15)', // soft light green ring ✅
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.XL,
-    shadowColor: '#22C55E',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
   },
+  // ✅ Image fills most of the ring — it already has green circle inside
   heroImage: {
-    width: 80,
-    height: 80,
+    width: 150,
+    height: 150,
   },
 
   // Trigger cards container
