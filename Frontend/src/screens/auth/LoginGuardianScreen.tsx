@@ -20,12 +20,14 @@ const LoginGuardianScreen = ({ navigation }: any) => {
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
 
+  // ✅ Goes directly to dashboard, skipping ward linking flow
   const handleSignIn = () => {
-    navigation.navigate('CaregiverDashboard');
+    navigation.navigate('CaregiverApp', { screen: 'CaregiverDashboard' });
   };
 
+  // ✅ Same as sign in — direct to dashboard
   const handleSocialLogin = () => {
-    navigation.navigate('CaregiverDashboard');
+    navigation.navigate('CaregiverApp', { screen: 'CaregiverDashboard' });
   };
 
   const handleSignUp = () => {
