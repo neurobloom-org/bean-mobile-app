@@ -223,12 +223,11 @@ const HomeScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </TouchableOpacity>
 
-          {/* Row 4 — full width */}
           <FeatureTile
             iconSource={require('../../../assets/images/therapeutic-conversation.png')}
             label="Therapeutic Conversations"
             fullWidth
-            onPress={() => goTo('Chat')}
+            onPress={() => goTo('TherapeuticConversations')} // ✅
           />
         </View>
       </ScrollView>

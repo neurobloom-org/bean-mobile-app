@@ -50,7 +50,7 @@ const LoginUserScreen = ({ navigation }: any) => {
 
           <View style={styles.iconContainer}>
             <Image
-              source={require('../../../assets/images/robot-first-page.png')}
+              source={require('../../../assets/images/login-page.png')}
               style={styles.robotIcon}
               resizeMode="contain"
             />

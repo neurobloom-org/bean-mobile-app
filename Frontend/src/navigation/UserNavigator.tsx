@@ -14,6 +14,8 @@ import CalmingExercisesScreen from '../screens/user/CalmingExercisesScreen';
 import SOSDetectionScreen from '../screens/user/SOSDetectionScreen';
 import EmergencyContactsScreen from '../screens/user/EmergencyContactsScreen';
 import AddNewContactScreen from '../screens/user/AddNewContactScreen';
+import TherapeuticConversationsScreen from '../screens/user/TherapeuticConversationsScreen';
+import ProfileScreen from '../screens/user/ProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +39,11 @@ const UserNavigator = () => {
         component={EmergencyContactsScreen}
       />
       <Stack.Screen name="AddNewContact" component={AddNewContactScreen} />
+      <Stack.Screen
+        name="TherapeuticConversations"
+        component={TherapeuticConversationsScreen}
+      />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
