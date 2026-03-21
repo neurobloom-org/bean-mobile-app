@@ -1,5 +1,5 @@
 // src/screens/auth/PasswordResetSuccessScreen.tsx
-// ✅ Looping fireworks animation that runs continuously while on screen
+// ✅ Flower cracker fireworks — radiating spikes + stars, looping
 
 import React, { useEffect, useRef } from 'react';
 import {
@@ -17,143 +17,285 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 
 const { width, height } = Dimensions.get('window');
 
-// Single firework particle
-const Particle = ({
-  startX,
-  startY,
+// ─── Single spike line radiating outward ─────────────────────────────────────
+const Spike = ({
   angle,
+  length,
   color,
-  delay,
+  thickness,
+  progress,
+  originX,
+  originY,
+  minDist,
+  maxDist,
 }: {
-  startX: number;
-  startY: number;
   angle: number;
+  length: number;
   color: string;
-  delay: number;
+  thickness: number;
+  progress: Animated.Value;
+  originX: number;
+  originY: number;
+  minDist: number;
+  maxDist: number;
 }) => {
-  const anim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.delay(delay),
-        Animated.timing(anim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(anim, {
-          toValue: 0,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, []);
-
-  const distance = 60 + Math.random() * 40;
-  const translateX = anim.interpolate({
+  const translateX = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, Math.cos(angle) * distance],
+    outputRange: [Math.cos(angle) * minDist, Math.cos(angle) * maxDist],
   });
-  const translateY = anim.interpolate({
+  const translateY = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, Math.sin(angle) * distance],
+    outputRange: [Math.sin(angle) * minDist, Math.sin(angle) * maxDist],
   });
-  const opacity = anim.interpolate({
-    inputRange: [0, 0.2, 0.8, 1],
-    outputRange: [0, 1, 0.6, 0],
+  const opacity = progress.interpolate({
+    inputRange: [0, 0.15, 0.7, 1],
+    outputRange: [0, 1, 0.8, 0],
   });
-  const scale = anim.interpolate({
-    inputRange: [0, 0.3, 1],
-    outputRange: [0, 1.2, 0.4],
+  const scaleX = progress.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.2, 1, 0.6],
   });
 
   return (
     <Animated.View
       style={{
         position: 'absolute',
-        left: startX,
-        top: startY,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
+        left: originX,
+        top: originY,
+        width: length,
+        height: thickness,
         backgroundColor: color,
+        borderRadius: thickness / 2,
         opacity,
-        transform: [{ translateX }, { translateY }, { scale }],
+        transform: [
+          { translateX },
+          { translateY },
+          { rotate: `${(angle * 180) / Math.PI}deg` },
+          { scaleX },
+        ],
+        transformOrigin: 'left center',
       }}
     />
   );
 };
 
-// One firework burst
-const Firework = ({
+// ─── Star shape ──────────────────────────────────────────────────────────────
+const Star = ({
+  progress,
+  originX,
+  originY,
+  angle,
+  dist,
+  color,
+  size,
+  delay,
+}: {
+  progress: Animated.Value;
+  originX: number;
+  originY: number;
+  angle: number;
+  dist: number;
+  color: string;
+  size: number;
+  delay: number;
+}) => {
+  const tx = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, Math.cos(angle) * dist],
+  });
+  const ty = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, Math.sin(angle) * dist],
+  });
+  const opacity = progress.interpolate({
+    inputRange: [0, delay / 1000, Math.min(delay / 1000 + 0.4, 0.9), 1],
+    outputRange: [0, 1, 1, 0],
+  });
+  const scale = progress.interpolate({
+    inputRange: [0, 0.3, 0.7, 1],
+    outputRange: [0, 1.3, 1, 0],
+  });
+
+  return (
+    <Animated.Text
+      style={{
+        position: 'absolute',
+        left: originX - size / 2,
+        top: originY - size / 2,
+        fontSize: size,
+        color,
+        opacity,
+        transform: [{ translateX: tx }, { translateY: ty }, { scale }],
+      }}
+    >
+      ✦
+    </Animated.Text>
+  );
+};
+
+// ─── Full firework burst ──────────────────────────────────────────────────────
+const FireworkBurst = ({
   x,
   y,
+  spikeCount,
+  spikeLength,
   colors,
-  baseDelay,
+  delay,
+  duration,
+  minDist,
+  maxDist,
+  starCount,
 }: {
   x: number;
   y: number;
+  spikeCount: number;
+  spikeLength: number;
   colors: string[];
-  baseDelay: number;
+  delay: number;
+  duration: number;
+  minDist: number;
+  maxDist: number;
+  starCount: number;
 }) => {
-  const particles = Array.from({ length: 12 }, (_, i) => ({
-    angle: (i / 12) * 2 * Math.PI,
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(progress, {
+          toValue: 1,
+          duration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(progress, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.delay(200),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  const spikes = Array.from({ length: spikeCount }, (_, i) => ({
+    angle: (i / spikeCount) * 2 * Math.PI,
     color: colors[i % colors.length],
-    delay: baseDelay + i * 40,
+  }));
+
+  const stars = Array.from({ length: starCount }, (_, i) => ({
+    angle: Math.random() * 2 * Math.PI,
+    dist: maxDist * (0.6 + Math.random() * 0.8),
+    color: colors[i % colors.length],
+    size: 8 + Math.floor(Math.random() * 8),
+    delay: Math.random() * 400,
   }));
 
   return (
     <>
-      {particles.map((p, i) => (
-        <Particle key={i} startX={x} startY={y} {...p} />
+      {spikes.map((s, i) => (
+        <Spike
+          key={`spike-${i}`}
+          angle={s.angle}
+          length={spikeLength}
+          color={s.color}
+          thickness={2.5}
+          progress={progress}
+          originX={x}
+          originY={y}
+          minDist={minDist}
+          maxDist={maxDist}
+        />
+      ))}
+      {stars.map((s, i) => (
+        <Star
+          key={`star-${i}`}
+          progress={progress}
+          originX={x}
+          originY={y}
+          angle={s.angle}
+          dist={s.dist}
+          color={s.color}
+          size={s.size}
+          delay={s.delay}
+        />
       ))}
     </>
   );
 };
 
-const FIREWORKS = [
+// ─── Firework positions matching the screenshot ───────────────────────────────
+const BURSTS = [
+  // Top center — large burst
   {
-    x: width * 0.15,
-    y: height * 0.08,
-    colors: ['#07882C', '#4ECCA3', '#A8F0C6'],
+    x: width * 0.52,
+    y: height * 0.1,
+    spikeCount: 18,
+    spikeLength: 28,
+    colors: ['#07882C', '#2ECC71', '#A8F0C6', '#00C851'],
     delay: 0,
+    duration: 1400,
+    minDist: 5,
+    maxDist: 90,
+    starCount: 8,
   },
+  // Top left — medium burst
   {
-    x: width * 0.75,
-    y: height * 0.06,
-    colors: ['#FFD700', '#FFA500', '#FF6B6B'],
-    delay: 300,
+    x: width * 0.12,
+    y: height * 0.1,
+    spikeCount: 14,
+    spikeLength: 20,
+    colors: ['#07882C', '#4ECCA3', '#B8F5D4'],
+    delay: 400,
+    duration: 1200,
+    minDist: 4,
+    maxDist: 60,
+    starCount: 5,
   },
+  // Left middle — small burst
   {
-    x: width * 0.85,
-    y: height * 0.18,
-    colors: ['#07882C', '#00C851', '#AAFF00'],
-    delay: 600,
+    x: width * 0.08,
+    y: height * 0.32,
+    spikeCount: 12,
+    spikeLength: 16,
+    colors: ['#2ECC71', '#07882C', '#A8F0C6'],
+    delay: 700,
+    duration: 1100,
+    minDist: 3,
+    maxDist: 45,
+    starCount: 4,
   },
+  // Top right — medium burst
   {
-    x: width * 0.1,
-    y: height * 0.22,
-    colors: ['#FF69B4', '#FF1493', '#FFB6C1'],
-    delay: 200,
+    x: width * 0.88,
+    y: height * 0.08,
+    spikeCount: 14,
+    spikeLength: 20,
+    colors: ['#07882C', '#00C851', '#B8F5D4'],
+    delay: 250,
+    duration: 1300,
+    minDist: 4,
+    maxDist: 65,
+    starCount: 5,
   },
+  // Right middle — small burst
   {
-    x: width * 0.6,
-    y: height * 0.04,
-    colors: ['#00BFFF', '#1E90FF', '#87CEEB'],
-    delay: 500,
-  },
-  {
-    x: width * 0.4,
-    y: height * 0.12,
-    colors: ['#FFD700', '#07882C', '#FF6B6B'],
-    delay: 800,
+    x: width * 0.92,
+    y: height * 0.28,
+    spikeCount: 10,
+    spikeLength: 14,
+    colors: ['#4ECCA3', '#07882C'],
+    delay: 900,
+    duration: 1000,
+    minDist: 3,
+    maxDist: 40,
+    starCount: 3,
   },
 ];
 
+// ─── Screen ───────────────────────────────────────────────────────────────────
 const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
   const { userType } = route.params || { userType: 'user' };
 
@@ -167,16 +309,10 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Fireworks layer — behind everything */}
+      {/* Fireworks layer */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {FIREWORKS.map((fw, i) => (
-          <Firework
-            key={i}
-            x={fw.x}
-            y={fw.y}
-            colors={fw.colors}
-            baseDelay={fw.delay}
-          />
+        {BURSTS.map((b, i) => (
+          <FireworkBurst key={i} {...b} />
         ))}
       </View>
 
@@ -193,14 +329,18 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
         </View>
 
         <Text style={styles.title}>Success!</Text>
+
         <Text style={styles.body}>
-          Your password has been{' '}
+          Your password has been{'\n'}
           <Text style={styles.bodyBold}>successfully</Text> reset.
         </Text>
 
         {/* Account Updated badge */}
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>Account Updated ✓</Text>
+          <Text style={styles.badgeText}>Account Updated </Text>
+          <View style={styles.badgeTick}>
+            <Text style={styles.badgeTickText}>✓</Text>
+          </View>
         </View>
 
         <View style={styles.btnWrapper}>
@@ -218,7 +358,7 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.WHITE },
+  container: { flex: 1, backgroundColor: '#F5FFF8' },
   content: {
     flex: 1,
     alignItems: 'center',
@@ -244,36 +384,51 @@ const styles = StyleSheet.create({
   },
   successIcon: { width: 72, height: 72 },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '800',
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.MD,
   },
   body: {
-    fontSize: 15,
+    fontSize: 16,
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
     marginBottom: SPACING.LG,
   },
   bodyBold: {
     fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
+    color: '#07882C',
   },
   badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#EFF9F2',
     borderRadius: BORDER_RADIUS.ROUND,
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.XS,
     marginBottom: SPACING.MASSIVE,
     borderWidth: 1,
-    borderColor: 'rgba(7,136,44,0.25)',
+    borderColor: 'rgba(7,136,44,0.2)',
   },
   badgeText: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#07882C',
+    fontWeight: '600',
+    color: COLORS.TEXT_PRIMARY,
+  },
+  badgeTick: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#4169E1',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeTickText: {
+    fontSize: 10,
+    color: COLORS.WHITE,
+    fontWeight: '800',
   },
   btnWrapper: { width: '100%' },
 });
