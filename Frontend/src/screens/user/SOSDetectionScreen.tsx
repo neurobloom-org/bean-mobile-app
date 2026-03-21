@@ -17,11 +17,7 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 
 const SOSDetectionScreen = ({ navigation }: any) => {
   const handleSetupEmergencyContacts = () => {
-    Alert.alert(
-      'Setup Emergency Contacts',
-      'This feature will allow you to add emergency contacts who will be notified when SOS is triggered.',
-      [{ text: 'OK' }],
-    );
+    navigation.navigate('EmergencyContacts'); // ✅ → EmergencyContactsScreen
   };
 
   return (
