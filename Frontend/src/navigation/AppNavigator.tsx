@@ -1,5 +1,5 @@
 // src/navigation/AppNavigator.tsx
-// ✅ Uses UserNavigator + CaregiverNavigator
+// ✅ Uses UserNavigator + CaregiverNavigator + full forgot password flow
 
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -20,6 +20,11 @@ import LoginUserScreen from '../screens/auth/LoginUserScreen';
 import LoginGuardianScreen from '../screens/auth/LoginGuardianScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import VerifyCodeScreen from '../screens/auth/VerifyCodeScreen';
+
+// ✅ Forgot password flow
+import OTPVerificationScreen from '../screens/auth/OTPVerificationScreen';
+import CreateNewPasswordScreen from '../screens/auth/CreateNewPasswordScreen';
+import PasswordResetSuccessScreen from '../screens/auth/PasswordResetSuccessScreen';
 
 // Navigators
 import UserNavigator from './UserNavigator';
@@ -49,6 +54,20 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginGuardian" component={LoginGuardianScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyCode" component={VerifyCodeScreen} />
+
+        {/* ✅ Forgot password flow */}
+        <Stack.Screen
+          name="OTPVerification"
+          component={OTPVerificationScreen}
+        />
+        <Stack.Screen
+          name="CreateNewPassword"
+          component={CreateNewPasswordScreen}
+        />
+        <Stack.Screen
+          name="PasswordResetSuccess"
+          component={PasswordResetSuccessScreen}
+        />
 
         {/* ✅ User screens — handled by UserNavigator */}
         <Stack.Screen name="UserApp" component={UserNavigator} />
