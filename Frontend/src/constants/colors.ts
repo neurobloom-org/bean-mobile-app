@@ -1,17 +1,57 @@
 // src/constants/colors.ts
-// ✅ Light + Dark theme tokens
 
-export const LIGHT_COLORS = {
-  // Brand
+export type ColorTheme = {
+  PRIMARY: string;
+  PRIMARY_DARK: string;
+  PRIMARY_LIGHT: string;
+  SECONDARY: string;
+  SECONDARY_LIGHT: string;
+  SECONDARY_DARK: string;
+  SUCCESS: string;
+  SUCCESS_LIGHT: string;
+  ERROR: string;
+  ERROR_LIGHT: string;
+  WARNING: string;
+  WARNING_LIGHT: string;
+  INFO: string;
+  INFO_LIGHT: string;
+  WHITE: string;
+  BLACK: string;
+  GRAY_50: string;
+  GRAY_100: string;
+  GRAY_200: string;
+  GRAY_300: string;
+  GRAY_400: string;
+  GRAY_500: string;
+  GRAY_600: string;
+  GRAY_700: string;
+  GRAY_800: string;
+  GRAY_900: string;
+  TEXT_PRIMARY: string;
+  TEXT_SECONDARY: string;
+  TEXT_TERTIARY: string;
+  TEXT_DISABLED: string;
+  TEXT_INVERSE: string;
+  BACKGROUND: string;
+  BACKGROUND_LIGHT: string;
+  BACKGROUND_DARK: string;
+  SURFACE: string;
+  BORDER: string;
+  BORDER_LIGHT: string;
+  BORDER_DARK: string;
+  LINK: string;
+  LINK_VISITED: string;
+  SHADOW: string;
+  TRANSPARENT: string;
+};
+
+export const LIGHT_COLORS: ColorTheme = {
   PRIMARY: '#4ECCA3',
   PRIMARY_DARK: '#3DA88A',
   PRIMARY_LIGHT: '#7FE4C4',
-
   SECONDARY: '#4CAF50',
   SECONDARY_LIGHT: '#E0F7F1',
   SECONDARY_DARK: '#2E7D32',
-
-  // Status
   SUCCESS: '#4CAF50',
   SUCCESS_LIGHT: '#E8F5E9',
   ERROR: '#E74C3C',
@@ -20,8 +60,6 @@ export const LIGHT_COLORS = {
   WARNING_LIGHT: '#FFF9C4',
   INFO: '#2196F3',
   INFO_LIGHT: '#E3F2FD',
-
-  // Base
   WHITE: '#FFFFFF',
   BLACK: '#000000',
   GRAY_50: '#F5F5F5',
@@ -34,44 +72,31 @@ export const LIGHT_COLORS = {
   GRAY_700: '#4A4A4A',
   GRAY_800: '#333333',
   GRAY_900: '#1A1A1A',
-
-  // Text
   TEXT_PRIMARY: '#000000',
   TEXT_SECONDARY: '#666666',
   TEXT_TERTIARY: '#999999',
   TEXT_DISABLED: '#BDBDBD',
   TEXT_INVERSE: '#FFFFFF',
-
-  // Backgrounds
   BACKGROUND: '#F0F9F6',
   BACKGROUND_LIGHT: '#F8F9FA',
   BACKGROUND_DARK: '#F5F5F5',
   SURFACE: '#FFFFFF',
-
-  // Borders
   BORDER: '#E0E0E0',
   BORDER_LIGHT: '#F0F0F0',
   BORDER_DARK: '#D3D3D3',
-
-  // Links
   LINK: '#4169E1',
   LINK_VISITED: '#6A5ACD',
-
   SHADOW: '#000000',
   TRANSPARENT: 'transparent',
-} as const;
+};
 
-export const DARK_COLORS = {
-  // Brand — stays the same green, it pops on dark
+export const DARK_COLORS: ColorTheme = {
   PRIMARY: '#4ECCA3',
   PRIMARY_DARK: '#3DA88A',
   PRIMARY_LIGHT: '#7FE4C4',
-
   SECONDARY: '#4CAF50',
-  SECONDARY_LIGHT: '#1A3A32', // dark teal tint
+  SECONDARY_LIGHT: '#1A3A32',
   SECONDARY_DARK: '#2E7D32',
-
-  // Status
   SUCCESS: '#4ECCA3',
   SUCCESS_LIGHT: '#1A3A32',
   ERROR: '#FF6B6B',
@@ -80,10 +105,8 @@ export const DARK_COLORS = {
   WARNING_LIGHT: '#3A2E00',
   INFO: '#60A5FA',
   INFO_LIGHT: '#1A2A3A',
-
-  // Base
-  WHITE: '#1A1A2E', // "white" in dark = dark navy
-  BLACK: '#FFFFFF', // "black" in dark = white text
+  WHITE: '#1A1A2E',
+  BLACK: '#FFFFFF',
   GRAY_50: '#16213E',
   GRAY_100: '#1A1A2E',
   GRAY_200: '#222244',
@@ -94,38 +117,26 @@ export const DARK_COLORS = {
   GRAY_700: '#CCCCEE',
   GRAY_800: '#E0E0FF',
   GRAY_900: '#F0F0FF',
-
-  // Text
   TEXT_PRIMARY: '#E0E0FF',
   TEXT_SECONDARY: '#AAAACC',
   TEXT_TERTIARY: '#666688',
   TEXT_DISABLED: '#444466',
   TEXT_INVERSE: '#000000',
-
-  // Backgrounds — deep dark navy like the Figma
   BACKGROUND: '#0D0D1A',
   BACKGROUND_LIGHT: '#12121F',
   BACKGROUND_DARK: '#0A0A14',
   SURFACE: '#16213E',
-
-  // Borders
   BORDER: '#2A2A4A',
   BORDER_LIGHT: '#1E1E3A',
   BORDER_DARK: '#333355',
-
-  // Links
   LINK: '#7EB8FF',
   LINK_VISITED: '#B09FFF',
-
   SHADOW: '#000000',
   TRANSPARENT: 'transparent',
-} as const;
+};
 
-// ✅ Default export stays as COLORS — points to light by default
-// Components that haven't migrated to useTheme() still work
+// ✅ Default COLORS still works for screens not yet migrated to useTheme()
 export const COLORS = LIGHT_COLORS;
-
-export type ColorTheme = typeof LIGHT_COLORS;
 
 export const withOpacity = (color: string, opacity: number): string => {
   const hex = color.replace('#', '');

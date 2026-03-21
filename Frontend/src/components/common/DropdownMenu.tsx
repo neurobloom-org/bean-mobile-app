@@ -1,5 +1,5 @@
 // src/components/common/DropdownMenu.tsx
-// ✅ Full right-side panel · Blurred backdrop · Real asset icons · Touches right edge
+// ✅ Full right-side panel · Dark theme aware · Real asset icons
 
 import React from 'react';
 import {
@@ -12,18 +12,13 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Dimensions,
-  Platform,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
-const { width, height } = Dimensions.get('window');
-const PANEL_WIDTH = width * 0.72; // 72% of screen width — nice and big ✅
-
-// ─── Menu Items ──────────────────────────────────────────────────────────────
-// Only using images that EXIST in your assets folder
-// account-info ✅ | login-page ✅ | display-and-brightness ✅ | help ✅
-// notification ❌ → emoji | privacy ❌ → emoji
+const { width } = Dimensions.get('window');
+const PANEL_WIDTH = width * 0.72;
 
 interface MenuItem {
   id: string;
@@ -39,47 +34,46 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'account',
     label: 'Account Info',
     type: 'image',
-    iconSource: require('../../../assets/images/account-info.png'), // ✅
+    iconSource: require('../../../assets/images/account-info.png'),
     route: 'AccountInfo',
   },
   {
     id: 'notifications',
     label: 'Notifications',
     type: 'image',
-    iconSource: require('../../../assets/images/notifications.png'), // ✅ now exists!
+    iconSource: require('../../../assets/images/notification-preferences.png'),
     route: 'Notifications',
   },
   {
     id: 'privacy',
     label: 'Privacy',
     type: 'image',
-    iconSource: require('../../../assets/images/privacy.png'), // ✅ now exists!
+    iconSource: require('../../../assets/images/privacy-settings.png'),
     route: 'Privacy',
   },
   {
     id: 'help',
     label: 'Help',
     type: 'image',
-    iconSource: require('../../../assets/images/help.png'), // ✅
+    iconSource: require('../../../assets/images/help-centre.png'),
     route: 'Help',
   },
   {
     id: 'bean',
     label: 'Bean',
     type: 'image',
-    iconSource: require('../../../assets/images/login-page.png'), // ✅
+    iconSource: require('../../../assets/images/login-page.png'),
     route: 'Bean',
   },
   {
     id: 'display',
     label: 'Display & Brightness',
     type: 'image',
-    iconSource: require('../../../assets/images/display-and-brightness.png'), // ✅
+    iconSource: require('../../../assets/images/display-and-brightness.png'),
     route: 'Display',
   },
 ];
 
-// ─── Props ────────────────────────────────────────────────────────────────────
 interface DropdownMenuProps {
   visible: boolean;
   onClose: () => void;
@@ -87,13 +81,15 @@ interface DropdownMenuProps {
   appVersion?: string;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 const DropdownMenu = ({
   visible,
   onClose,
   navigation,
   appVersion = '2.4.8',
 }: DropdownMenuProps) => {
+  // ✅ Theme hook
+  const { colors } = useTheme();
+
   const handleMenuPress = (route: string) => {
     onClose();
     try {
@@ -119,19 +115,24 @@ const DropdownMenu = ({
     <Modal
       visible={visible}
       transparent
-      animationType="slide" // slides in from right ✅
+      animationType="slide"
       onRequestClose={onClose}
     >
-      {/* ── Blurred / dimmed backdrop — tap to close ── */}
+      {/* Dimmed backdrop */}
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
 
-      {/* ── Right-side panel — full height, touches right edge ── */}
-      <View style={styles.panel}>
-        {/* Close button — top right */}
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-          <Text style={styles.closeIcon}>✕</Text>
+      {/* ✅ Panel — background from theme */}
+      <View style={[styles.panel, { backgroundColor: colors.SURFACE }]}>
+        {/* ✅ Close button */}
+        <TouchableOpacity
+          style={[styles.closeButton, { backgroundColor: colors.GRAY_100 }]}
+          onPress={onClose}
+        >
+          <Text style={[styles.closeIcon, { color: colors.TEXT_PRIMARY }]}>
+            ✕
+          </Text>
         </TouchableOpacity>
 
         {/* Menu items */}
@@ -143,8 +144,13 @@ const DropdownMenu = ({
               onPress={() => handleMenuPress(item.route)}
               activeOpacity={0.65}
             >
-              {/* Icon — image or emoji */}
-              <View style={styles.iconBox}>
+              {/* ✅ Icon box — background from theme */}
+              <View
+                style={[
+                  styles.iconBox,
+                  { backgroundColor: colors.SECONDARY_LIGHT },
+                ]}
+              >
                 {item.type === 'image' ? (
                   <Image
                     source={item.iconSource}
@@ -156,18 +162,22 @@ const DropdownMenu = ({
                 )}
               </View>
 
-              <Text style={styles.menuLabel}>{item.label}</Text>
+              {/* ✅ Label — color from theme */}
+              <Text style={[styles.menuLabel, { color: colors.TEXT_PRIMARY }]}>
+                {item.label}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Spacer pushes logout to bottom */}
         <View style={{ flex: 1 }} />
 
-        {/* Divider */}
-        <View style={styles.divider} />
+        {/* ✅ Divider — color from theme */}
+        <View
+          style={[styles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
+        />
 
-        {/* Log Out button */}
+        {/* Log Out button — always red, no theme change needed */}
         <TouchableOpacity
           style={styles.logOutButton}
           onPress={handleLogOut}
@@ -176,46 +186,41 @@ const DropdownMenu = ({
           <Text style={styles.logOutText}>→ Log Out</Text>
         </TouchableOpacity>
 
-        {/* App version */}
-        <Text style={styles.versionText}>App Version {appVersion}</Text>
+        {/* ✅ Version text — color from theme */}
+        <Text style={[styles.versionText, { color: colors.TEXT_TERTIARY }]}>
+          App Version {appVersion}
+        </Text>
       </View>
     </Modal>
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  // Semi-transparent blurred backdrop
   overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)', // dark blur effect ✅
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
-
-  // Right-side sliding panel — full height, touches right edge
   panel: {
     position: 'absolute',
-    top: 0, // starts from very top ✅
-    right: 0, // touches right edge ✅
-    bottom: 0, // full height ✅
-    width: PANEL_WIDTH, // 72% of screen
-    backgroundColor: COLORS.WHITE,
-    borderTopLeftRadius: BORDER_RADIUS.XXL, // 20 — rounded only on left side
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: PANEL_WIDTH,
+    borderTopLeftRadius: BORDER_RADIUS.XXL,
     borderBottomLeftRadius: BORDER_RADIUS.XXL,
-    paddingTop: 56, // below status bar
-    paddingHorizontal: SPACING.XL, // 20
-    paddingBottom: SPACING.XXXL, // 30
-    shadowColor: COLORS.SHADOW,
+    paddingTop: 56,
+    paddingHorizontal: SPACING.XL,
+    paddingBottom: SPACING.XXXL,
+    shadowColor: '#000000',
     shadowOffset: { width: -4, height: 0 },
     shadowOpacity: 0.2,
     shadowRadius: 20,
     elevation: 20,
   },
-
-  // Close ✕ button — top right of panel
   closeButton: {
     position: 'absolute',
     top: 16,
@@ -223,36 +228,27 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.GRAY_100,
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeIcon: {
     fontSize: 14,
-    color: COLORS.TEXT_PRIMARY,
     fontWeight: '600',
   },
-
-  // Menu list
   menuList: {
-    gap: SPACING.XS, // 4 between items
+    gap: SPACING.XS,
   },
-
-  // Each row
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.MD, // 12 — tall rows like Figma ✅
-    gap: SPACING.LG, // 16
-    borderRadius: BORDER_RADIUS.LG, // 12
+    paddingVertical: SPACING.MD,
+    gap: SPACING.LG,
+    borderRadius: BORDER_RADIUS.LG,
   },
-
-  // Icon container — bigger with soft green tint background ✅
   iconBox: {
     width: 42,
     height: 42,
     borderRadius: 12,
-    backgroundColor: COLORS.SECONDARY_LIGHT, // '#E0F7F1' soft green pill
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -263,41 +259,30 @@ const styles = StyleSheet.create({
   menuIconEmoji: {
     fontSize: 22,
   },
-
-  // Menu label
   menuLabel: {
-    fontSize: 16, // larger text ✅
+    fontSize: 16,
     fontWeight: '500',
-    color: COLORS.TEXT_PRIMARY,
   },
-
-  // Divider
   divider: {
     height: 1,
-    backgroundColor: COLORS.BORDER_LIGHT,
     marginVertical: SPACING.LG,
   },
-
-  // Log Out — red pill
   logOutButton: {
     backgroundColor: '#FF4D6D',
     borderRadius: BORDER_RADIUS.ROUND,
-    paddingVertical: SPACING.MD, // 12
-    paddingHorizontal: SPACING.XL, // 20
+    paddingVertical: SPACING.MD,
+    paddingHorizontal: SPACING.XL,
     alignItems: 'center',
     marginBottom: SPACING.MD,
   },
   logOutText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.WHITE,
+    color: '#FFFFFF',
     letterSpacing: 0.3,
   },
-
-  // Version
   versionText: {
     ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
   },
 });

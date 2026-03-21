@@ -1,12 +1,11 @@
 // src/components/navigation/BottomTabBar.tsx
-// ✅ Smaller icons — no pixelation · Clean tab bar
+// ✅ Dark theme aware
 
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS, SPACING } from '../../constants';
-import { BORDER_RADIUS } from '../../constants/spacing';
+import { SPACING } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
-// ─── Tab Data ─────────────────────────────────────────────────────────────────
 const TABS = [
   {
     id: 'Home',
@@ -28,16 +27,24 @@ const TABS = [
   },
 ];
 
-// ─── Props ────────────────────────────────────────────────────────────────────
 interface BottomTabBarProps {
   navigation: any;
   activeTab: 'Home' | 'Tasks' | 'Profile';
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
+  const { colors } = useTheme(); // ✅ theme hook
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.SURFACE, // ✅ white in light, dark navy in dark
+          borderTopColor: colors.BORDER_LIGHT, // ✅ themed border
+        },
+      ]}
+    >
       {TABS.map(tab => {
         const isActive = activeTab === tab.id;
         return (
@@ -47,28 +54,42 @@ const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
             onPress={() => navigation.navigate(tab.route)}
             activeOpacity={0.7}
           >
-            {/* ✅ Smaller icon — 20x20 prevents pixelation */}
             <Image
               source={tab.iconSource}
               style={[
                 styles.icon,
-                isActive ? styles.iconActive : styles.iconInactive,
+                {
+                  tintColor: isActive
+                    ? colors.PRIMARY // ✅ green when active
+                    : colors.TEXT_TERTIARY, // ✅ themed inactive color
+                  opacity: isActive ? 1 : 0.55,
+                },
               ]}
               resizeMode="contain"
             />
 
-            {/* Label */}
             <Text
               style={[
                 styles.label,
-                isActive ? styles.labelActive : styles.labelInactive,
+                {
+                  color: isActive
+                    ? colors.PRIMARY // ✅ green when active
+                    : colors.TEXT_TERTIARY, // ✅ themed inactive color
+                  fontWeight: isActive ? '700' : '500',
+                },
               ]}
             >
               {tab.label}
             </Text>
 
-            {/* Active dot indicator */}
-            {isActive && <View style={styles.activeDot} />}
+            {isActive && (
+              <View
+                style={[
+                  styles.activeDot,
+                  { backgroundColor: colors.PRIMARY }, // ✅ themed dot
+                ]}
+              />
+            )}
           </TouchableOpacity>
         );
       })}
@@ -76,23 +97,19 @@ const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: COLORS.WHITE,
     borderTopWidth: 1,
-    borderTopColor: COLORS.BORDER_LIGHT,
-    paddingTop: SPACING.SM, // 8
-    paddingBottom: SPACING.LG, // 16
+    paddingTop: SPACING.SM,
+    paddingBottom: SPACING.LG,
     paddingHorizontal: SPACING.XL,
-    shadowColor: COLORS.SHADOW,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 8,
   },
-
   tab: {
     flex: 1,
     alignItems: 'center',
@@ -100,40 +117,19 @@ const styles = StyleSheet.create({
     gap: 3,
     position: 'relative',
   },
-
-  // ✅ 20x20 — small enough to be crisp, not pixelated
   icon: {
     width: 20,
     height: 20,
   },
-  iconActive: {
-    tintColor: COLORS.PRIMARY, // '#4ECCA3' green
-  },
-  iconInactive: {
-    tintColor: COLORS.GRAY_400, // '#999999'
-    opacity: 0.55,
-  },
-
   label: {
     fontSize: 10,
-    fontWeight: '500',
   },
-  labelActive: {
-    color: COLORS.PRIMARY,
-    fontWeight: '700',
-  },
-  labelInactive: {
-    color: COLORS.TEXT_TERTIARY,
-  },
-
-  // Small dot below active tab label
   activeDot: {
     position: 'absolute',
     bottom: -4,
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: COLORS.PRIMARY,
   },
 });
 

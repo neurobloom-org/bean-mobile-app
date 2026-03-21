@@ -1,5 +1,5 @@
 // src/screens/user/TasksScreen.tsx
-// ✅ FIGMA-MATCHED — Streak · Progress · Medication Reminders · Tasks · Quote
+// ✅ Dark theme aware
 
 import React, { useState } from 'react';
 import {
@@ -12,11 +12,11 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 import BottomTabBar from '../../components/navigation/BottomTabBar';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface Task {
   id: number;
   title: string;
@@ -32,8 +32,9 @@ interface Medication {
   taken: boolean;
 }
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const TasksScreen = ({ navigation }: any) => {
+  const { colors, isDark } = useTheme(); // ✅
+
   const [tasks, setTasks] = useState<Task[]>([
     { id: 1, title: 'Hydrate: 1L Water', category: 'Health', completed: false },
     {
@@ -110,16 +111,30 @@ const TasksScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Today's Focus</Text>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Today's Focus
+        </Text>
         <View style={{ width: 36 }} />
       </View>
 
@@ -128,47 +143,82 @@ const TasksScreen = ({ navigation }: any) => {
         showsVerticalScrollIndicator={false}
       >
         {/* Streak Card */}
-        <View style={styles.streakCard}>
-          <View style={styles.streakGlow} />
+        <View
+          style={[
+            styles.streakCard,
+            { backgroundColor: isDark ? '#1A2A22' : '#E8EDEA' },
+          ]}
+        >
+          <View
+            style={[
+              styles.streakGlow,
+              { backgroundColor: isDark ? '#0D3A1F' : '#C9F7E4' },
+            ]}
+          />
           <Text style={styles.streakFlame}>🔥</Text>
-          <Text style={styles.streakNumber}>{STREAK}</Text>
+          <Text style={[styles.streakNumber, { color: colors.TEXT_PRIMARY }]}>
+            {STREAK}
+          </Text>
           <Text style={styles.streakLabel}>CURRENT STREAK!</Text>
         </View>
 
         {/* Daily Progress */}
         <View style={styles.progressRow}>
-          <Text style={styles.progressTitle}>Daily Progress</Text>
-          <Text style={styles.progressCount}>
+          <Text style={[styles.progressTitle, { color: colors.TEXT_PRIMARY }]}>
+            Daily Progress
+          </Text>
+          <Text
+            style={[styles.progressCount, { color: colors.TEXT_SECONDARY }]}
+          >
             {completedCount} of {totalCount} completed
           </Text>
         </View>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+        <View
+          style={[styles.progressBarBg, { backgroundColor: colors.BORDER }]}
+        >
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${progress}%`, backgroundColor: colors.PRIMARY },
+            ]}
+          />
         </View>
 
         {/* Medication Reminders */}
-        <Text style={styles.sectionTitle}>Medication Reminders</Text>
+        <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
+          Medication Reminders
+        </Text>
         {medications.map(med => (
-          <View key={med.id} style={styles.medCard}>
+          <View
+            key={med.id}
+            style={[styles.medCard, { backgroundColor: colors.SURFACE }]}
+          >
             <View
               style={[
                 styles.medIconCircle,
-                med.taken && styles.medIconCircleDone,
+                { backgroundColor: colors.SECONDARY_LIGHT },
+                med.taken && { backgroundColor: colors.SUCCESS_LIGHT },
               ]}
             >
               <Text style={styles.medIconText}>💊</Text>
             </View>
             <View style={styles.medContent}>
-              <Text style={styles.medTitle}>{med.title}</Text>
-              <Text style={styles.medSub}>
+              <Text style={[styles.medTitle, { color: colors.TEXT_PRIMARY }]}>
+                {med.title}
+              </Text>
+              <Text style={[styles.medSub, { color: colors.TEXT_SECONDARY }]}>
                 {med.time} • {med.dose}
               </Text>
             </View>
             <TouchableOpacity
-              style={[styles.takeBtn, med.taken && styles.takeBtnDone]}
+              style={[
+                styles.takeBtn,
+                { backgroundColor: colors.PRIMARY },
+                med.taken && { backgroundColor: colors.BORDER },
+              ]}
               onPress={() => toggleMedication(med.id)}
             >
-              <Text style={styles.takeBtnText}>
+              <Text style={[styles.takeBtnText, { color: colors.WHITE }]}>
                 {med.taken ? 'Done' : 'Take'}
               </Text>
             </TouchableOpacity>
@@ -176,26 +226,49 @@ const TasksScreen = ({ navigation }: any) => {
         ))}
 
         {/* Today's Tasks */}
-        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+        <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
+          Today's Tasks
+        </Text>
         {tasks.map(task => (
-          <View key={task.id} style={styles.taskCard}>
+          <View
+            key={task.id}
+            style={[styles.taskCard, { backgroundColor: colors.SURFACE }]}
+          >
             <TouchableOpacity
               onPress={() => toggleTask(task.id)}
               style={styles.checkboxHit}
             >
               <View
-                style={[styles.checkbox, task.completed && styles.checkboxDone]}
+                style={[
+                  styles.checkbox,
+                  { borderColor: colors.BORDER },
+                  task.completed && {
+                    backgroundColor: colors.PRIMARY,
+                    borderColor: colors.PRIMARY,
+                  },
+                ]}
               >
                 {task.completed && <Text style={styles.checkmark}>✓</Text>}
               </View>
             </TouchableOpacity>
             <View style={styles.taskContent}>
               <Text
-                style={[styles.taskTitle, task.completed && styles.taskDone]}
+                style={[
+                  styles.taskTitle,
+                  { color: colors.TEXT_PRIMARY },
+                  task.completed && {
+                    textDecorationLine: 'line-through',
+                    color: colors.TEXT_TERTIARY,
+                  },
+                ]}
               >
                 {task.title}
               </Text>
-              <Text style={styles.taskCategory}>{task.category}</Text>
+              <Text
+                style={[styles.taskCategory, { color: colors.TEXT_SECONDARY }]}
+              >
+                {task.category}
+              </Text>
             </View>
             <TouchableOpacity
               onPress={() => deleteTask(task.id)}
@@ -208,33 +281,55 @@ const TasksScreen = ({ navigation }: any) => {
 
         {/* Add Task */}
         {showAddTask ? (
-          <View style={styles.addBox}>
+          <View style={[styles.addBox, { backgroundColor: colors.SURFACE }]}>
             <TextInput
-              style={styles.addInput}
+              style={[
+                styles.addInput,
+                {
+                  borderColor: colors.BORDER,
+                  color: colors.TEXT_PRIMARY,
+                  backgroundColor: colors.BACKGROUND_LIGHT,
+                },
+              ]}
               placeholder="Enter new task..."
-              placeholderTextColor={COLORS.TEXT_TERTIARY}
+              placeholderTextColor={colors.TEXT_TERTIARY}
               value={newTask}
               onChangeText={setNewTask}
               autoFocus
             />
             <View style={styles.addBtnRow}>
-              <TouchableOpacity style={styles.addConfirmBtn} onPress={addTask}>
-                <Text style={styles.addConfirmText}>Add</Text>
+              <TouchableOpacity
+                style={[
+                  styles.addConfirmBtn,
+                  { backgroundColor: colors.PRIMARY },
+                ]}
+                onPress={addTask}
+              >
+                <Text style={[styles.addConfirmText, { color: colors.WHITE }]}>
+                  Add
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.addCancelBtn}
+                style={[styles.addCancelBtn, { borderColor: colors.BORDER }]}
                 onPress={() => {
                   setShowAddTask(false);
                   setNewTask('');
                 }}
               >
-                <Text style={styles.addCancelText}>Cancel</Text>
+                <Text
+                  style={[
+                    styles.addCancelText,
+                    { color: colors.TEXT_SECONDARY },
+                  ]}
+                >
+                  Cancel
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         ) : (
           <TouchableOpacity
-            style={styles.fab}
+            style={[styles.fab, { backgroundColor: colors.PRIMARY }]}
             onPress={() => setShowAddTask(true)}
           >
             <Text style={styles.fabIcon}>+</Text>
@@ -243,11 +338,13 @@ const TasksScreen = ({ navigation }: any) => {
 
         {/* Quote */}
         <View style={styles.quoteBox}>
-          <Text style={styles.quoteText}>
+          <Text style={[styles.quoteText, { color: colors.TEXT_SECONDARY }]}>
             "One step at a time is still moving forward.{'\n'}You're doing great
             today!"
           </Text>
-          <Text style={styles.quoteAuthor}>— BEAN —</Text>
+          <Text style={[styles.quoteAuthor, { color: colors.PRIMARY }]}>
+            — BEAN —
+          </Text>
         </View>
       </ScrollView>
 
@@ -256,56 +353,30 @@ const TasksScreen = ({ navigation }: any) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND_LIGHT,
-  },
-
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 28,
-    color: COLORS.TEXT_PRIMARY,
-    lineHeight: 32,
-  },
-  headerTitle: {
-    ...TYPOGRAPHY.H4,
-    color: COLORS.TEXT_PRIMARY,
-  },
-
+  backBtn: { width: 36, height: 36, justifyContent: 'center' },
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scroll: {
     paddingHorizontal: SPACING.LG,
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.MASSIVE,
   },
-
-  // ── Streak card
   streakCard: {
     borderRadius: BORDER_RADIUS.XL,
     paddingVertical: SPACING.XL,
     alignItems: 'center',
     marginBottom: SPACING.LG,
-    backgroundColor: '#E8EDEA',
     overflow: 'hidden',
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
     elevation: 4,
   },
   streakGlow: {
@@ -313,7 +384,6 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: '#C9F7E4',
     opacity: 0.75,
     alignSelf: 'center',
     top: 0,
@@ -321,16 +391,8 @@ const styles = StyleSheet.create({
     marginTop: 'auto' as any,
     marginBottom: 'auto' as any,
   },
-  streakFlame: {
-    fontSize: 44,
-    marginBottom: SPACING.XS,
-  },
-  streakNumber: {
-    fontSize: 52,
-    fontWeight: '900' as const,
-    color: '#0F172A',
-    lineHeight: 58,
-  },
+  streakFlame: { fontSize: 44, marginBottom: SPACING.XS },
+  streakNumber: { fontSize: 52, fontWeight: '900' as const, lineHeight: 58 },
   streakLabel: {
     fontSize: 12,
     fontWeight: '700' as const,
@@ -338,187 +400,92 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     marginTop: SPACING.XS,
   },
-
-  // ── Progress
   progressRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.SM,
   },
-  progressTitle: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  progressCount: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-  },
+  progressTitle: { fontSize: 15, fontWeight: '700' as const },
+  progressCount: { ...TYPOGRAPHY.CAPTION },
   progressBarBg: {
     height: 10,
-    backgroundColor: COLORS.GRAY_200,
     borderRadius: 5,
     marginBottom: SPACING.XL,
     overflow: 'hidden',
   },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 5,
-  },
-
-  // ── Section title
+  progressBarFill: { height: '100%', borderRadius: 5 },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.MD,
   },
-
-  // ── Medication card
   medCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.LG,
     padding: SPACING.MD,
     marginBottom: SPACING.SM,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
     elevation: 2,
   },
   medIconCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.SECONDARY_LIGHT,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.MD,
   },
-  medIconCircleDone: {
-    backgroundColor: COLORS.SUCCESS_LIGHT,
-  },
-  medIconText: {
-    fontSize: 20,
-  },
-  medContent: {
-    flex: 1,
-  },
-  medTitle: {
-    fontSize: 14,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  medSub: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
+  medIconText: { fontSize: 20 },
+  medContent: { flex: 1 },
+  medTitle: { fontSize: 14, fontWeight: '700' as const },
+  medSub: { ...TYPOGRAPHY.CAPTION, marginTop: 2 },
   takeBtn: {
-    backgroundColor: COLORS.PRIMARY,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.XS,
   },
-  takeBtnDone: {
-    backgroundColor: COLORS.GRAY_200,
-  },
-  takeBtnText: {
-    fontSize: 13,
-    fontWeight: '700' as const,
-    color: COLORS.WHITE,
-  },
-
-  // ── Task card
+  takeBtnText: { fontSize: 13, fontWeight: '700' as const },
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.LG,
     padding: SPACING.MD,
     marginBottom: SPACING.SM,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
     elevation: 2,
   },
-  checkboxHit: {
-    padding: SPACING.XS,
-    marginRight: SPACING.SM,
-  },
+  checkboxHit: { padding: SPACING.XS, marginRight: SPACING.SM },
   checkbox: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: COLORS.GRAY_300,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxDone: {
-    backgroundColor: COLORS.PRIMARY,
-    borderColor: COLORS.PRIMARY,
-  },
-  checkmark: {
-    color: COLORS.WHITE,
-    fontSize: 13,
-    fontWeight: '700' as const,
-  },
-  taskContent: {
-    flex: 1,
-  },
-  taskTitle: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  taskDone: {
-    textDecorationLine: 'line-through',
-    color: COLORS.TEXT_TERTIARY,
-  },
-  taskCategory: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-  deleteBtn: {
-    padding: SPACING.XS,
-  },
-  deleteIcon: {
-    fontSize: 16,
-  },
-
-  // ── FAB
+  checkmark: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' as const },
+  taskContent: { flex: 1 },
+  taskTitle: { fontSize: 14, fontWeight: '600' as const },
+  taskCategory: { ...TYPOGRAPHY.CAPTION, marginTop: 2 },
+  deleteBtn: { padding: SPACING.XS },
+  deleteIcon: { fontSize: 16 },
   fab: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: COLORS.PRIMARY,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: SPACING.MD,
     marginBottom: SPACING.LG,
-    shadowColor: COLORS.PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
     elevation: 6,
   },
   fabIcon: {
     fontSize: 28,
-    color: COLORS.WHITE,
+    color: '#FFFFFF',
     lineHeight: 32,
     fontWeight: '300' as const,
   },
-
-  // ── Add task box
   addBox: {
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.LG,
     padding: SPACING.LG,
     marginBottom: SPACING.LG,
@@ -526,43 +493,26 @@ const styles = StyleSheet.create({
   addInput: {
     ...TYPOGRAPHY.BODY,
     borderWidth: 1,
-    borderColor: COLORS.BORDER,
     borderRadius: BORDER_RADIUS.MD,
     padding: SPACING.MD,
     marginBottom: SPACING.MD,
-    color: COLORS.TEXT_PRIMARY,
   },
-  addBtnRow: {
-    flexDirection: 'row',
-    gap: SPACING.MD,
-  },
+  addBtnRow: { flexDirection: 'row', gap: SPACING.MD },
   addConfirmBtn: {
     flex: 1,
-    backgroundColor: COLORS.PRIMARY,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.MD,
     alignItems: 'center',
   },
-  addConfirmText: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: COLORS.WHITE,
-  },
+  addConfirmText: { fontSize: 15, fontWeight: '700' as const },
   addCancelBtn: {
     flex: 1,
     borderWidth: 1.5,
-    borderColor: COLORS.BORDER,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.MD,
     alignItems: 'center',
   },
-  addCancelText: {
-    fontSize: 15,
-    fontWeight: '600' as const,
-    color: COLORS.TEXT_SECONDARY,
-  },
-
-  // ── Quote
+  addCancelText: { fontSize: 15, fontWeight: '600' as const },
   quoteBox: {
     marginTop: SPACING.SM,
     marginBottom: SPACING.MD,
@@ -571,7 +521,6 @@ const styles = StyleSheet.create({
   },
   quoteText: {
     ...TYPOGRAPHY.BODY_SMALL,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     fontStyle: 'italic',
     lineHeight: 20,
@@ -579,7 +528,6 @@ const styles = StyleSheet.create({
   quoteAuthor: {
     fontSize: 11,
     fontWeight: '700' as const,
-    color: COLORS.PRIMARY,
     marginTop: SPACING.XS,
     letterSpacing: 1,
   },
