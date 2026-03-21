@@ -1,7 +1,7 @@
 // src/screens/user/ProfileScreen.tsx
-// ✅ Updated — correct icons + navigates to RobotConnectivity
+// ✅ Bigger rows + gallery photo picker
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,10 +12,12 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import BottomTabBar from '../../components/navigation/BottomTabBar';
 
+// ─── Menu Row ─────────────────────────────────────────────────────────────────
 interface MenuRowProps {
   icon: any;
   label: string;
@@ -34,7 +36,30 @@ const MenuRow = ({ icon, label, onPress }: MenuRowProps) => (
   </TouchableOpacity>
 );
 
+// ─── Screen ───────────────────────────────────────────────────────────────────
 const ProfileScreen = ({ navigation }: any) => {
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+
+  // ✅ Opens device gallery
+  const handlePickPhoto = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+        selectionLimit: 1,
+      },
+      response => {
+        if (response.didCancel) return;
+        if (response.errorCode) {
+          Alert.alert('Error', 'Could not open gallery. Please try again.');
+          return;
+        }
+        const uri = response.assets?.[0]?.uri;
+        if (uri) setProfilePhoto(uri);
+      },
+    );
+  };
+
   const handleLogOut = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
       { text: 'Cancel', style: 'cancel' },
@@ -68,19 +93,33 @@ const ProfileScreen = ({ navigation }: any) => {
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Avatar + Name */}
+        {/* ✅ Avatar — tap to open gallery */}
         <View style={styles.avatarSection}>
-          <View style={styles.avatarWrap}>
+          <TouchableOpacity
+            onPress={handlePickPhoto}
+            activeOpacity={0.85}
+            style={styles.avatarWrap}
+          >
             <Image
-              source={require('../../../assets/images/profile-picture.png')}
+              source={
+                profilePhoto
+                  ? { uri: profilePhoto }
+                  : require('../../../assets/images/profile picture.png')
+              }
               style={styles.avatarImage}
               resizeMode="cover"
             />
+            {/* Camera overlay hint */}
+            <View style={styles.cameraOverlay}>
+              <Text style={styles.cameraIcon}>📷</Text>
+            </View>
+            {/* Star badge */}
             <View style={styles.badge}>
               <Text style={styles.badgeEmoji}>⭐</Text>
             </View>
-          </View>
+          </TouchableOpacity>
           <Text style={styles.userName}>Alex Johnson</Text>
+          <Text style={styles.tapHint}>Tap photo to change</Text>
         </View>
 
         {/* Connected Bean Robot card */}
@@ -91,7 +130,7 @@ const ProfileScreen = ({ navigation }: any) => {
         >
           <View style={styles.beanCardLeft}>
             <Image
-              source={require('../../../assets/images/robot-connectivity-top-icon.png')}
+              source={require('../../../assets/images/select-user.png')}
               style={styles.beanCardIcon}
               resizeMode="contain"
             />
@@ -103,7 +142,7 @@ const ProfileScreen = ({ navigation }: any) => {
               </View>
             </View>
           </View>
-          <Text style={styles.menuChevron}>›</Text>
+          <Text style={styles.chevron}>›</Text>
         </TouchableOpacity>
 
         {/* General Settings */}
@@ -162,6 +201,7 @@ const ProfileScreen = ({ navigation }: any) => {
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.BACKGROUND_LIGHT },
   scroll: { paddingBottom: SPACING.MASSIVE },
@@ -180,39 +220,63 @@ const styles = StyleSheet.create({
   backIcon: { fontSize: 28, color: COLORS.TEXT_PRIMARY, lineHeight: 32 },
   headerTitle: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
 
+  // ── Avatar ──
   avatarSection: {
     alignItems: 'center',
     paddingTop: SPACING.XXL,
     paddingBottom: SPACING.XL,
     backgroundColor: COLORS.WHITE,
   },
-  avatarWrap: { position: 'relative', marginBottom: SPACING.MD },
+  avatarWrap: {
+    position: 'relative',
+    marginBottom: SPACING.MD,
+  },
   avatarImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: COLORS.SECONDARY_LIGHT,
   },
-  badge: {
+  // Semi-transparent camera overlay at bottom of avatar
+  cameraOverlay: {
     position: 'absolute',
     bottom: 0,
+    left: 0,
     right: 0,
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    height: 34,
+    borderBottomLeftRadius: 50,
+    borderBottomRightRadius: 50,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cameraIcon: { fontSize: 14 },
+  badge: {
+    position: 'absolute',
+    bottom: 2,
+    right: -2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: '#F59E0B',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: COLORS.WHITE,
   },
-  badgeEmoji: { fontSize: 12 },
+  badgeEmoji: { fontSize: 13 },
   userName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700' as const,
     color: COLORS.TEXT_PRIMARY,
+    marginBottom: 4,
+  },
+  tapHint: {
+    fontSize: 12,
+    color: COLORS.TEXT_TERTIARY,
   },
 
+  // ── Bean card ──
   beanCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -222,7 +286,8 @@ const styles = StyleSheet.create({
     marginTop: SPACING.LG,
     marginBottom: SPACING.LG,
     borderRadius: BORDER_RADIUS.XL,
-    padding: SPACING.LG,
+    paddingVertical: SPACING.LG,
+    paddingHorizontal: SPACING.LG,
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -234,12 +299,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.MD,
   },
-  beanCardIcon: { width: 40, height: 40 },
+  beanCardIcon: { width: 44, height: 44 },
   beanCardTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600' as const,
     color: COLORS.TEXT_PRIMARY,
-    marginBottom: 2,
+    marginBottom: 3,
   },
   beanStatusRow: {
     flexDirection: 'row',
@@ -247,21 +312,24 @@ const styles = StyleSheet.create({
     gap: SPACING.XS,
   },
   statusDot: {
-    width: 7,
-    height: 7,
+    width: 8,
+    height: 8,
     borderRadius: 4,
     backgroundColor: COLORS.ERROR,
   },
-  beanStatusText: { fontSize: 12, color: COLORS.ERROR },
+  beanStatusText: { fontSize: 13, color: COLORS.ERROR },
+  chevron: { fontSize: 22, color: COLORS.TEXT_TERTIARY, lineHeight: 26 },
 
+  // ── Section label ──
   sectionGreen: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700' as const,
     color: '#07882C',
     marginLeft: SPACING.XL,
     marginBottom: SPACING.SM,
   },
 
+  // ── Menu card ──
   menuCard: {
     backgroundColor: COLORS.WHITE,
     marginHorizontal: SPACING.XL,
@@ -274,27 +342,30 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  // ✅ Bigger rows — paddingVertical increased to 20
   menuRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.LG,
+    paddingVertical: 20,
     paddingHorizontal: SPACING.LG,
     gap: SPACING.MD,
   },
-  menuIcon: { width: 24, height: 24 },
+  menuIcon: { width: 36, height: 36 },
+  // ✅ Bigger text
   menuLabel: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 17,
     color: COLORS.TEXT_PRIMARY,
     fontWeight: '500' as const,
   },
-  menuChevron: { fontSize: 20, color: COLORS.TEXT_TERTIARY, lineHeight: 24 },
+  menuChevron: { fontSize: 22, color: COLORS.TEXT_TERTIARY, lineHeight: 26 },
   menuDivider: {
     height: 1,
     backgroundColor: COLORS.BORDER_LIGHT,
-    marginLeft: SPACING.XL,
+    marginLeft: SPACING.LG + 26 + SPACING.MD,
   },
 
+  // ✅ Bigger log out button
   logOutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -305,16 +376,16 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: COLORS.ERROR,
     borderRadius: BORDER_RADIUS.ROUND,
-    paddingVertical: SPACING.LG,
+    paddingVertical: 20,
     backgroundColor: COLORS.WHITE,
   },
   logoutIcon: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     tintColor: COLORS.ERROR,
   },
   logOutText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700' as const,
     color: COLORS.ERROR,
   },

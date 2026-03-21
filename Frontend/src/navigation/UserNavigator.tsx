@@ -1,5 +1,5 @@
 // src/navigation/UserNavigator.tsx
-// ✅ All user screens including CasualConvoScreen + PlayGamesScreen
+// ✅ All user screens + RobotConnectivityScreen
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -16,6 +16,7 @@ import EmergencyContactsScreen from '../screens/user/EmergencyContactsScreen';
 import AddNewContactScreen from '../screens/user/AddNewContactScreen';
 import TherapeuticConversationsScreen from '../screens/user/TherapeuticConversationsScreen';
 import ProfileScreen from '../screens/user/ProfileScreen';
+import RobotConnectivityScreen from '../screens/user/RobotConnectivityScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +45,11 @@ const UserNavigator = () => {
         component={TherapeuticConversationsScreen}
       />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      {/* ✅ Robot connectivity screen */}
+      <Stack.Screen
+        name="RobotConnectivity"
+        component={RobotConnectivityScreen}
+      />
     </Stack.Navigator>
   );
 };
