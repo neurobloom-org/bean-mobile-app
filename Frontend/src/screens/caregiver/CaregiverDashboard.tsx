@@ -1,5 +1,5 @@
 // src/screens/caregiver/CaregiverDashboard.tsx
-// ✅ FIGMA-MATCHED — All values default 0
+// ✅ Dark theme aware
 
 import React from 'react';
 import {
@@ -12,35 +12,49 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 import MoodTrendChart from '../../components/cards/MoodTrendChart';
 
-// ─── Alert History Item ───────────────────────────────────────────────────────
 interface AlertItemProps {
   icon: any;
   title: string;
   subtitle: string;
   onPress: () => void;
+  colors: any;
 }
 
-const AlertItem = ({ icon, title, subtitle, onPress }: AlertItemProps) => (
+const AlertItem = ({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  colors,
+}: AlertItemProps) => (
   <TouchableOpacity
-    style={styles.alertItem}
+    style={[styles.alertItem, { backgroundColor: colors.SURFACE }]}
     onPress={onPress}
     activeOpacity={0.8}
   >
     <Image source={icon} style={styles.alertIcon} resizeMode="contain" />
     <View style={styles.alertItemText}>
-      <Text style={styles.alertItemTitle}>{title}</Text>
-      <Text style={styles.alertItemSub}>{subtitle}</Text>
+      <Text style={[styles.alertItemTitle, { color: colors.TEXT_PRIMARY }]}>
+        {title}
+      </Text>
+      <Text style={[styles.alertItemSub, { color: colors.TEXT_SECONDARY }]}>
+        {subtitle}
+      </Text>
     </View>
-    <Text style={styles.alertChevron}>›</Text>
+    <Text style={[styles.alertChevron, { color: colors.TEXT_TERTIARY }]}>
+      ›
+    </Text>
   </TouchableOpacity>
 );
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const CaregiverDashboard = ({ navigation }: any) => {
+  const { colors } = useTheme(); // ✅
+
   const handleExportReport = () => {
     Alert.alert('Export Report', 'Clinical report will be exported as PDF.', [
       { text: 'OK' },
@@ -48,16 +62,30 @@ const CaregiverDashboard = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Caregiver Dashboard</Text>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Caregiver Dashboard
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -65,84 +93,133 @@ const CaregiverDashboard = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Page title ── */}
-        <Text style={styles.pageTitle}>Caregiver/Therapist Dashboard</Text>
-        <Text style={styles.pageSubtitle}>Monitoring: Alex Johnson</Text>
+        {/* Page title */}
+        <Text style={[styles.pageTitle, { color: colors.TEXT_PRIMARY }]}>
+          Caregiver/Therapist Dashboard
+        </Text>
+        <Text style={[styles.pageSubtitle, { color: colors.TEXT_SECONDARY }]}>
+          Monitoring: Alex Johnson
+        </Text>
 
-        {/* ── Mood Trends card ── */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Mood Trends</Text>
-          <Text style={styles.cardSubtitle}>
+        {/* Mood Trends card */}
+        <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>
+          <Text style={[styles.cardTitle, { color: colors.TEXT_PRIMARY }]}>
+            Mood Trends
+          </Text>
+          <Text style={[styles.cardSubtitle, { color: colors.TEXT_SECONDARY }]}>
             Mental wellness overview from the past 7 days
           </Text>
-          {/* ✅ MoodTrendChart component from src/components/cards/ */}
           <MoodTrendChart scores={[0, 0, 0, 0, 0, 0, 0]} />
         </View>
 
-        {/* ── Activity Overview ── */}
-        <Text style={styles.sectionTitle}>Activity Overview</Text>
+        {/* Activity Overview */}
+        <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
+          Activity Overview
+        </Text>
         <View style={styles.activityRow}>
           {/* Tasks card */}
-          <View style={styles.activityCard}>
+          <View
+            style={[styles.activityCard, { backgroundColor: colors.SURFACE }]}
+          >
             <View style={styles.activityHeader}>
               <Image
                 source={require('../../../assets/images/guardian-task.png')}
                 style={styles.activityIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.activityLabel}>Tasks</Text>
+              <Text
+                style={[styles.activityLabel, { color: colors.TEXT_SECONDARY }]}
+              >
+                Tasks
+              </Text>
             </View>
-            <Text style={styles.activityValue}>0%</Text>
-            <Text style={styles.activityTrend}>— no data yet</Text>
+            <Text
+              style={[styles.activityValue, { color: colors.TEXT_PRIMARY }]}
+            >
+              0%
+            </Text>
+            <Text
+              style={[styles.activityTrend, { color: colors.TEXT_TERTIARY }]}
+            >
+              — no data yet
+            </Text>
           </View>
 
           {/* Focus card */}
-          <View style={styles.activityCard}>
+          <View
+            style={[styles.activityCard, { backgroundColor: colors.SURFACE }]}
+          >
             <View style={styles.activityHeader}>
               <Image
                 source={require('../../../assets/images/guardian-time-focus.png')}
                 style={styles.activityIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.activityLabel}>Focus</Text>
+              <Text
+                style={[styles.activityLabel, { color: colors.TEXT_SECONDARY }]}
+              >
+                Focus
+              </Text>
             </View>
-            <Text style={styles.activityValue}>0h 0m</Text>
-            <Text style={styles.activityTrend}>— no data yet</Text>
+            <Text
+              style={[styles.activityValue, { color: colors.TEXT_PRIMARY }]}
+            >
+              0h 0m
+            </Text>
+            <Text
+              style={[styles.activityTrend, { color: colors.TEXT_TERTIARY }]}
+            >
+              — no data yet
+            </Text>
           </View>
         </View>
 
-        {/* ── Bean User History ── */}
+        {/* Bean User History */}
         <View style={styles.historyHeader}>
-          <Text style={styles.sectionTitle}>Bean User History</Text>
+          <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
+            Bean User History
+          </Text>
           <TouchableOpacity onPress={() => {}}>
-            <Text style={styles.viewAll}>View All</Text>
+            <Text style={[styles.viewAll, { color: colors.PRIMARY }]}>
+              View All
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Empty state for history */}
-        <View style={styles.historyEmpty}>
-          <Text style={styles.historyEmptyText}>No alerts recorded yet.</Text>
-          <Text style={styles.historyEmptySub}>
+        {/* Empty history state */}
+        <View
+          style={[styles.historyEmpty, { backgroundColor: colors.SURFACE }]}
+        >
+          <Text
+            style={[styles.historyEmptyText, { color: colors.TEXT_PRIMARY }]}
+          >
+            No alerts recorded yet.
+          </Text>
+          <Text
+            style={[styles.historyEmptySub, { color: colors.TEXT_SECONDARY }]}
+          >
             Events like SOS triggers and mood alerts will appear here.
           </Text>
         </View>
 
-        {/* ── Export Clinical Report ── */}
+        {/* Export Clinical Report */}
         <TouchableOpacity
-          style={styles.exportBtn}
+          style={[styles.exportBtn, { backgroundColor: colors.PRIMARY }]}
           onPress={handleExportReport}
           activeOpacity={0.85}
         >
           <Image
             source={require('../../../assets/images/clinical-report.png')}
-            style={styles.exportIcon}
+            style={[styles.exportIcon, { tintColor: colors.WHITE }]}
             resizeMode="contain"
           />
-          <Text style={styles.exportText}>Export Clinical Report</Text>
+          <Text style={[styles.exportText, { color: colors.WHITE }]}>
+            Export Clinical Report
+          </Text>
         </TouchableOpacity>
 
         {/* Footer */}
-        <Text style={styles.footer}>
+        <Text style={[styles.footer, { color: colors.TEXT_TERTIARY }]}>
           Bean AI · Caregiver/Therapist Portal v2.4.1
         </Text>
       </ScrollView>
@@ -150,76 +227,47 @@ const CaregiverDashboard = ({ navigation }: any) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.BACKGROUND_LIGHT },
-
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  backIcon: { fontSize: 28, color: COLORS.TEXT_PRIMARY, lineHeight: 32 },
-  headerTitle: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
-
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.MASSIVE,
   },
-
-  // Page title
   pageTitle: {
     fontSize: 18,
     fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
   },
-  pageSubtitle: {
-    ...TYPOGRAPHY.BODY_SMALL,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: SPACING.XL,
-  },
-
-  // Card
+  pageSubtitle: { ...TYPOGRAPHY.BODY_SMALL, marginBottom: SPACING.XL },
   card: {
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
     marginBottom: SPACING.XL,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 6,
     elevation: 3,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
   },
-  cardSubtitle: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: SPACING.LG,
-  },
-
-  // Section title
+  cardSubtitle: { ...TYPOGRAPHY.CAPTION, marginBottom: SPACING.LG },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.MD,
   },
-
-  // Activity row
   activityRow: {
     flexDirection: 'row',
     gap: SPACING.MD,
@@ -227,13 +275,8 @@ const styles = StyleSheet.create({
   },
   activityCard: {
     flex: 1,
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
     elevation: 2,
   },
   activityHeader: {
@@ -242,128 +285,61 @@ const styles = StyleSheet.create({
     gap: SPACING.XS,
     marginBottom: SPACING.SM,
   },
-  activityIcon: {
-    width: 22,
-    height: 22,
-  },
-  activityLabel: {
-    fontSize: 12,
-    fontWeight: '600' as const,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  activityValue: {
-    fontSize: 26,
-    fontWeight: '800' as const,
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 2,
-  },
-  activityTrend: {
-    fontSize: 11,
-    color: COLORS.TEXT_TERTIARY,
-  },
-
-  // History
+  activityIcon: { width: 22, height: 22 },
+  activityLabel: { fontSize: 12, fontWeight: '600' as const },
+  activityValue: { fontSize: 26, fontWeight: '800' as const, marginBottom: 2 },
+  activityTrend: { fontSize: 11 },
   historyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.MD,
   },
-  viewAll: {
-    fontSize: 13,
-    fontWeight: '600' as const,
-    color: COLORS.PRIMARY,
-  },
-
-  // Empty history state
+  viewAll: { fontSize: 13, fontWeight: '600' as const },
   historyEmpty: {
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.XL,
     alignItems: 'center',
     marginBottom: SPACING.XL,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
     elevation: 2,
   },
   historyEmptyText: {
     fontSize: 15,
     fontWeight: '600' as const,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
   },
   historyEmptySub: {
     ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 17,
   },
-
-  // Alert item (for when data exists)
   alertItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.LG,
     padding: SPACING.MD,
     marginBottom: SPACING.SM,
     gap: SPACING.MD,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
     elevation: 1,
   },
   alertIcon: { width: 40, height: 40 },
   alertItemText: { flex: 1 },
-  alertItemTitle: {
-    fontSize: 14,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  alertItemSub: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-  alertChevron: { fontSize: 20, color: COLORS.TEXT_TERTIARY },
-
-  // Export button
+  alertItemTitle: { fontSize: 14, fontWeight: '700' as const },
+  alertItemSub: { ...TYPOGRAPHY.CAPTION, marginTop: 2 },
+  alertChevron: { fontSize: 20 },
   exportBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.PRIMARY,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.LG,
     gap: SPACING.SM,
     marginBottom: SPACING.LG,
-    shadowColor: COLORS.PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
     elevation: 5,
   },
-  exportIcon: {
-    width: 22,
-    height: 22,
-    tintColor: COLORS.WHITE,
-  },
-  exportText: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: COLORS.WHITE,
-    letterSpacing: 0.3,
-  },
-
-  // Footer
-  footer: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
-    textAlign: 'center',
-  },
+  exportIcon: { width: 22, height: 22 },
+  exportText: { fontSize: 16, fontWeight: '700' as const, letterSpacing: 0.3 },
+  footer: { ...TYPOGRAPHY.CAPTION, textAlign: 'center' },
 });
 
 export default CaregiverDashboard;

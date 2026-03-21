@@ -1,13 +1,19 @@
 // src/screens/caregiver/VerificationSuccessfulScreen.tsx
+// ✅ Dark theme aware
 
 import React from 'react';
 import { View, Text, Image, StyleSheet, SafeAreaView } from 'react-native';
 import { PrimaryButton } from '../../components';
-import { COLORS, SPACING } from '../../constants';
+import { SPACING } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 const VerificationSuccessfulScreen = ({ navigation }: any) => {
+  const { colors } = useTheme(); // ✅
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <View style={styles.content}>
         {/* Glowing success icon */}
         <View style={styles.glowOuter}>
@@ -20,12 +26,16 @@ const VerificationSuccessfulScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        <Text style={styles.title}>Verification{'\n'}Successful!</Text>
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Verification{'\n'}Successful!
+        </Text>
 
-        <Text style={styles.body}>
+        <Text style={[styles.body, { color: colors.TEXT_SECONDARY }]}>
           The patient profile for{' '}
-          <Text style={styles.nameHighlight}>Alex Johnson</Text> is now linked
-          and verified. You can now manage their appointments.
+          <Text style={[styles.nameHighlight, { color: colors.TEXT_PRIMARY }]}>
+            Alex Johnson
+          </Text>{' '}
+          is now linked and verified. You can now manage their appointments.
         </Text>
 
         <View style={styles.btnWrapper}>
@@ -43,10 +53,7 @@ const VerificationSuccessfulScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1 },
   content: {
     flex: 1,
     alignItems: 'center',
@@ -54,7 +61,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.XL,
     paddingBottom: SPACING.XL,
   },
-  // Layered glow rings matching Figma
   glowOuter: {
     width: 160,
     height: 160,
@@ -72,33 +78,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  successIcon: {
-    width: 80,
-    height: 80,
-  },
+  successIcon: { width: 80, height: 80 },
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.MD,
     lineHeight: 34,
   },
   body: {
     fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: SPACING.MD,
     marginBottom: SPACING.MASSIVE,
   },
-  nameHighlight: {
-    fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
-  },
-  btnWrapper: {
-    width: '100%',
-  },
+  nameHighlight: { fontWeight: '800' },
+  btnWrapper: { width: '100%' },
 });
 
 export default VerificationSuccessfulScreen;

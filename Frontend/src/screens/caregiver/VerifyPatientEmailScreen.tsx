@@ -1,4 +1,5 @@
 // src/screens/caregiver/VerifyPatientEmailScreen.tsx
+// ✅ Dark theme aware
 
 import React, { useRef, useState, useEffect } from 'react';
 import {
@@ -15,25 +16,25 @@ import {
   Alert,
 } from 'react-native';
 import { PrimaryButton } from '../../components';
-import { COLORS, SPACING } from '../../constants';
+import { SPACING } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 59;
 
 const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme(); // ✅
   const { maskedEmail = 'p****t@healthcare.com' } = route.params || {};
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [timer, setTimer] = useState(RESEND_SECONDS);
   const [canResend, setCanResend] = useState(false);
 
-  // ✅ Fix: correct ref type for React Native TextInput
   const inputRefs = useRef<Array<TextInput | null>>(
     Array(OTP_LENGTH).fill(null),
   );
 
-  // Countdown timer
   useEffect(() => {
     if (timer <= 0) {
       setCanResend(true);
@@ -48,10 +49,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
     const updated = [...otp];
     updated[index] = digit;
     setOtp(updated);
-    // Auto-advance to next box
-    if (digit && index < OTP_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
+    if (digit && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
   };
 
   const handleKeyPress = (e: any, index: number) => {
@@ -80,7 +78,9 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
   const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -99,12 +99,16 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
             />
           </View>
 
-          <Text style={styles.title}>Verify Patient Email</Text>
+          <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+            Verify Patient Email
+          </Text>
 
-          <Text style={styles.subtitle}>
+          <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             We've sent a 6-digit verification code to{' '}
-            <Text style={styles.emailBold}>{maskedEmail}</Text>. Please enter it
-            below.
+            <Text style={[styles.emailBold, { color: colors.TEXT_PRIMARY }]}>
+              {maskedEmail}
+            </Text>
+            . Please enter it below.
           </Text>
 
           {/* OTP boxes */}
@@ -112,26 +116,47 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
             {otp.map((digit, i) => (
               <TextInput
                 key={i}
-                // ✅ Fix: cast ref callback to satisfy TypeScript
                 ref={(ref: TextInput | null) => {
                   inputRefs.current[i] = ref;
                 }}
-                style={[styles.otpBox, digit ? styles.otpBoxFilled : null]}
+                style={[
+                  styles.otpBox,
+                  {
+                    borderColor: colors.BORDER,
+                    color: colors.TEXT_PRIMARY,
+                    backgroundColor: colors.SURFACE,
+                  },
+                  digit
+                    ? {
+                        borderColor: '#07882C',
+                        backgroundColor: colors.SECONDARY_LIGHT,
+                      }
+                    : null,
+                ]}
                 value={digit}
                 onChangeText={text => handleChange(text, i)}
                 onKeyPress={e => handleKeyPress(e, i)}
                 keyboardType="number-pad"
                 maxLength={1}
                 textAlign="center"
-                selectionColor={COLORS.PRIMARY}
+                selectionColor="#07882C"
               />
             ))}
           </View>
 
           {/* Resend row */}
           <View style={styles.resendRow}>
-            <Text style={styles.resendLabel}>Resend code available in </Text>
-            <View style={styles.timerBadge}>
+            <Text
+              style={[styles.resendLabel, { color: colors.TEXT_SECONDARY }]}
+            >
+              Resend code available in{' '}
+            </Text>
+            <View
+              style={[
+                styles.timerBadge,
+                { backgroundColor: colors.SECONDARY_LIGHT },
+              ]}
+            >
               <Text style={styles.timerText}>00:{pad(timer)}</Text>
             </View>
           </View>
@@ -140,7 +165,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
             <Text
               style={[
                 styles.resendLink,
-                !canResend && styles.resendLinkDisabled,
+                !canResend && { color: colors.TEXT_TERTIARY },
               ]}
             >
               Resend Code
@@ -163,7 +188,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.WHITE },
+  container: { flex: 1 },
   scroll: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
@@ -180,74 +205,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.LG,
   },
-  topIcon: { width: 44, height: 44, tintColor: COLORS.WHITE },
+  topIcon: { width: 44, height: 44, tintColor: '#FFFFFF' },
   title: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.SM,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: SPACING.XL,
     paddingHorizontal: SPACING.SM,
   },
-  emailBold: {
-    fontWeight: '700',
-    color: COLORS.TEXT_PRIMARY,
-  },
-  otpRow: {
-    flexDirection: 'row',
-    gap: SPACING.SM,
-    marginBottom: SPACING.LG,
-  },
+  emailBold: { fontWeight: '700' },
+  otpRow: { flexDirection: 'row', gap: SPACING.SM, marginBottom: SPACING.LG },
   otpBox: {
     width: 46,
     height: 52,
     borderRadius: BORDER_RADIUS.MD,
     borderWidth: 1.5,
-    borderColor: COLORS.BORDER,
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.TEXT_PRIMARY,
-    backgroundColor: COLORS.WHITE,
-  },
-  otpBoxFilled: {
-    borderColor: '#07882C',
-    backgroundColor: '#F0FFF4',
   },
   resendRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: SPACING.XS,
   },
-  resendLabel: {
-    fontSize: 13,
-    color: COLORS.TEXT_SECONDARY,
-  },
+  resendLabel: { fontSize: 13 },
   timerBadge: {
-    backgroundColor: '#EEF2FF',
     borderRadius: BORDER_RADIUS.SM,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  timerText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#4169E1',
-  },
+  timerText: { fontSize: 13, fontWeight: '700', color: '#4169E1' },
   resendLink: {
     fontSize: 14,
     fontWeight: '700',
     color: '#07882C',
     marginBottom: SPACING.XL,
-  },
-  resendLinkDisabled: {
-    color: COLORS.TEXT_TERTIARY,
   },
   spacer: { flex: 1, minHeight: SPACING.XL },
 });
