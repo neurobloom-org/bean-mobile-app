@@ -193,7 +193,7 @@ const HomeScreen = ({ navigation }: any) => {
           <FeatureTile
             iconSource={require('../../../assets/images/detecting-SOS.png')}
             label="Detecting SOS"
-            onPress={() => {}}
+            onPress={() => goTo('SOSDetection')} // ✅ → SOSDetectionScreen
           />
 
           {/* Calming Exercises — tile → CalmingExercises · bean robot → Chat ✅ */}

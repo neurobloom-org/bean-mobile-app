@@ -11,6 +11,7 @@ import TasksScreen from '../screens/user/TasksScreen';
 import PlayGamesScreen from '../screens/user/PlayGamesScreen';
 import PlayCalmMusicScreen from '../screens/user/PlayCalmMusicScreen';
 import CalmingExercisesScreen from '../screens/user/CalmingExercisesScreen';
+import SOSDetectionScreen from '../screens/user/SOSDetectionScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,7 @@ const UserNavigator = () => {
         name="CalmingExercises"
         component={CalmingExercisesScreen}
       />
+      <Stack.Screen name="SOSDetection" component={SOSDetectionScreen} />
     </Stack.Navigator>
   );
 };
