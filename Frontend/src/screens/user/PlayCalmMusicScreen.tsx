@@ -1,5 +1,5 @@
 // src/screens/user/PlayCalmMusicScreen.tsx
-// ✅ FIGMA-MATCHED — Bean listening · Compatible Services · Voice Commands
+// ✅ Dark theme aware
 
 import React from 'react';
 import {
@@ -12,66 +12,77 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
-// ─── Voice Commands ───────────────────────────────────────────────────────────
-const COMMANDS = [
-  {
-    icon: require('../../../assets/images/try-saying.png'),
-    bg: COLORS.SECONDARY_LIGHT,
-    label: '"Hey Bean,',
-    value: 'Play some lo-fi beats."',
-  },
-  {
-    icon: require('../../../assets/images/bean-sound.png'),
-    bg: COLORS.SECONDARY_LIGHT,
-    label: '"Hey Bean,',
-    value: 'Increase volume to 70%."',
-  },
-  {
-    icon: require('../../../assets/images/bean-question.png'),
-    bg: COLORS.SECONDARY_LIGHT,
-    label: '"Hey Bean,',
-    value: 'What song is playing?"',
-  },
-];
-
-// ─── Compatible Services ──────────────────────────────────────────────────────
-const SERVICES = [
-  {
-    icon: require('../../../assets/images/user-dashboard-top-small-bean.png'),
-    label: 'Bean\nMusic',
-    available: true,
-  },
-  {
-    icon: require('../../../assets/images/bean-question.png'),
-    label: 'Coming\nSoon!',
-    available: false,
-  },
-  {
-    icon: require('../../../assets/images/bean-question.png'),
-    label: 'Coming\nSoon!',
-    available: false,
-  },
-];
-
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const PlayCalmMusicScreen = ({ navigation }: any) => {
+  const { colors } = useTheme(); // ✅
+
+  const COMMANDS = [
+    {
+      icon: require('../../../assets/images/try-saying.png'),
+      label: '"Hey Bean,',
+      value: 'Play some lo-fi beats."',
+    },
+    {
+      icon: require('../../../assets/images/bean-sound.png'),
+      label: '"Hey Bean,',
+      value: 'Increase volume to 70%."',
+    },
+    {
+      icon: require('../../../assets/images/bean-question.png'),
+      label: '"Hey Bean,',
+      value: 'What song is playing?"',
+    },
+  ];
+
+  const SERVICES = [
+    {
+      icon: require('../../../assets/images/user-dashboard-top-small-bean.png'),
+      label: 'Bean\nMusic',
+      available: true,
+    },
+    {
+      icon: require('../../../assets/images/bean-question.png'),
+      label: 'Coming\nSoon!',
+      available: false,
+    },
+    {
+      icon: require('../../../assets/images/bean-question.png'),
+      label: 'Coming\nSoon!',
+      available: false,
+    },
+  ];
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Play Calm Music</Text>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Play Calm Music
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -79,8 +90,13 @@ const PlayCalmMusicScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Bean listening image — large green circle ── */}
-        <View style={styles.beanCircle}>
+        {/* Bean circle */}
+        <View
+          style={[
+            styles.beanCircle,
+            { backgroundColor: colors.SECONDARY_LIGHT },
+          ]}
+        >
           <Image
             source={require('../../../assets/images/bean-calm-music.png')}
             style={styles.beanImage}
@@ -88,8 +104,10 @@ const PlayCalmMusicScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* ── Compatible Services ── */}
-        <Text style={styles.sectionGreen}>Compatible Services</Text>
+        {/* Compatible Services */}
+        <Text style={[styles.sectionGreen, { color: colors.PRIMARY_DARK }]}>
+          Compatible Services
+        </Text>
 
         <View style={styles.servicesRow}>
           {SERVICES.map((svc, i) => (
@@ -97,7 +115,10 @@ const PlayCalmMusicScreen = ({ navigation }: any) => {
               key={i}
               style={[
                 styles.serviceChip,
-                !svc.available && styles.serviceChipDisabled,
+                {
+                  backgroundColor: colors.SURFACE,
+                  borderColor: colors.BORDER,
+                },
               ]}
               activeOpacity={svc.available ? 0.75 : 1}
             >
@@ -107,10 +128,7 @@ const PlayCalmMusicScreen = ({ navigation }: any) => {
                 resizeMode="contain"
               />
               <Text
-                style={[
-                  styles.serviceLabel,
-                  !svc.available && styles.serviceLabelDisabled,
-                ]}
+                style={[styles.serviceLabel, { color: colors.TEXT_PRIMARY }]}
               >
                 {svc.label}
               </Text>
@@ -118,25 +136,38 @@ const PlayCalmMusicScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* ── Voice Commands ── */}
-        <Text style={styles.sectionGreen}>Voice Commands, Try these...</Text>
+        {/* Voice Commands */}
+        <Text style={[styles.sectionGreen, { color: colors.PRIMARY_DARK }]}>
+          Voice Commands, Try these...
+        </Text>
 
         <View style={styles.commandsContainer}>
           {COMMANDS.map((cmd, i) => (
-            <View key={i} style={styles.commandCard}>
-              {/* Icon circle */}
-              <View style={[styles.cmdIconCircle, { backgroundColor: cmd.bg }]}>
+            <View
+              key={i}
+              style={[styles.commandCard, { backgroundColor: colors.SURFACE }]}
+            >
+              <View
+                style={[
+                  styles.cmdIconCircle,
+                  { backgroundColor: colors.SECONDARY_LIGHT },
+                ]}
+              >
                 <Image
                   source={cmd.icon}
                   style={styles.cmdIcon}
                   resizeMode="contain"
                 />
               </View>
-
-              {/* Text — first line normal, second line bold ✅ */}
               <View style={styles.cmdTextBlock}>
-                <Text style={styles.cmdLabel}>{cmd.label}</Text>
-                <Text style={styles.cmdValue}>{cmd.value}</Text>
+                <Text
+                  style={[styles.cmdLabel, { color: colors.TEXT_SECONDARY }]}
+                >
+                  {cmd.label}
+                </Text>
+                <Text style={[styles.cmdValue, { color: colors.TEXT_PRIMARY }]}>
+                  {cmd.value}
+                </Text>
               </View>
             </View>
           ))}
@@ -146,65 +177,41 @@ const PlayCalmMusicScreen = ({ navigation }: any) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND_LIGHT,
-  },
-
-  // Header
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  backIcon: { fontSize: 28, color: COLORS.TEXT_PRIMARY, lineHeight: 32 },
-  headerTitle: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
-
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
-
-  // ── Bean circle — large ✅
   beanCircle: {
     width: width * 0.68,
     height: width * 0.68,
     borderRadius: width * 0.34,
-    backgroundColor: COLORS.SECONDARY_LIGHT, // soft green circle ✅
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.XL,
-    shadowColor: COLORS.PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
     elevation: 5,
   },
-  beanImage: {
-    width: width * 0.56, // ✅ fills most of the circle
-    height: width * 0.56,
-  },
-
-  // Section label — green
+  beanImage: { width: width * 0.56, height: width * 0.56 },
   sectionGreen: {
     alignSelf: 'flex-start',
     fontSize: 14,
     fontWeight: '600' as const,
-    color: COLORS.PRIMARY_DARK,
     marginBottom: SPACING.MD,
   },
-
-  // ── Compatible Services row
   servicesRow: {
     flexDirection: 'row',
     gap: SPACING.SM,
@@ -216,48 +223,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.XS,
     borderWidth: 1.5,
-    borderColor: COLORS.BORDER,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingHorizontal: SPACING.MD,
     paddingVertical: SPACING.SM,
-    backgroundColor: COLORS.WHITE, // ✅ all chips same white bg
   },
-  serviceChipDisabled: {
-    backgroundColor: COLORS.WHITE, // ✅ same as active — no grey
-    borderColor: COLORS.BORDER,
-  },
-  serviceIcon: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-  },
-  serviceLabel: {
-    fontSize: 12,
-    fontWeight: '600' as const,
-    color: COLORS.TEXT_PRIMARY, // ✅ same dark color for all chips
-    lineHeight: 16,
-  },
-  serviceLabelDisabled: {
-    color: COLORS.TEXT_PRIMARY, // ✅ same — no grey
-  },
-
-  // ── Voice command cards
-  commandsContainer: {
-    width: '100%',
-    gap: SPACING.MD,
-  },
+  serviceIcon: { width: 22, height: 22, borderRadius: 11 },
+  serviceLabel: { fontSize: 12, fontWeight: '600' as const, lineHeight: 16 },
+  commandsContainer: { width: '100%', gap: SPACING.MD },
   commandCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     paddingVertical: SPACING.LG,
     paddingHorizontal: SPACING.LG,
     gap: SPACING.MD,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
     elevation: 2,
   },
   cmdIconCircle: {
@@ -269,25 +248,10 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     overflow: 'hidden',
   },
-  cmdIcon: {
-    width: 42,
-    height: 42,
-    alignSelf: 'center',
-  },
-  cmdTextBlock: {
-    flex: 1,
-  },
-  cmdLabel: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY, // normal weight first line
-    lineHeight: 20,
-  },
-  cmdValue: {
-    fontSize: 15,
-    fontWeight: '700' as const, // ✅ bold second line like Figma
-    color: COLORS.TEXT_PRIMARY,
-    lineHeight: 22,
-  },
+  cmdIcon: { width: 42, height: 42, alignSelf: 'center' },
+  cmdTextBlock: { flex: 1 },
+  cmdLabel: { fontSize: 14, lineHeight: 20 },
+  cmdValue: { fontSize: 15, fontWeight: '700' as const, lineHeight: 22 },
 });
 
 export default PlayCalmMusicScreen;
