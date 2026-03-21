@@ -1,5 +1,5 @@
 // src/screens/user/ProfileScreen.tsx
-// ✅ FIGMA-MATCHED — Profile · General Settings · Support · Log Out
+// ✅ Updated — correct icons + navigates to RobotConnectivity
 
 import React from 'react';
 import {
@@ -16,9 +16,8 @@ import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import BottomTabBar from '../../components/navigation/BottomTabBar';
 
-// ─── Menu Row ─────────────────────────────────────────────────────────────────
 interface MenuRowProps {
-  icon: string;
+  icon: any;
   label: string;
   onPress: () => void;
 }
@@ -29,13 +28,12 @@ const MenuRow = ({ icon, label, onPress }: MenuRowProps) => (
     onPress={onPress}
     activeOpacity={0.7}
   >
-    <Text style={styles.menuIcon}>{icon}</Text>
+    <Image source={icon} style={styles.menuIcon} resizeMode="contain" />
     <Text style={styles.menuLabel}>{label}</Text>
     <Text style={styles.menuChevron}>›</Text>
   </TouchableOpacity>
 );
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const ProfileScreen = ({ navigation }: any) => {
   const handleLogOut = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
@@ -58,7 +56,7 @@ const ProfileScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Header ── */}
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -70,15 +68,14 @@ const ProfileScreen = ({ navigation }: any) => {
           <View style={{ width: 40 }} />
         </View>
 
-        {/* ── Avatar + Name ── */}
+        {/* Avatar + Name */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarWrap}>
             <Image
-              source={require('../../../assets/images/select-user-green.png')}
+              source={require('../../../assets/images/profile-picture.png')}
               style={styles.avatarImage}
               resizeMode="cover"
             />
-            {/* Badge */}
             <View style={styles.badge}>
               <Text style={styles.badgeEmoji}>⭐</Text>
             </View>
@@ -86,15 +83,15 @@ const ProfileScreen = ({ navigation }: any) => {
           <Text style={styles.userName}>Alex Johnson</Text>
         </View>
 
-        {/* ── Connected Bean Robot card ── */}
+        {/* Connected Bean Robot card */}
         <TouchableOpacity
           style={styles.beanCard}
-          onPress={() => handleComingSoon('Bean Robot connection')}
+          onPress={() => navigation.navigate('RobotConnectivity')}
           activeOpacity={0.8}
         >
           <View style={styles.beanCardLeft}>
             <Image
-              source={require('../../../assets/images/login-page.png')}
+              source={require('../../../assets/images/robot-connectivity-top-icon.png')}
               style={styles.beanCardIcon}
               resizeMode="contain"
             />
@@ -109,48 +106,53 @@ const ProfileScreen = ({ navigation }: any) => {
           <Text style={styles.menuChevron}>›</Text>
         </TouchableOpacity>
 
-        {/* ── General Settings ── */}
+        {/* General Settings */}
         <Text style={styles.sectionGreen}>General Settings</Text>
         <View style={styles.menuCard}>
           <MenuRow
-            icon="👤"
+            icon={require('../../../assets/images/account-info.png')}
             label="Account Info"
             onPress={() => handleComingSoon('Account Info')}
           />
           <View style={styles.menuDivider} />
           <MenuRow
-            icon="🔔"
+            icon={require('../../../assets/images/notification-preferences.png')}
             label="Notification Preferences"
             onPress={() => handleComingSoon('Notification Preferences')}
           />
           <View style={styles.menuDivider} />
           <MenuRow
-            icon="🔒"
+            icon={require('../../../assets/images/privacy-settings.png')}
             label="Privacy Settings"
             onPress={() => handleComingSoon('Privacy Settings')}
           />
         </View>
 
-        {/* ── Support ── */}
+        {/* Support */}
         <Text style={styles.sectionGreen}>Support</Text>
         <View style={styles.menuCard}>
           <MenuRow
-            icon="❓"
+            icon={require('../../../assets/images/help-centre.png')}
             label="Help Center"
             onPress={() => handleComingSoon('Help Center')}
           />
         </View>
 
-        {/* ── Log Out ── */}
+        {/* Log Out */}
         <TouchableOpacity
           style={styles.logOutBtn}
           onPress={handleLogOut}
           activeOpacity={0.85}
         >
-          <Text style={styles.logOutText}>Log Out →</Text>
+          <Image
+            source={require('../../../assets/images/logout.png')}
+            style={styles.logoutIcon}
+            resizeMode="contain"
+          />
+          <Text style={styles.logOutText}>Log Out</Text>
         </TouchableOpacity>
 
-        {/* ── Footer ── */}
+        {/* Footer */}
         <Text style={styles.footer}>Bean App Version 2.4.1</Text>
         <Text style={styles.footerSub}>Carefully crafted</Text>
       </ScrollView>
@@ -160,15 +162,10 @@ const ProfileScreen = ({ navigation }: any) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.BACKGROUND_LIGHT },
+  scroll: { paddingBottom: SPACING.MASSIVE },
 
-  scroll: {
-    paddingBottom: SPACING.MASSIVE,
-  },
-
-  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -183,17 +180,13 @@ const styles = StyleSheet.create({
   backIcon: { fontSize: 28, color: COLORS.TEXT_PRIMARY, lineHeight: 32 },
   headerTitle: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
 
-  // Avatar
   avatarSection: {
     alignItems: 'center',
     paddingTop: SPACING.XXL,
     paddingBottom: SPACING.XL,
     backgroundColor: COLORS.WHITE,
   },
-  avatarWrap: {
-    position: 'relative',
-    marginBottom: SPACING.MD,
-  },
+  avatarWrap: { position: 'relative', marginBottom: SPACING.MD },
   avatarImage: {
     width: 90,
     height: 90,
@@ -207,7 +200,7 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#F59E0B', // amber badge ✅
+    backgroundColor: '#F59E0B',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -220,7 +213,6 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
   },
 
-  // Bean card
   beanCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -242,11 +234,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.MD,
   },
-  beanCardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  },
+  beanCardIcon: { width: 40, height: 40 },
   beanCardTitle: {
     fontSize: 14,
     fontWeight: '600' as const,
@@ -262,23 +250,18 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: COLORS.ERROR, // red dot — not connected ✅
+    backgroundColor: COLORS.ERROR,
   },
-  beanStatusText: {
-    fontSize: 12,
-    color: COLORS.ERROR,
-  },
+  beanStatusText: { fontSize: 12, color: COLORS.ERROR },
 
-  // Section label
   sectionGreen: {
     fontSize: 15,
     fontWeight: '700' as const,
-    color: COLORS.PRIMARY_DARK,
+    color: '#07882C',
     marginLeft: SPACING.XL,
     marginBottom: SPACING.SM,
   },
 
-  // Menu card
   menuCard: {
     backgroundColor: COLORS.WHITE,
     marginHorizontal: SPACING.XL,
@@ -298,7 +281,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.LG,
     gap: SPACING.MD,
   },
-  menuIcon: { fontSize: 20, width: 28, textAlign: 'center' },
+  menuIcon: { width: 24, height: 24 },
   menuLabel: {
     flex: 1,
     fontSize: 15,
@@ -309,19 +292,26 @@ const styles = StyleSheet.create({
   menuDivider: {
     height: 1,
     backgroundColor: COLORS.BORDER_LIGHT,
-    marginLeft: SPACING.XL + 28 + SPACING.MD,
+    marginLeft: SPACING.XL,
   },
 
-  // Log Out
   logOutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.SM,
     marginHorizontal: SPACING.XL,
     marginBottom: SPACING.LG,
     borderWidth: 1.5,
     borderColor: COLORS.ERROR,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.LG,
-    alignItems: 'center',
     backgroundColor: COLORS.WHITE,
+  },
+  logoutIcon: {
+    width: 20,
+    height: 20,
+    tintColor: COLORS.ERROR,
   },
   logOutText: {
     fontSize: 16,
@@ -329,7 +319,6 @@ const styles = StyleSheet.create({
     color: COLORS.ERROR,
   },
 
-  // Footer
   footer: { fontSize: 12, color: COLORS.TEXT_TERTIARY, textAlign: 'center' },
   footerSub: {
     fontSize: 11,
