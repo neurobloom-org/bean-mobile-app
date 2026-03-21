@@ -1,5 +1,5 @@
 // src/screens/user/CasualConvoScreen.tsx
-// ✅ Talk to Bean — Casual Convo manual screen (matches Figma)
+// ✅ Dark theme aware
 
 import React from 'react';
 import {
@@ -11,22 +11,39 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const CasualConvoScreen = ({ navigation }: any) => {
+  const { colors } = useTheme(); // ✅
+
   return (
-    <SafeAreaView style={styles.container}>
-      {/* ── Header ── */}
-      <View style={styles.header}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
+      {/* Header */}
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Talk to Bean</Text>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Talk to Bean
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -34,8 +51,13 @@ const CasualConvoScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Bean robot in green circle ── */}
-        <View style={styles.robotCircle}>
+        {/* Robot circle */}
+        <View
+          style={[
+            styles.robotCircle,
+            { backgroundColor: colors.SECONDARY_LIGHT },
+          ]}
+        >
           <Image
             source={require('../../../assets/images/robot-first-page.png')}
             style={styles.robotImage}
@@ -43,143 +65,126 @@ const CasualConvoScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* ── Title + subtitle ── */}
-        <Text style={styles.title}>Casual Convo</Text>
-        <Text style={styles.subtitle}>
+        {/* Title + subtitle */}
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Casual Convo
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Control your companion using simple voice commands. Start by getting
           its attention with a wake word.
         </Text>
 
-        {/* ── Info cards ── */}
+        {/* Info cards */}
         <View style={styles.cardsContainer}>
-          {/* Wake Word card */}
-          <View style={styles.infoCard}>
-            <View style={styles.cardIconBox}>
+          <View
+            style={[
+              styles.infoCard,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
+            <View
+              style={[styles.cardIconBox, { backgroundColor: colors.SURFACE }]}
+            >
               <Text style={styles.cardIconEmoji}>🎤</Text>
             </View>
             <View style={styles.cardText}>
-              <Text style={styles.cardLabel}>Wake Word</Text>
-              <Text style={styles.cardValue}>Say: "Hey Bean"</Text>
+              <Text style={[styles.cardLabel, { color: colors.PRIMARY_DARK }]}>
+                Wake Word
+              </Text>
+              <Text style={[styles.cardValue, { color: colors.TEXT_PRIMARY }]}>
+                Say: "Hey Bean"
+              </Text>
             </View>
           </View>
 
-          {/* Interaction card */}
-          <View style={styles.infoCard}>
-            <View style={styles.cardIconBox}>
+          <View
+            style={[
+              styles.infoCard,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
+            <View
+              style={[styles.cardIconBox, { backgroundColor: colors.SURFACE }]}
+            >
               <Text style={styles.cardIconEmoji}>💬</Text>
             </View>
             <View style={styles.cardText}>
-              <Text style={styles.cardLabel}>Interaction</Text>
-              <Text style={styles.cardValue}>Ask me anything</Text>
+              <Text style={[styles.cardLabel, { color: colors.PRIMARY_DARK }]}>
+                Interaction
+              </Text>
+              <Text style={[styles.cardValue, { color: colors.TEXT_PRIMARY }]}>
+                Ask me anything
+              </Text>
             </View>
           </View>
         </View>
 
-        {/* ── Footer note ── */}
-        <Text style={styles.footerNote}>
+        {/* Footer note */}
+        <Text style={[styles.footerNote, { color: colors.TEXT_TERTIARY }]}>
           You can always access this guide by clicking upon the relevant feature
         </Text>
 
-        {/* ── Start chatting button ── */}
+        {/* Start chatting button */}
         <TouchableOpacity
-          style={styles.startBtn}
+          style={[styles.startBtn, { backgroundColor: colors.PRIMARY }]}
           onPress={() => navigation.navigate('Chat')}
           activeOpacity={0.85}
         >
-          <Text style={styles.startBtnText}>Start Chatting</Text>
+          <Text style={[styles.startBtnText, { color: colors.WHITE }]}>
+            Start Chatting
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
-
-  // Header
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 28,
-    color: COLORS.TEXT_PRIMARY,
-    lineHeight: 32,
-  },
-  headerTitle: {
-    ...TYPOGRAPHY.H4,
-    color: COLORS.TEXT_PRIMARY,
-  },
-
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
-
-  // ── Robot circle
   robotCircle: {
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: COLORS.SECONDARY_LIGHT, // soft green circle ✅
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.XL,
-    shadowColor: COLORS.PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
     elevation: 4,
   },
-  robotImage: {
-    width: 140,
-    height: 140,
-  },
-
-  // ── Title / subtitle
+  robotImage: { width: 140, height: 140 },
   title: {
     fontSize: 26,
     fontWeight: '800' as const,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.MD,
     textAlign: 'center',
   },
   subtitle: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: SPACING.MD,
     marginBottom: SPACING.XXL,
   },
-
-  // ── Info cards
-  cardsContainer: {
-    width: '100%',
-    gap: SPACING.MD,
-    marginBottom: SPACING.XL,
-  },
+  cardsContainer: { width: '100%', gap: SPACING.MD, marginBottom: SPACING.XL },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.SECONDARY_LIGHT, // light green bg ✅
     borderRadius: BORDER_RADIUS.XL,
     paddingVertical: SPACING.LG,
     paddingHorizontal: SPACING.LG,
@@ -189,57 +194,36 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: BORDER_RADIUS.LG,
-    backgroundColor: COLORS.WHITE,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardIconEmoji: {
-    fontSize: 22,
-  },
-  cardText: {
-    flex: 1,
-  },
+  cardIconEmoji: { fontSize: 22 },
+  cardText: { flex: 1 },
   cardLabel: {
     fontSize: 12,
     fontWeight: '600' as const,
-    color: COLORS.PRIMARY_DARK,
     marginBottom: 2,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  cardValue: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
-
-  // ── Footer note
+  cardValue: { fontSize: 16, fontWeight: '700' as const },
   footerNote: {
     ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
     lineHeight: 18,
     paddingHorizontal: SPACING.LG,
     marginBottom: SPACING.XL,
   },
-
-  // ── Start chatting button
   startBtn: {
     width: '100%',
-    backgroundColor: COLORS.PRIMARY,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.LG,
     alignItems: 'center',
-    shadowColor: COLORS.PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
     elevation: 5,
   },
   startBtnText: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: COLORS.WHITE,
     letterSpacing: 0.3,
   },
 });
