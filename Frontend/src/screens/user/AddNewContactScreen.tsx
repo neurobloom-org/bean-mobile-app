@@ -1,5 +1,5 @@
 // src/screens/user/AddNewContactScreen.tsx
-// ✅ FIGMA-MATCHED — Add contact icon · Sync · Manual form · Save
+// ✅ Dark theme aware
 
 import React, { useState } from 'react';
 import {
@@ -15,8 +15,9 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const RELATIONSHIPS = [
   'Mother',
@@ -30,6 +31,8 @@ const RELATIONSHIPS = [
 ];
 
 const AddNewContactScreen = ({ navigation }: any) => {
+  const { colors } = useTheme(); // ✅
+
   const [fullName, setFullName] = useState('');
   const [relationship, setRelationship] = useState('');
   const [phone, setPhone] = useState('');
@@ -67,21 +70,35 @@ const AddNewContactScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.SURFACE,
+              borderBottomColor: colors.BORDER_LIGHT,
+            },
+          ]}
+        >
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backBtn}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={styles.backIcon}>‹</Text>
+            <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+              ‹
+            </Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Add New Contact</Text>
+          <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+            Add New Contact
+          </Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -90,8 +107,16 @@ const AddNewContactScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* ── Add contact icon — dashed ring ── */}
-          <View style={styles.addIconOuter}>
+          {/* Add icon */}
+          <View
+            style={[
+              styles.addIconOuter,
+              {
+                borderColor: colors.PRIMARY,
+                backgroundColor: colors.SECONDARY_LIGHT,
+              },
+            ]}
+          >
             <Image
               source={require('../../../assets/images/add-contact.png')}
               style={styles.addIcon}
@@ -99,15 +124,21 @@ const AddNewContactScreen = ({ navigation }: any) => {
             />
           </View>
 
-          {/* ── Subtitle ── */}
-          <Text style={styles.subtitle}>
+          {/* Subtitle */}
+          <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             Add someone your companion robot can reach out to when you need
             extra support.
           </Text>
 
-          {/* ── Sync from Contacts button ── */}
+          {/* Sync button */}
           <TouchableOpacity
-            style={styles.syncBtn}
+            style={[
+              styles.syncBtn,
+              {
+                backgroundColor: colors.SECONDARY_LIGHT,
+                borderColor: colors.PRIMARY,
+              },
+            ]}
             onPress={handleSync}
             activeOpacity={0.8}
           >
@@ -119,35 +150,59 @@ const AddNewContactScreen = ({ navigation }: any) => {
             <Text style={styles.syncBtnText}>Sync from Contacts</Text>
           </TouchableOpacity>
 
-          {/* ── OR ENTER MANUALLY ── */}
+          {/* Divider */}
           <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OR ENTER MANUALLY</Text>
-            <View style={styles.dividerLine} />
+            <View
+              style={[
+                styles.dividerLine,
+                { backgroundColor: colors.BORDER_LIGHT },
+              ]}
+            />
+            <Text style={[styles.dividerText, { color: colors.TEXT_TERTIARY }]}>
+              OR ENTER MANUALLY
+            </Text>
+            <View
+              style={[
+                styles.dividerLine,
+                { backgroundColor: colors.BORDER_LIGHT },
+              ]}
+            />
           </View>
 
-          {/* ── Full Name ── */}
-          <Text style={styles.fieldLabel}>Full Name</Text>
-          <View style={styles.inputWrap}>
+          {/* Full Name */}
+          <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
+            Full Name
+          </Text>
+          <View
+            style={[
+              styles.inputWrap,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
             <Image
               source={require('../../../assets/images/full-name.png')}
               style={styles.inputIcon}
               resizeMode="contain"
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.TEXT_PRIMARY }]}
               placeholder="e.g. Sarah Jenkins"
-              placeholderTextColor={COLORS.TEXT_TERTIARY}
+              placeholderTextColor={colors.TEXT_TERTIARY}
               value={fullName}
               onChangeText={setFullName}
               autoCapitalize="words"
             />
           </View>
 
-          {/* ── Relationship dropdown ── */}
-          <Text style={styles.fieldLabel}>Relationship</Text>
+          {/* Relationship dropdown */}
+          <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
+            Relationship
+          </Text>
           <TouchableOpacity
-            style={styles.inputWrap}
+            style={[
+              styles.inputWrap,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
             onPress={() => setShowDropdown(!showDropdown)}
             activeOpacity={0.8}
           >
@@ -159,21 +214,40 @@ const AddNewContactScreen = ({ navigation }: any) => {
             <Text
               style={[
                 styles.input,
-                !relationship && { color: COLORS.TEXT_TERTIARY },
+                {
+                  color: relationship
+                    ? colors.TEXT_PRIMARY
+                    : colors.TEXT_TERTIARY,
+                },
               ]}
             >
               {relationship || 'Select relationship'}
             </Text>
-            <Text style={styles.dropdownArrow}>{showDropdown ? '▲' : '▼'}</Text>
+            <Text
+              style={[styles.dropdownArrow, { color: colors.TEXT_SECONDARY }]}
+            >
+              {showDropdown ? '▲' : '▼'}
+            </Text>
           </TouchableOpacity>
 
           {/* Dropdown options */}
           {showDropdown && (
-            <View style={styles.dropdown}>
+            <View
+              style={[
+                styles.dropdown,
+                {
+                  backgroundColor: colors.SURFACE,
+                  borderColor: colors.BORDER_LIGHT,
+                },
+              ]}
+            >
               {RELATIONSHIPS.map(rel => (
                 <TouchableOpacity
                   key={rel}
-                  style={styles.dropdownItem}
+                  style={[
+                    styles.dropdownItem,
+                    { borderBottomColor: colors.BORDER_LIGHT },
+                  ]}
                   onPress={() => {
                     setRelationship(rel);
                     setShowDropdown(false);
@@ -182,7 +256,11 @@ const AddNewContactScreen = ({ navigation }: any) => {
                   <Text
                     style={[
                       styles.dropdownItemText,
-                      relationship === rel && styles.dropdownItemActive,
+                      { color: colors.TEXT_PRIMARY },
+                      relationship === rel && {
+                        color: colors.PRIMARY,
+                        fontWeight: '700' as const,
+                      },
                     ]}
                   >
                     {rel}
@@ -192,25 +270,32 @@ const AddNewContactScreen = ({ navigation }: any) => {
             </View>
           )}
 
-          {/* ── Phone Number ── */}
-          <Text style={styles.fieldLabel}>Phone Number</Text>
-          <View style={styles.inputWrap}>
+          {/* Phone Number */}
+          <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
+            Phone Number
+          </Text>
+          <View
+            style={[
+              styles.inputWrap,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
             <Image
               source={require('../../../assets/images/phone-number.png')}
               style={styles.inputIcon}
               resizeMode="contain"
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.TEXT_PRIMARY }]}
               placeholder="+1 (555) 000-0000"
-              placeholderTextColor={COLORS.TEXT_TERTIARY}
+              placeholderTextColor={colors.TEXT_TERTIARY}
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
             />
           </View>
 
-          {/* ── Save Contact button ── */}
+          {/* Save button */}
           <TouchableOpacity
             style={styles.saveBtn}
             onPress={handleSave}
@@ -219,8 +304,8 @@ const AddNewContactScreen = ({ navigation }: any) => {
             <Text style={styles.saveBtnText}>Save Contact</Text>
           </TouchableOpacity>
 
-          {/* ── Disclaimer ── */}
-          <Text style={styles.disclaimer}>
+          {/* Disclaimer */}
+          <Text style={[styles.disclaimer, { color: colors.TEXT_TERTIARY }]}>
             Your contact information is encrypted and only used in cases of
             emergency or requested support.
           </Text>
@@ -230,83 +315,56 @@ const AddNewContactScreen = ({ navigation }: any) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.BACKGROUND_LIGHT },
-
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  backIcon: { fontSize: 28, color: COLORS.TEXT_PRIMARY, lineHeight: 32 },
-  headerTitle: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
-
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
-
-  // Add icon — dashed ring
   addIconOuter: {
     width: 90,
     height: 90,
     borderRadius: 45,
     borderWidth: 2,
-    borderColor: COLORS.PRIMARY,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.LG,
-    backgroundColor: COLORS.SECONDARY_LIGHT,
   },
-  addIcon: {
-    width: 50,
-    height: 50,
-  },
-
+  addIcon: { width: 50, height: 50 },
   subtitle: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: SPACING.XL,
     paddingHorizontal: SPACING.MD,
   },
-
-  // Sync button — green border, green text, green icon ✅
   syncBtn: {
     width: '100%',
-    backgroundColor: COLORS.SECONDARY_LIGHT,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.LG,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: COLORS.PRIMARY,
     marginBottom: SPACING.LG,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: SPACING.SM,
   },
-  syncBtnIcon: {
-    width: 45, // ✅ real image size
-    height: 45,
-  },
-  syncBtnText: {
-    fontSize: 15,
-    fontWeight: '600' as const,
-    color: '#22C55E',
-  },
-
-  // Divider
+  syncBtnIcon: { width: 45, height: 45 },
+  syncBtnText: { fontSize: 15, fontWeight: '600' as const, color: '#22C55E' },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -314,64 +372,31 @@ const styles = StyleSheet.create({
     gap: SPACING.SM,
     marginBottom: SPACING.XL,
   },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: COLORS.BORDER_LIGHT,
-  },
-  dividerText: {
-    fontSize: 11,
-    fontWeight: '600' as const,
-    color: COLORS.TEXT_TERTIARY,
-    letterSpacing: 0.8,
-  },
-
-  // Field label
+  dividerLine: { flex: 1, height: 1 },
+  dividerText: { fontSize: 11, fontWeight: '600' as const, letterSpacing: 0.8 },
   fieldLabel: {
     alignSelf: 'flex-start',
     fontSize: 13,
     fontWeight: '600' as const,
-    color: COLORS.TEXT_SECONDARY,
     marginBottom: SPACING.XS,
   },
-
-  // Input wrap
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: COLORS.SECONDARY_LIGHT,
     borderRadius: BORDER_RADIUS.LG,
     paddingHorizontal: SPACING.MD,
     paddingVertical: SPACING.MD,
     marginBottom: SPACING.LG,
     gap: SPACING.SM,
   },
-  inputIcon: {
-    width: 26, // ✅ bigger real image icons
-    height: 26,
-    flexShrink: 0,
-    tintColor: '#94A3B8', // ✅ grey color applied via tintColor
-  },
-  input: {
-    flex: 1,
-    fontSize: 15,
-    color: COLORS.TEXT_PRIMARY,
-    paddingTop: 0,
-    paddingBottom: 0,
-  },
-  dropdownArrow: {
-    fontSize: 12,
-    color: COLORS.TEXT_SECONDARY,
-  },
-
-  // Dropdown
+  inputIcon: { width: 26, height: 26, flexShrink: 0, tintColor: '#94A3B8' },
+  input: { flex: 1, fontSize: 15, paddingTop: 0, paddingBottom: 0 },
+  dropdownArrow: { fontSize: 12 },
   dropdown: {
     width: '100%',
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.LG,
     borderWidth: 1,
-    borderColor: COLORS.BORDER_LIGHT,
     marginTop: -SPACING.LG,
     marginBottom: SPACING.LG,
     overflow: 'hidden',
@@ -380,18 +405,8 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.MD,
     paddingHorizontal: SPACING.LG,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
-  dropdownItemText: {
-    fontSize: 14,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  dropdownItemActive: {
-    color: COLORS.PRIMARY,
-    fontWeight: '700' as const,
-  },
-
-  // Save button
+  dropdownItemText: { fontSize: 14 },
   saveBtn: {
     width: '100%',
     backgroundColor: '#22C55E',
@@ -399,22 +414,11 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.LG,
     alignItems: 'center',
     marginBottom: SPACING.MD,
-    shadowColor: '#22C55E',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
     elevation: 5,
   },
-  saveBtnText: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: COLORS.WHITE,
-  },
-
-  // Disclaimer
+  saveBtnText: { fontSize: 16, fontWeight: '700' as const, color: '#FFFFFF' },
   disclaimer: {
     ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
     lineHeight: 17,
     paddingHorizontal: SPACING.MD,
