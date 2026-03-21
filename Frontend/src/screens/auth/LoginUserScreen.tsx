@@ -1,5 +1,5 @@
 // src/screens/auth/LoginUserScreen.tsx
-// ✅ FIXED — navigates to 'UserApp' not 'Home'
+// ✅ Dark theme aware
 
 import React, { useState } from 'react';
 import {
@@ -14,30 +14,18 @@ import {
   Platform,
 } from 'react-native';
 import { BackButton, PrimaryButton, Input } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 const LoginUserScreen = ({ navigation }: any) => {
+  const { colors } = useTheme(); // ✅
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignIn = () => {
-    navigation.navigate('UserApp'); // ✅ FIXED was 'Home'
-  };
-
-  const handleSocialLogin = () => {
-    navigation.navigate('UserApp'); // ✅ FIXED was 'Home'
-  };
-
-  const handleSignUp = () => {
-    navigation.navigate('CreateAccount', { userType: 'user' });
-  };
-
-  const handleForgotPassword = () => {
-    navigation.navigate('ForgotPassword', { userType: 'user' });
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -56,8 +44,10 @@ const LoginUserScreen = ({ navigation }: any) => {
             />
           </View>
 
-          <Text style={styles.title}>Welcome back!</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+            Welcome back!
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             Sign in to continue as an <Text style={styles.boldText}>User</Text>
           </Text>
 
@@ -77,56 +67,63 @@ const LoginUserScreen = ({ navigation }: any) => {
             showPasswordToggle
           />
 
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPassword}>Forgot password?</Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('ForgotPassword', { userType: 'user' })
+            }
+          >
+            <Text style={[styles.forgotPassword, { color: colors.PRIMARY }]}>
+              Forgot password?
+            </Text>
           </TouchableOpacity>
 
-          {/* Social — Facebook · Apple · Google */}
+          {/* Social */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={handleSocialLogin}
-            >
-              <Image
-                source={require('../../../assets/images/fb.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={handleSocialLogin}
-            >
-              <Image
-                source={require('../../../assets/images/apple.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={handleSocialLogin}
-            >
-              <Image
-                source={require('../../../assets/images/google.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+            {[
+              require('../../../assets/images/fb.png'),
+              require('../../../assets/images/apple.png'),
+              require('../../../assets/images/google.png'),
+            ].map((src, i) => (
+              <TouchableOpacity
+                key={i}
+                style={[
+                  styles.socialButton,
+                  {
+                    backgroundColor: colors.BACKGROUND_LIGHT,
+                    borderColor: colors.BORDER,
+                  },
+                ]}
+                onPress={() => navigation.navigate('UserApp')}
+              >
+                <Image
+                  source={src}
+                  style={styles.socialIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            ))}
           </View>
 
           <PrimaryButton
             title="Sign In"
-            onPress={handleSignIn}
+            onPress={() => navigation.navigate('UserApp')}
             variant="primary"
             size="large"
             fullWidth
           />
 
           <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={handleSignUp}>
-              <Text style={styles.signUpLink}>Sign Up</Text>
+            <Text style={[styles.signUpText, { color: colors.TEXT_SECONDARY }]}>
+              Don't have an account?{' '}
+            </Text>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('CreateAccount', { userType: 'user' })
+              }
+            >
+              <Text style={[styles.signUpLink, { color: colors.LINK }]}>
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -136,7 +133,7 @@ const LoginUserScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.WHITE },
+  container: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
@@ -145,22 +142,15 @@ const styles = StyleSheet.create({
   },
   iconContainer: { alignItems: 'center', marginBottom: SPACING.XL },
   robotIcon: { width: 100, height: 100 },
-  title: {
-    ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: SPACING.MD,
-  },
+  title: { ...TYPOGRAPHY.H1, textAlign: 'center', marginBottom: SPACING.MD },
   subtitle: {
     ...TYPOGRAPHY.BODY_LARGE,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     marginBottom: SPACING.XXL,
   },
   boldText: { fontWeight: 'bold', color: '#07882C' },
   forgotPassword: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.PRIMARY,
     marginBottom: SPACING.XL,
     fontWeight: '600',
   },
@@ -174,11 +164,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.GRAY_50,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: COLORS.BORDER,
   },
   socialIcon: { width: 30, height: 30 },
   signUpContainer: {
@@ -187,8 +175,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: SPACING.LG,
   },
-  signUpText: { ...TYPOGRAPHY.BODY, color: COLORS.TEXT_SECONDARY },
-  signUpLink: { ...TYPOGRAPHY.BODY, color: COLORS.LINK, fontWeight: '600' },
+  signUpText: { ...TYPOGRAPHY.BODY },
+  signUpLink: { ...TYPOGRAPHY.BODY, fontWeight: '600' },
 });
 
 export default LoginUserScreen;

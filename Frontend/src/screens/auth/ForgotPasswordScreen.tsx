@@ -1,5 +1,5 @@
 // src/screens/auth/ForgotPasswordScreen.tsx
-// ✅ Updated — correct icon + navigates to OTPVerification
+// ✅ Dark theme aware
 
 import React, { useState } from 'react';
 import {
@@ -12,9 +12,11 @@ import {
   Alert,
 } from 'react-native';
 import { BackButton, PrimaryButton, Input } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 const ForgotPasswordScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme(); // ✅
   const { userType } = route.params || { userType: 'user' };
   const [contact, setContact] = useState('');
 
@@ -23,26 +25,20 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
       Alert.alert('Error', 'Please enter your email or phone number');
       return;
     }
-
-    // Mask the contact for display on next screen
     let masked = '';
     if (contact.includes('@')) {
-      // email masking
       const [local, domain] = contact.split('@');
       masked = local[0] + '****' + '@' + domain;
     } else {
-      // phone masking
       masked = '+1 (555) **** ' + contact.slice(-4);
     }
-
-    navigation.navigate('OTPVerification', {
-      maskedContact: masked,
-      userType,
-    });
+    navigation.navigate('OTPVerification', { maskedContact: masked, userType });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -62,13 +58,17 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
           </View>
         </View>
 
-        <Text style={styles.title}>Verification</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Verification
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Enter your email or phone number. We'll send a verification code to
           reset your password.
         </Text>
 
-        <Text style={styles.label}>Email or Phone Number</Text>
+        <Text style={[styles.label, { color: colors.TEXT_PRIMARY }]}>
+          Email or Phone Number
+        </Text>
         <Input
           placeholder="Email or +1 (555) 000-0000"
           value={contact}
@@ -92,7 +92,7 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.WHITE },
+  container: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
@@ -124,24 +124,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.SM,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 21,
     marginBottom: SPACING.XL,
     paddingHorizontal: SPACING.MD,
   },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: SPACING.XS,
-  },
+  label: { fontSize: 13, fontWeight: '600', marginBottom: SPACING.XS },
   btnWrapper: { marginTop: SPACING.XL },
 });
 

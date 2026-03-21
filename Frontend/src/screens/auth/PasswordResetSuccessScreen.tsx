@@ -1,5 +1,5 @@
 // src/screens/auth/PasswordResetSuccessScreen.tsx
-// ✅ Flower cracker fireworks — radiating spikes + stars, looping
+// ✅ Dark theme aware + flower cracker fireworks
 
 import React, { useEffect, useRef } from 'react';
 import {
@@ -12,12 +12,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { PrimaryButton } from '../../components';
-import { COLORS, SPACING } from '../../constants';
+import { SPACING } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
-// ─── Single spike line radiating outward ─────────────────────────────────────
 const Spike = ({
   angle,
   length,
@@ -28,17 +28,7 @@ const Spike = ({
   originY,
   minDist,
   maxDist,
-}: {
-  angle: number;
-  length: number;
-  color: string;
-  thickness: number;
-  progress: Animated.Value;
-  originX: number;
-  originY: number;
-  minDist: number;
-  maxDist: number;
-}) => {
+}: any) => {
   const translateX = progress.interpolate({
     inputRange: [0, 1],
     outputRange: [Math.cos(angle) * minDist, Math.cos(angle) * maxDist],
@@ -79,7 +69,6 @@ const Spike = ({
   );
 };
 
-// ─── Star shape ──────────────────────────────────────────────────────────────
 const Star = ({
   progress,
   originX,
@@ -89,16 +78,7 @@ const Star = ({
   color,
   size,
   delay,
-}: {
-  progress: Animated.Value;
-  originX: number;
-  originY: number;
-  angle: number;
-  dist: number;
-  color: string;
-  size: number;
-  delay: number;
-}) => {
+}: any) => {
   const tx = progress.interpolate({
     inputRange: [0, 1],
     outputRange: [0, Math.cos(angle) * dist],
@@ -133,7 +113,6 @@ const Star = ({
   );
 };
 
-// ─── Full firework burst ──────────────────────────────────────────────────────
 const FireworkBurst = ({
   x,
   y,
@@ -145,18 +124,7 @@ const FireworkBurst = ({
   minDist,
   maxDist,
   starCount,
-}: {
-  x: number;
-  y: number;
-  spikeCount: number;
-  spikeLength: number;
-  colors: string[];
-  delay: number;
-  duration: number;
-  minDist: number;
-  maxDist: number;
-  starCount: number;
-}) => {
+}: any) => {
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -184,7 +152,6 @@ const FireworkBurst = ({
     angle: (i / spikeCount) * 2 * Math.PI,
     color: colors[i % colors.length],
   }));
-
   const stars = Array.from({ length: starCount }, (_, i) => ({
     angle: Math.random() * 2 * Math.PI,
     dist: maxDist * (0.6 + Math.random() * 0.8),
@@ -226,9 +193,7 @@ const FireworkBurst = ({
   );
 };
 
-// ─── Firework positions matching the screenshot ───────────────────────────────
 const BURSTS = [
-  // Top center — large burst
   {
     x: width * 0.52,
     y: height * 0.1,
@@ -241,7 +206,6 @@ const BURSTS = [
     maxDist: 90,
     starCount: 8,
   },
-  // Top left — medium burst
   {
     x: width * 0.12,
     y: height * 0.1,
@@ -254,7 +218,6 @@ const BURSTS = [
     maxDist: 60,
     starCount: 5,
   },
-  // Left middle — small burst
   {
     x: width * 0.08,
     y: height * 0.32,
@@ -267,7 +230,6 @@ const BURSTS = [
     maxDist: 45,
     starCount: 4,
   },
-  // Top right — medium burst
   {
     x: width * 0.88,
     y: height * 0.08,
@@ -280,7 +242,6 @@ const BURSTS = [
     maxDist: 65,
     starCount: 5,
   },
-  // Right middle — small burst
   {
     x: width * 0.92,
     y: height * 0.28,
@@ -295,20 +256,19 @@ const BURSTS = [
   },
 ];
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme(); // ✅
   const { userType } = route.params || { userType: 'user' };
 
   const handleBackToLogin = () => {
-    if (userType === 'guardian') {
-      navigation.navigate('LoginGuardian');
-    } else {
-      navigation.navigate('LoginUser');
-    }
+    if (userType === 'guardian') navigation.navigate('LoginGuardian');
+    else navigation.navigate('LoginUser');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
       {/* Fireworks layer */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         {BURSTS.map((b, i) => (
@@ -328,16 +288,28 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
           </View>
         </View>
 
-        <Text style={styles.title}>Success!</Text>
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Success!
+        </Text>
 
-        <Text style={styles.body}>
+        <Text style={[styles.body, { color: colors.TEXT_SECONDARY }]}>
           Your password has been{'\n'}
           <Text style={styles.bodyBold}>successfully</Text> reset.
         </Text>
 
         {/* Account Updated badge */}
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>Account Updated </Text>
+        <View
+          style={[
+            styles.badge,
+            {
+              backgroundColor: colors.SECONDARY_LIGHT,
+              borderColor: 'rgba(7,136,44,0.2)',
+            },
+          ]}
+        >
+          <Text style={[styles.badgeText, { color: colors.TEXT_PRIMARY }]}>
+            Account Updated{' '}
+          </Text>
           <View style={styles.badgeTick}>
             <Text style={styles.badgeTickText}>✓</Text>
           </View>
@@ -358,7 +330,7 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5FFF8' },
+  container: { flex: 1 },
   content: {
     flex: 1,
     alignItems: 'center',
@@ -386,37 +358,26 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 34,
     fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.MD,
   },
   body: {
     fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: SPACING.LG,
   },
-  bodyBold: {
-    fontWeight: '800',
-    color: '#07882C',
-  },
+  bodyBold: { fontWeight: '800', color: '#07882C' },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EFF9F2',
     borderRadius: BORDER_RADIUS.ROUND,
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.XS,
     marginBottom: SPACING.MASSIVE,
     borderWidth: 1,
-    borderColor: 'rgba(7,136,44,0.2)',
   },
-  badgeText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.TEXT_PRIMARY,
-  },
+  badgeText: { fontSize: 13, fontWeight: '600' },
   badgeTick: {
     width: 18,
     height: 18,
@@ -425,11 +386,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  badgeTickText: {
-    fontSize: 10,
-    color: COLORS.WHITE,
-    fontWeight: '800',
-  },
+  badgeTickText: { fontSize: 10, color: '#FFFFFF', fontWeight: '800' },
   btnWrapper: { width: '100%' },
 });
 

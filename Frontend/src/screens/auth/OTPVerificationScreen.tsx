@@ -1,5 +1,5 @@
 // src/screens/auth/OTPVerificationScreen.tsx
-// ✅ Custom numpad + inline loading animation → CreateNewPassword
+// ✅ Dark theme aware
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -11,13 +11,15 @@ import {
   Animated,
   Alert,
 } from 'react-native';
-import { COLORS, SPACING } from '../../constants';
+import { SPACING } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 59;
 
 const OTPVerificationScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme(); // ✅
   const { maskedContact = '+1 (555) **** 5678', userType } = route.params || {};
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
@@ -25,7 +27,6 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Spinning animation for loading state
   const spinValue = useRef(new Animated.Value(0)).current;
   const spinAnimation = useRef<Animated.CompositeAnimation | null>(null);
 
@@ -58,7 +59,6 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
   const handleNumpad = (val: string) => {
     if (isVerifying) return;
     if (val === 'del') {
-      // Find last filled index and clear it
       const lastFilled = [...otp].reverse().findIndex(d => d !== '');
       if (lastFilled === -1) return;
       const idx = OTP_LENGTH - 1 - lastFilled;
@@ -88,12 +88,8 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
       Alert.alert('Error', 'Please enter all 6 digits.');
       return;
     }
-
-    // Start loading animation
     setIsVerifying(true);
     startSpin();
-
-    // Simulate API verification — navigate after 1.5s
     setTimeout(() => {
       spinAnimation.current?.stop();
       navigation.navigate('CreateNewPassword', { userType });
@@ -110,13 +106,19 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <View style={styles.inner}>
         {/* Title */}
-        <Text style={styles.title}>Verify Account</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Verify Account
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Enter the 6-digit code we sent to:{'\n'}
-          <Text style={styles.contactBold}>{maskedContact}</Text>
+          <Text style={[styles.contactBold, { color: colors.TEXT_PRIMARY }]}>
+            {maskedContact}
+          </Text>
         </Text>
 
         {/* OTP display boxes */}
@@ -124,18 +126,33 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
           {otp.map((digit, i) => (
             <View
               key={i}
-              style={[styles.otpBox, digit ? styles.otpBoxFilled : null]}
+              style={[
+                styles.otpBox,
+                { borderColor: colors.BORDER, backgroundColor: colors.SURFACE },
+                digit
+                  ? {
+                      borderColor: '#07882C',
+                      backgroundColor: colors.SECONDARY_LIGHT,
+                    }
+                  : null,
+              ]}
             >
-              <Text style={styles.otpDigit}>{digit}</Text>
+              <Text style={[styles.otpDigit, { color: colors.TEXT_PRIMARY }]}>
+                {digit}
+              </Text>
             </View>
           ))}
         </View>
 
         {/* Resend */}
-        <Text style={styles.resendText}>
+        <Text style={[styles.resendText, { color: colors.TEXT_SECONDARY }]}>
           Didn't receive a code?{' '}
           <Text
-            style={[styles.resendTimer, canResend && styles.resendActive]}
+            style={[
+              styles.resendTimer,
+              { color: colors.TEXT_TERTIARY },
+              canResend && { color: '#07882C' },
+            ]}
             onPress={handleResend}
           >
             {canResend ? 'Resend now' : `Resend in ${pad(0)}:${pad(timer)}`}
@@ -174,7 +191,10 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
                     activeOpacity={0.6}
                   >
                     <Text
-                      style={key === 'del' ? styles.delText : styles.numpadText}
+                      style={[
+                        key === 'del' ? styles.delText : styles.numpadText,
+                        { color: colors.TEXT_PRIMARY },
+                      ]}
                     >
                       {key === 'del' ? '⌫' : key}
                     </Text>
@@ -190,7 +210,7 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.WHITE },
+  container: { flex: 1 },
   inner: {
     flex: 1,
     paddingHorizontal: SPACING.XL,
@@ -200,58 +220,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.SM,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 21,
     marginBottom: SPACING.XL,
   },
-  contactBold: {
-    fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
-  },
-  otpRow: {
-    flexDirection: 'row',
-    gap: SPACING.SM,
-    marginBottom: SPACING.MD,
-  },
+  contactBold: { fontWeight: '800' },
+  otpRow: { flexDirection: 'row', gap: SPACING.SM, marginBottom: SPACING.MD },
   otpBox: {
     width: 46,
     height: 52,
     borderRadius: BORDER_RADIUS.MD,
     borderWidth: 1.5,
-    borderColor: COLORS.BORDER,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
   },
-  otpBoxFilled: {
-    borderColor: '#07882C',
-    backgroundColor: '#F0FFF4',
-  },
-  otpDigit: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: COLORS.TEXT_PRIMARY,
-  },
-  resendText: {
-    fontSize: 13,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: SPACING.LG,
-  },
-  resendTimer: {
-    fontWeight: '600',
-    color: COLORS.TEXT_TERTIARY,
-  },
-  resendActive: {
-    color: '#07882C',
-  },
-  // Verify button
+  otpDigit: { fontSize: 22, fontWeight: '700' },
+  resendText: { fontSize: 13, marginBottom: SPACING.LG },
+  resendTimer: { fontWeight: '600' },
   verifyBtn: {
     width: '100%',
     backgroundColor: '#07882C',
@@ -260,12 +250,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.LG,
   },
-  verifyBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.WHITE,
-  },
-  // Loading spinner
+  verifyBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
   spinnerContainer: {
     width: '100%',
     alignItems: 'center',
@@ -281,7 +266,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(7,136,44,0.2)',
     borderTopColor: '#07882C',
   },
-  // Numpad
   numpad: { width: '100%', marginTop: SPACING.SM },
   numpadRow: {
     flexDirection: 'row',
@@ -295,15 +279,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: BORDER_RADIUS.MD,
   },
-  numpadText: {
-    fontSize: 24,
-    fontWeight: '500',
-    color: COLORS.TEXT_PRIMARY,
-  },
-  delText: {
-    fontSize: 22,
-    color: COLORS.TEXT_PRIMARY,
-  },
+  numpadText: { fontSize: 24, fontWeight: '500' },
+  delText: { fontSize: 22 },
 });
 
 export default OTPVerificationScreen;
