@@ -1,5 +1,5 @@
 // src/screens/user/EmergencyContactsScreen.tsx
-// ✅ FIGMA-MATCHED — Trusted Circle · Contact list · Add New Contact
+// ✅ Dark theme aware
 
 import React, { useState } from 'react';
 import {
@@ -12,8 +12,9 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Contact {
   id: string;
@@ -22,7 +23,8 @@ interface Contact {
 }
 
 const EmergencyContactsScreen = ({ navigation }: any) => {
-  const [contacts, setContacts] = useState<Contact[]>([]); // ✅ empty by default
+  const { colors } = useTheme(); // ✅
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
   const handleDelete = (id: string) => {
     Alert.alert(
@@ -40,17 +42,31 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Emergency Contacts</Text>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Emergency Contacts
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -58,7 +74,7 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Top icon ── */}
+        {/* Top icon */}
         <View style={styles.topIconWrap}>
           <Image
             source={require('../../../assets/images/emergency-contact-top-icon.png')}
@@ -67,29 +83,47 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* ── Subtitle ── */}
-        <Text style={styles.subtitle}>
+        {/* Subtitle */}
+        <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Your Bean will reach out to these trusted people if you ever need
           immediate support.
         </Text>
 
-        {/* ── Your Trusted Circle ── */}
-        <Text style={styles.sectionGreen}>Your Trusted Circle</Text>
+        {/* Your Trusted Circle */}
+        <Text style={[styles.sectionGreen, { color: colors.PRIMARY_DARK }]}>
+          Your Trusted Circle
+        </Text>
 
         <View style={styles.contactsList}>
           {contacts.length === 0 ? (
-            // ✅ Empty state
-            <View style={styles.emptyState}>
+            <View
+              style={[styles.emptyState, { backgroundColor: colors.SURFACE }]}
+            >
               <Text style={styles.emptyIcon}>👥</Text>
-              <Text style={styles.emptyTitle}>No contacts added yet</Text>
-              <Text style={styles.emptySubtitle}>
+              <Text style={[styles.emptyTitle, { color: colors.TEXT_PRIMARY }]}>
+                No contacts added yet
+              </Text>
+              <Text
+                style={[styles.emptySubtitle, { color: colors.TEXT_SECONDARY }]}
+              >
                 Add trusted people who Bean can alert in an emergency.
               </Text>
             </View>
           ) : (
             contacts.map(contact => (
-              <View key={contact.id} style={styles.contactCard}>
-                <View style={styles.avatarCircle}>
+              <View
+                key={contact.id}
+                style={[
+                  styles.contactCard,
+                  { backgroundColor: colors.SECONDARY_LIGHT },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.avatarCircle,
+                    { backgroundColor: colors.SURFACE },
+                  ]}
+                >
                   <Image
                     source={require('../../../assets/images/contact.png')}
                     style={styles.avatarIcon}
@@ -97,8 +131,17 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
                   />
                 </View>
                 <View style={styles.contactInfo}>
-                  <Text style={styles.contactName}>{contact.name}</Text>
-                  <Text style={styles.contactRel}>
+                  <Text
+                    style={[styles.contactName, { color: colors.TEXT_PRIMARY }]}
+                  >
+                    {contact.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.contactRel,
+                      { color: colors.TEXT_SECONDARY },
+                    ]}
+                  >
                     Relationship: {contact.relationship}
                   </Text>
                 </View>
@@ -118,9 +161,12 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
           )}
         </View>
 
-        {/* ── Add New Contact button ── */}
+        {/* Add New Contact button */}
         <TouchableOpacity
-          style={styles.addBtn}
+          style={[
+            styles.addBtn,
+            { borderColor: colors.PRIMARY, backgroundColor: colors.SURFACE },
+          ]}
           onPress={() => navigation.navigate('AddNewContact')}
           activeOpacity={0.8}
         >
@@ -129,137 +175,85 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
             style={styles.addBtnIcon}
             resizeMode="contain"
           />
-          <Text style={styles.addBtnText}>Add New Contact</Text>
+          <Text style={[styles.addBtnText, { color: colors.PRIMARY }]}>
+            Add New Contact
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.BACKGROUND_LIGHT },
-
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  backIcon: { fontSize: 28, color: COLORS.TEXT_PRIMARY, lineHeight: 32 },
-  headerTitle: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
-
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
-
-  // Top icon
-  topIconWrap: {
-    marginBottom: SPACING.LG,
-  },
-  topIcon: {
-    width: 100,
-    height: 100,
-  },
-
-  // Subtitle
+  topIconWrap: { marginBottom: SPACING.LG },
+  topIcon: { width: 100, height: 100 },
   subtitle: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: SPACING.XL,
     paddingHorizontal: SPACING.MD,
   },
-
-  // Section label
   sectionGreen: {
     alignSelf: 'flex-start',
     fontSize: 15,
     fontWeight: '700' as const,
-    color: COLORS.PRIMARY_DARK,
     marginBottom: SPACING.MD,
   },
-
-  // Empty state
+  contactsList: { width: '100%', gap: SPACING.MD, marginBottom: SPACING.XL },
   emptyState: {
     width: '100%',
     alignItems: 'center',
     paddingVertical: SPACING.HUGE,
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     gap: SPACING.SM,
   },
-  emptyIcon: {
-    fontSize: 40,
-    marginBottom: SPACING.SM,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
+  emptyIcon: { fontSize: 40, marginBottom: SPACING.SM },
+  emptyTitle: { fontSize: 16, fontWeight: '700' as const },
   emptySubtitle: {
     ...TYPOGRAPHY.BODY_SMALL,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     paddingHorizontal: SPACING.XL,
     lineHeight: 18,
   },
-
-  // Contacts list
-  contactsList: {
-    width: '100%',
-    gap: SPACING.MD,
-    marginBottom: SPACING.XL,
-  },
   contactCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.SECONDARY_LIGHT, // ✅ light green bg
     borderRadius: BORDER_RADIUS.XL,
     paddingVertical: SPACING.MD,
     paddingHorizontal: SPACING.LG,
     gap: SPACING.MD,
   },
-
-  // Avatar
   avatarCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.WHITE,
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
   },
-  avatarIcon: {
-    width: 28,
-    height: 28,
-  },
-
-  // Contact info
+  avatarIcon: { width: 28, height: 28 },
   contactInfo: { flex: 1 },
-  contactName: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  contactRel: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-
-  // Delete button
+  contactName: { fontSize: 15, fontWeight: '700' as const },
+  contactRel: { ...TYPOGRAPHY.CAPTION, marginTop: 2 },
   deleteBtn: {
     width: 36,
     height: 36,
@@ -267,12 +261,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexShrink: 0,
   },
-  deleteIcon: {
-    width: 32,
-    height: 32,
-  },
-
-  // Add New Contact button — dashed border style
+  deleteIcon: { width: 32, height: 32 },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -280,21 +269,12 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: SPACING.LG,
     borderWidth: 1.5,
-    borderColor: COLORS.PRIMARY,
     borderRadius: BORDER_RADIUS.XL,
     borderStyle: 'dashed',
     gap: SPACING.SM,
-    backgroundColor: COLORS.WHITE,
   },
-  addBtnIcon: {
-    width: 28,
-    height: 28,
-  },
-  addBtnText: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: COLORS.PRIMARY,
-  },
+  addBtnIcon: { width: 28, height: 28 },
+  addBtnText: { fontSize: 15, fontWeight: '700' as const },
 });
 
 export default EmergencyContactsScreen;

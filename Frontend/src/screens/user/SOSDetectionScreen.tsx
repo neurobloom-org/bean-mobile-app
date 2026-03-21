@@ -1,5 +1,5 @@
 // src/screens/user/SOSDetectionScreen.tsx
-// ✅ FIGMA-MATCHED — SOS Detection · Voice Trigger · Physical Trigger · Robot Response
+// ✅ Dark theme aware
 
 import React from 'react';
 import {
@@ -10,28 +10,40 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Alert,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const SOSDetectionScreen = ({ navigation }: any) => {
-  const handleSetupEmergencyContacts = () => {
-    navigation.navigate('EmergencyContacts'); // ✅ → EmergencyContactsScreen
-  };
+  const { colors } = useTheme(); // ✅
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>SOS Detection</Text>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          SOS Detection
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -39,12 +51,12 @@ const SOSDetectionScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Subtitle ── */}
-        <Text style={styles.subtitle}>
+        {/* Subtitle */}
+        <Text style={[styles.subtitle, { color: colors.TEXT_PRIMARY }]}>
           Learn how to signal your Bean for{'\n'}immediate assistance.
         </Text>
 
-        {/* ✅ Light green outer ring only — image already has green circle baked in */}
+        {/* Hero image */}
         <View style={styles.heroOuter}>
           <Image
             source={require('../../../assets/images/sos-front-image.png')}
@@ -53,18 +65,26 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* ── Trigger cards ── */}
+        {/* Trigger cards */}
         <View style={styles.cardsContainer}>
           {/* Voice Trigger */}
-          <View style={styles.triggerCard}>
+          <View
+            style={[styles.triggerCard, { backgroundColor: colors.SURFACE }]}
+          >
             <Image
               source={require('../../../assets/images/sos-voice-trigger.png')}
               style={styles.triggerIcon}
               resizeMode="contain"
             />
             <View style={styles.triggerText}>
-              <Text style={styles.triggerTitle}>Voice Trigger</Text>
-              <Text style={styles.triggerDesc}>
+              <Text
+                style={[styles.triggerTitle, { color: colors.TEXT_PRIMARY }]}
+              >
+                Voice Trigger
+              </Text>
+              <Text
+                style={[styles.triggerDesc, { color: colors.TEXT_SECONDARY }]}
+              >
                 Speak clearly toward the robot from any distance. Give it a try
                 by shouting <Text style={styles.highlightRed}>"HELP!"</Text>
               </Text>
@@ -72,15 +92,23 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           </View>
 
           {/* Physical Trigger */}
-          <View style={styles.triggerCard}>
+          <View
+            style={[styles.triggerCard, { backgroundColor: colors.SURFACE }]}
+          >
             <Image
               source={require('../../../assets/images/physical-trigger.png')}
               style={styles.triggerIcon}
               resizeMode="contain"
             />
             <View style={styles.triggerText}>
-              <Text style={styles.triggerTitle}>Physical Trigger</Text>
-              <Text style={styles.triggerDesc}>
+              <Text
+                style={[styles.triggerTitle, { color: colors.TEXT_PRIMARY }]}
+              >
+                Physical Trigger
+              </Text>
+              <Text
+                style={[styles.triggerDesc, { color: colors.TEXT_SECONDARY }]}
+              >
                 Press the <Text style={styles.highlightRed}>RED</Text> button
                 twice to intentionally trigger the SOS.
               </Text>
@@ -88,201 +116,142 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* ── Robot Response card — green bg ── */}
-        <View style={styles.responseCard}>
+        {/* Robot Response card */}
+        <View
+          style={[
+            styles.responseCard,
+            { backgroundColor: colors.SECONDARY_LIGHT },
+          ]}
+        >
           <Image
             source={require('../../../assets/images/robot-response.png')}
             style={styles.responseIcon}
             resizeMode="contain"
           />
           <View style={styles.responseText}>
-            <Text style={styles.responseTitle}>Robot Response:</Text>
-            <Text style={styles.responseDesc}>
+            <Text
+              style={[styles.responseTitle, { color: colors.PRIMARY_DARK }]}
+            >
+              Robot Response:
+            </Text>
+            <Text
+              style={[styles.responseDesc, { color: colors.TEXT_SECONDARY }]}
+            >
               When detected, the robot will pulse red lights and send a
               notification to the guardian assigned.
             </Text>
           </View>
         </View>
 
-        {/* ── Disclaimer ── */}
-        <Text style={styles.disclaimer}>
+        {/* Disclaimer */}
+        <Text style={[styles.disclaimer, { color: colors.TEXT_TERTIARY }]}>
           Disclaimer: This feature requires an active internet connection to
           alert emergency contacts.
         </Text>
 
-        {/* ── Setup Emergency Contacts button ── */}
+        {/* Setup button */}
         <TouchableOpacity
-          style={styles.setupBtn}
-          onPress={handleSetupEmergencyContacts}
+          style={[styles.setupBtn, { backgroundColor: colors.PRIMARY }]}
+          onPress={() => navigation.navigate('EmergencyContacts')}
           activeOpacity={0.85}
         >
-          <Text style={styles.setupBtnText}>Setup Emergency Contacts</Text>
+          <Text style={[styles.setupBtnText, { color: colors.WHITE }]}>
+            Setup Emergency Contacts
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND_LIGHT,
-  },
-
-  // Header
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
-    backgroundColor: COLORS.WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  backIcon: { fontSize: 28, color: COLORS.TEXT_PRIMARY, lineHeight: 32 },
-  headerTitle: { ...TYPOGRAPHY.H4, color: COLORS.TEXT_PRIMARY },
-
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
-
-  // Subtitle
   subtitle: {
     fontSize: 16,
     fontWeight: '500' as const,
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: SPACING.XL,
   },
-
-  // ✅ Light green outer ring only
   heroOuter: {
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: 'rgba(34, 197, 94, 0.15)', // soft light green ring ✅
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.XL,
   },
-  // ✅ Image fills most of the ring — it already has green circle inside
-  heroImage: {
-    width: 150,
-    height: 150,
-  },
-
-  // Trigger cards container
-  cardsContainer: {
-    width: '100%',
-    gap: SPACING.MD,
-    marginBottom: SPACING.LG,
-  },
-
-  // Each trigger card
+  heroImage: { width: 150, height: 150 },
+  cardsContainer: { width: '100%', gap: SPACING.MD, marginBottom: SPACING.LG },
   triggerCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
     gap: SPACING.MD,
-    shadowColor: COLORS.SHADOW,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
     elevation: 2,
   },
-  triggerIcon: {
-    width: 48,
-    height: 48,
-    flexShrink: 0,
-  },
-  triggerText: {
-    flex: 1,
-  },
+  triggerIcon: { width: 48, height: 48, flexShrink: 0 },
+  triggerText: { flex: 1 },
   triggerTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
   },
-  triggerDesc: {
-    ...TYPOGRAPHY.BODY_SMALL,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 20,
-  },
-  // ✅ Red highlight for "HELP!" and "RED"
-  highlightRed: {
-    color: COLORS.ERROR, // '#E74C3C'
-    fontWeight: '700' as const,
-  },
-
-  // Robot Response card — green background ✅
+  triggerDesc: { ...TYPOGRAPHY.BODY_SMALL, lineHeight: 20 },
+  highlightRed: { color: '#E74C3C', fontWeight: '700' as const },
   responseCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: COLORS.SECONDARY_LIGHT, // '#E0F7F1' mint green
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
     gap: SPACING.MD,
     width: '100%',
     marginBottom: SPACING.LG,
   },
-  responseIcon: {
-    width: 32,
-    height: 32,
-    flexShrink: 0,
-    marginTop: 2,
-  },
-  responseText: {
-    flex: 1,
-  },
+  responseIcon: { width: 32, height: 32, flexShrink: 0, marginTop: 2 },
+  responseText: { flex: 1 },
   responseTitle: {
     fontSize: 14,
     fontWeight: '700' as const,
-    color: COLORS.PRIMARY_DARK, // ✅ dark green title
     marginBottom: SPACING.XS,
   },
-  responseDesc: {
-    ...TYPOGRAPHY.BODY_SMALL,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 19,
-  },
-
-  // Disclaimer
+  responseDesc: { ...TYPOGRAPHY.BODY_SMALL, lineHeight: 19 },
   disclaimer: {
     ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
     textAlign: 'center',
     lineHeight: 17,
     paddingHorizontal: SPACING.MD,
     marginBottom: SPACING.XL,
   },
-
-  // Setup button
   setupBtn: {
     width: '100%',
-    backgroundColor: COLORS.PRIMARY,
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.LG,
     alignItems: 'center',
-    shadowColor: COLORS.PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
     elevation: 5,
   },
   setupBtnText: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: COLORS.WHITE,
     letterSpacing: 0.3,
   },
 });
