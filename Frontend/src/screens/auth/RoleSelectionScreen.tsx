@@ -1,5 +1,5 @@
 // src/screens/auth/RoleSelectionScreen.tsx
-// ✅ Dark theme aware
+// ✅ Dark theme aware + white user icon in dark mode only
 
 import React, { useState } from 'react';
 import {
@@ -19,7 +19,7 @@ import { useTheme } from '../../context/ThemeContext';
 type RoleType = 'user' | 'guardian' | null;
 
 const RoleSelectionScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors, isDark } = useTheme(); // ✅ added isDark
   const [selectedRole, setSelectedRole] = useState<RoleType>(null);
 
   const handleContinue = () => {
@@ -63,7 +63,6 @@ const RoleSelectionScreen = ({ navigation }: any) => {
           Select your role to personalize your experience with Bean.
         </Text>
 
-        {/* Role Selection Boxes */}
         <View style={styles.rolesContainer}>
           {/* I am a User */}
           <TouchableOpacity
@@ -101,7 +100,12 @@ const RoleSelectionScreen = ({ navigation }: any) => {
                       ? require('../../../assets/images/select-user-green.png')
                       : require('../../../assets/images/select-user.png')
                   }
-                  style={styles.roleIcon}
+                  // ✅ white tint when unselected in dark mode
+                  style={[
+                    styles.roleIcon,
+                    isDark &&
+                      selectedRole !== 'user' && { tintColor: '#FFFFFF' },
+                  ]}
                   resizeMode="contain"
                 />
               </View>
@@ -119,7 +123,7 @@ const RoleSelectionScreen = ({ navigation }: any) => {
             </View>
           </TouchableOpacity>
 
-          {/* I am a Guardian */}
+          {/* I am a Guardian — unchanged */}
           <TouchableOpacity
             style={[
               styles.roleCard,

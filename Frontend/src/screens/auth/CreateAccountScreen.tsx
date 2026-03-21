@@ -1,5 +1,5 @@
 // src/screens/auth/CreateAccountScreen.tsx
-// ✅ Dark theme aware
+// ✅ Dark theme aware + white bean icon + white social borders in dark mode
 
 import React, { useState } from 'react';
 import {
@@ -19,7 +19,7 @@ import { SPACING } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 const CreateAccountScreen = ({ navigation, route }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors, isDark } = useTheme();
   const { userType } = route.params || { userType: 'user' };
 
   const [fullName, setFullName] = useState('');
@@ -97,11 +97,11 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             )}
           </Text>
 
-          {/* Robot Icon */}
+          {/* Bean Icon — white in dark mode */}
           <View style={styles.iconContainer}>
             <Image
               source={require('../../../assets/images/select-user.png')}
-              style={styles.robotIcon}
+              style={[styles.robotIcon, isDark && { tintColor: '#FFFFFF' }]}
               resizeMode="contain"
             />
           </View>
@@ -177,7 +177,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             </Text>
           </View>
 
-          {/* Social Login */}
+          {/* Social Login — ✅ white border in dark mode */}
           <View style={styles.socialContainer}>
             {[
               {
@@ -199,7 +199,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
                   styles.socialButton,
                   {
                     backgroundColor: colors.SURFACE,
-                    borderColor: colors.BORDER,
+                    borderColor: isDark ? '#FFFFFF' : colors.BORDER,
                   },
                 ]}
                 onPress={() => handleSocialLogin(item.name)}

@@ -1,5 +1,5 @@
 // src/screens/user/ChatScreen.tsx
-// ✅ Dark theme aware
+// ✅ Dark theme aware + white bean icon in dark mode
 
 import React, { useState, useRef } from 'react';
 import {
@@ -26,7 +26,7 @@ interface Message {
 }
 
 const ChatScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors, isDark } = useTheme(); // ✅ added isDark
   const scrollRef = useRef<ScrollView>(null);
 
   const [message, setMessage] = useState('');
@@ -97,9 +97,13 @@ const ChatScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
           <View style={styles.headerCenter}>
+            {/* ✅ White bean icon in dark mode only */}
             <Image
               source={require('../../../assets/images/login-page.png')}
-              style={styles.headerBeanIcon}
+              style={[
+                styles.headerBeanIcon,
+                isDark && { tintColor: '#FFFFFF' },
+              ]}
               resizeMode="contain"
             />
             <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
@@ -134,7 +138,10 @@ const ChatScreen = ({ navigation }: any) => {
               {msg.sender === 'bean' && (
                 <Image
                   source={require('../../../assets/images/login-page.png')}
-                  style={styles.beanAvatar}
+                  style={[
+                    styles.beanAvatar,
+                    isDark && { tintColor: '#FFFFFF' },
+                  ]}
                   resizeMode="contain"
                 />
               )}
@@ -176,7 +183,7 @@ const ChatScreen = ({ navigation }: any) => {
             <View style={[styles.row, styles.rowBean]}>
               <Image
                 source={require('../../../assets/images/login-page.png')}
-                style={styles.beanAvatar}
+                style={[styles.beanAvatar, isDark && { tintColor: '#FFFFFF' }]}
                 resizeMode="contain"
               />
               <View

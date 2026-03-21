@@ -1,5 +1,5 @@
 // src/screens/user/CasualConvoScreen.tsx
-// ✅ Dark theme aware
+// ✅ Dark theme aware + real icons instead of emojis
 
 import React from 'react';
 import {
@@ -16,7 +16,7 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
 const CasualConvoScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView
@@ -59,7 +59,7 @@ const CasualConvoScreen = ({ navigation }: any) => {
           ]}
         >
           <Image
-            source={require('../../../assets/images/robot-first-page.png')}
+            source={require('../../../assets/images/robot-connectivity-top-icon.png')}
             style={styles.robotImage}
             resizeMode="contain"
           />
@@ -76,6 +76,7 @@ const CasualConvoScreen = ({ navigation }: any) => {
 
         {/* Info cards */}
         <View style={styles.cardsContainer}>
+          {/* Wake Word card — talk.png */}
           <View
             style={[
               styles.infoCard,
@@ -85,7 +86,11 @@ const CasualConvoScreen = ({ navigation }: any) => {
             <View
               style={[styles.cardIconBox, { backgroundColor: colors.SURFACE }]}
             >
-              <Text style={styles.cardIconEmoji}>🎤</Text>
+              <Image
+                source={require('../../../assets/images/talk.png')}
+                style={styles.cardIconImage}
+                resizeMode="contain"
+              />
             </View>
             <View style={styles.cardText}>
               <Text style={[styles.cardLabel, { color: colors.PRIMARY_DARK }]}>
@@ -97,6 +102,7 @@ const CasualConvoScreen = ({ navigation }: any) => {
             </View>
           </View>
 
+          {/* Interaction card — talk-to-bean.png */}
           <View
             style={[
               styles.infoCard,
@@ -106,7 +112,11 @@ const CasualConvoScreen = ({ navigation }: any) => {
             <View
               style={[styles.cardIconBox, { backgroundColor: colors.SURFACE }]}
             >
-              <Text style={styles.cardIconEmoji}>💬</Text>
+              <Image
+                source={require('../../../assets/images/talk-to-bean.png')}
+                style={styles.cardIconImage}
+                resizeMode="contain"
+              />
             </View>
             <View style={styles.cardText}>
               <Text style={[styles.cardLabel, { color: colors.PRIMARY_DARK }]}>
@@ -197,7 +207,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardIconEmoji: { fontSize: 22 },
+  // ✅ Replaced emoji with real image
+  cardIconImage: {
+    width: 26,
+    height: 26,
+  },
   cardText: { flex: 1 },
   cardLabel: {
     fontSize: 12,

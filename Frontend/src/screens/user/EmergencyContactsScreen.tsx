@@ -1,5 +1,5 @@
 // src/screens/user/EmergencyContactsScreen.tsx
-// ✅ Dark theme aware
+// ✅ Dark theme aware + white top icon in dark mode
 
 import React, { useState } from 'react';
 import {
@@ -23,7 +23,7 @@ interface Contact {
 }
 
 const EmergencyContactsScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors, isDark } = useTheme(); // ✅ added isDark
   const [contacts, setContacts] = useState<Contact[]>([]);
 
   const handleDelete = (id: string) => {
@@ -74,11 +74,14 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top icon */}
+        {/* Top icon — ✅ white in dark mode */}
         <View style={styles.topIconWrap}>
           <Image
             source={require('../../../assets/images/emergency-contact-top-icon.png')}
-            style={styles.topIcon}
+            style={[
+              styles.topIcon,
+              isDark && { tintColor: '#FFFFFF' }, // ✅ pure white in dark mode
+            ]}
             resizeMode="contain"
           />
         </View>

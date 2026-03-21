@@ -1,5 +1,5 @@
 // src/screens/user/HomeScreen.tsx
-// ✅ Dark theme aware
+// ✅ Dark theme aware + Figma-matched slate colors
 
 import React, { useState } from 'react';
 import {
@@ -135,7 +135,8 @@ const HomeScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const TILE_BG = isDark ? '#1E1E3A' : '#F1F5F9';
+  // ✅ Tailwind slate-800 — exact Figma tile color
+  const TILE_BG = isDark ? '#1E293B' : '#F1F5F9';
 
   const goTo = (screen: string) => {
     try {
@@ -158,9 +159,10 @@ const HomeScreen = ({ navigation }: any) => {
         ]}
       >
         <View style={styles.topBarLeft}>
+          {/* ✅ White bean icon in dark mode */}
           <Image
             source={require('../../../assets/images/login-page.png')}
-            style={styles.topBarIcon}
+            style={[styles.topBarIcon, isDark && { tintColor: '#FFFFFF' }]}
             resizeMode="contain"
           />
           <Text style={[styles.topBarName, { color: colors.TEXT_PRIMARY }]}>
@@ -221,7 +223,6 @@ const HomeScreen = ({ navigation }: any) => {
                 🔥 0 Day Streak
               </Text>
             </View>
-            {/* ✅ onPress added */}
             <TouchableOpacity
               style={[styles.calendarBtn, { backgroundColor: colors.PRIMARY }]}
               onPress={() => goTo('MoodCalendar')}
