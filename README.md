@@ -6,8 +6,6 @@
 A mobile application designed to work seamlessly with the **Bean Mental Wellness Robot**,  
 connecting users, guardians, and AI systems into a single supportive ecosystem.
 
-🔧 *Currently under active development*
-
 </div>
 
 ---
