@@ -17,15 +17,15 @@ def log_request_info():
 # Ensures your API always returns JSON even if it crashes
 @app.errorhandler(404)
 def resource_not_found(e):
-    return jsonify({"error": "Resource not found", "code": 404}), 404
+    return jsonify({"Error": "Resource not found", "code": 404}), 404
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return jsonify({"error": "Internal server error. Check backend logs.", "code": 500}), 500
+    return jsonify({"Error": "Internal server error. Check backend logs.", "code": 500}), 500
 
 @app.errorhandler(400)
 def bad_request(e):
-    return jsonify({"error": "Bad request. Check your JSON keys.", "code": 400}), 400
+    return jsonify({"Error": "Bad request. Check your JSON keys.", "code": 400}), 400
 
 # --- 3. CORE ENDPOINTS ---
 
