@@ -21,7 +21,7 @@ import ChatScreen from '../screens/user/ChatScreen';
 import FocusModeScreen from '../screens/user/FocusModeScreen';
 import TasksScreen from '../screens/user/TasksScreen';
 import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
-import PairingScreen from '../screens/user/PairingScreen';
+import PairingScreen from '../screens/auth/ConnectBeanScreen';
 
 const Stack = createNativeStackNavigator();
 

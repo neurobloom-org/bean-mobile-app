@@ -39,23 +39,31 @@ def chat():
 @app.route('/api/v1/robot/claim', methods=['POST'])
 def claim_robot():
     data = request.json
-    serial = data.get('robot_serial')
+    # Ensure these keys match what your test_pairing.py is sending!
+    serial = data.get('robot_serial') 
     user_id = data.get('user_id')
-    received_pin = data.get('pin') # Get the PIN from the Robot
+    received_pin = data.get('pin') 
 
     if not serial or not user_id or not received_pin:
         return jsonify({"error": "Serial, User ID, and PIN are required"}), 400
     
     try:
-        # 1. Fetch the robot's actual PIN from your 'robots' table to verify
-        robot_check = supabase.table("robots").select("pairing_pin").eq("serial_number", serial).single().execute()
+        # 1. Fetch the robot without .single() to avoid the crash
+        query = supabase.table("robots").select("pairing_code").eq("serial_number", serial).execute()
         
-        if not robot_check.data or str(robot_check.data['pairing_pin']) != str(received_pin):
+        # 2. Check if the robot exists in the table
+        if not query.data or len(query.data) == 0:
+            return jsonify({"status": "error", "message": "Robot serial number not found"}), 404
+
+        # 3. Extract the first (and only) result
+        db_robot = query.data[0]
+        
+        # 4. Verify the PIN (Convert both to strings to avoid type mismatch)
+        if str(db_robot.get('pairing_code')) != str(received_pin):
             return jsonify({"status": "error", "message": "Invalid PIN"}), 401
 
-        # 2. If PIN is correct, update Supabase
-        # This update triggers the 'Realtime' listener
-        response = supabase.table("robots").update({
+        # 5. Success: Perform the Update
+        supabase.table("robots").update({
             "owner_id": user_id,
             "is_online": True,
             "last_paired_at": "now()" 
@@ -69,7 +77,7 @@ def claim_robot():
     except Exception as e:
         return jsonify({
             "status": "error",
-            "message": str(e)
+            "message": f"System Error: {str(e)}"
         }), 500
 
 if __name__ == '__main__':
