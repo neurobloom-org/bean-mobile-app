@@ -1,26 +1,53 @@
 import requests
 import json
 
-# Replace this with your actual User ID from the Supabase 'users' table
-USER_ID = "63147dd7-c028-4ff1-86b3-42d6cad802d8" 
-# This must match the 'serial_number' you manually inserted into the 'robots' table
-SERIAL_NUMBER = "BEAN-001"
-# This must match the 'pairing_code' in your 'robots' table
-PAIRING_PIN = "1234" 
+# --- CONFIGURATION ---
+BASE_URL = "http://127.0.0.1:5001/api/v1/robot/claim"
+USER_ID = "63147dd7-c028-4ff1-86b3-42d6cad802d8"
+SERIAL = "BEAN-001"
+CORRECT_PIN = "1234"
 
-URL = "http://127.0.0.1:5001/api/v1/robot/claim"
+# --- TEST SCENARIOS ---
+test_cases = [
+    {
+        "name": "✅ SUCCESS: Valid Pairing",
+        "payload": {"robot_serial": SERIAL, "user_id": USER_ID, "pin": CORRECT_PIN},
+        "expected_status": 200
+    },
+    {
+        "name": "❌ FAILURE: Invalid PIN",
+        "payload": {"robot_serial": SERIAL, "user_id": USER_ID, "pin": "9999"},
+        "expected_status": 401
+    },
+    {
+        "name": "❌ FAILURE: Missing Serial Number",
+        "payload": {"user_id": USER_ID, "pin": CORRECT_PIN},
+        "expected_status": 400
+    },
+    {
+        "name": "❌ FAILURE: Robot Not Found",
+        "payload": {"robot_serial": "FAKE-ROBOT-XYZ", "user_id": USER_ID, "pin": CORRECT_PIN},
+        "expected_status": 404
+    }
+]
 
-payload = {
-    "robot_serial": SERIAL_NUMBER,
-    "user_id": USER_ID,
-    "pin": PAIRING_PIN
-}
+def run_tests():
+    print(f"🚀 Starting NeuroBloom Backend Test Suite...\n" + "="*50)
+    
+    for case in test_cases:
+        print(f"Running: {case['name']}")
+        try:
+            response = requests.post(BASE_URL, json=case['payload'])
+            
+            if response.status_code == case['expected_status']:
+                print(f"  ✨ PASS (Status: {response.status_code})")
+            else:
+                print(f"  ⚠️ FAIL (Expected {case['expected_status']}, got {response.status_code})")
+                print(f"  Response: {response.text}")
+                
+        except Exception as e:
+            print(f"  ❌ Connection Error: {e}")
+        print("-" * 50)
 
-print(f"🚀 Sending claim request for {SERIAL_NUMBER}...")
-
-try:
-    response = requests.post(URL, json=payload)
-    print(f"📡 Status Code: {response.status_code}")
-    print(f"📦 Response: {json.dumps(response.json(), indent=2)}")
-except Exception as e:
-    print(f"❌ Connection Failed: {e}")``
+if __name__ == "__main__":
+    run_tests()
