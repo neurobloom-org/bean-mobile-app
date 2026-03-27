@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🫘 Bean Mobile App
+# Bean Mobile App
 ### **The AI-Powered Pulse of the NeuroBloom Ecosystem**
 
 <div align="center">
