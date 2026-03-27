@@ -1,5 +1,6 @@
 // src/screens/user/RobotConnectivityScreen.tsx
 // ✅ Dark theme aware + battery colour logic
+// ✅ Network Name row now navigates to BluetoothConnectivityScreen
 
 import React, { useState } from 'react';
 import {
@@ -29,7 +30,8 @@ const DEFAULT_NETWORK = 'Home_WiFi_5G';
 const IS_CONNECTED = true;
 
 const RobotConnectivityScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors, isDark } = useTheme();
+  const iconTint = isDark ? '#F1F5F9' : '#000000';
   const [autoUpdate, setAutoUpdate] = useState(true);
   const battery = DEFAULT_BATTERY;
   const batteryColor = getBatteryColor(battery);
@@ -112,7 +114,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
 
         {/* Battery + Firmware row */}
         <View style={styles.statsRow}>
-          {/* Battery card — always colored */}
+          {/* Battery card */}
           <View style={[styles.statCard, { backgroundColor: batteryColor }]}>
             <View style={styles.statCardHeader}>
               <Image
@@ -125,7 +127,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
             <Text style={styles.statCardValue}>{battery}%</Text>
           </View>
 
-          {/* Firmware card — themed */}
+          {/* Firmware card */}
           <View
             style={[
               styles.statCard,
@@ -164,17 +166,15 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
           Options
         </Text>
         <View style={[styles.optionsCard, { backgroundColor: colors.SURFACE }]}>
-          {/* Network Name */}
+          {/* ✅ Network Name → navigates to BluetoothConnectivityScreen */}
           <TouchableOpacity
             style={styles.optionRow}
-            onPress={() =>
-              Alert.alert('Network', `Connected to: ${DEFAULT_NETWORK}`)
-            }
+            onPress={() => navigation.navigate('BluetoothConnectivity')}
             activeOpacity={0.7}
           >
             <Image
               source={require('../../../assets/images/network-name.png')}
-              style={styles.optionIcon}
+              style={[styles.optionIcon, { tintColor: iconTint }]}
               resizeMode="contain"
             />
             <View style={styles.optionText}>
@@ -202,7 +202,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
           <View style={styles.optionRow}>
             <Image
               source={require('../../../assets/images/auto-update.png')}
-              style={styles.optionIcon}
+              style={[styles.optionIcon, { tintColor: iconTint }]}
               resizeMode="contain"
             />
             <View style={styles.optionText}>

@@ -95,40 +95,40 @@ export const DARK_COLORS: ColorTheme = {
   PRIMARY_DARK: '#3DA88A',
   PRIMARY_LIGHT: '#7FE4C4',
   SECONDARY: '#4CAF50',
-  SECONDARY_LIGHT: '#1A2E25', // ✅ darker green tint
+  SECONDARY_LIGHT: '#162520', // ✅ dark green tint for badges
   SECONDARY_DARK: '#2E7D32',
   SUCCESS: '#4ECCA3',
-  SUCCESS_LIGHT: '#1A3A32',
+  SUCCESS_LIGHT: '#162520',
   ERROR: '#FF6B6B',
   ERROR_LIGHT: '#3A1A1A',
   WARNING: '#FFD166',
   WARNING_LIGHT: '#3A2E00',
   INFO: '#60A5FA',
   INFO_LIGHT: '#1A2A3A',
-  WHITE: '#1A1A2E',
+  WHITE: '#F8FAFC', // ✅ near white for text
   BLACK: '#FFFFFF',
-  GRAY_50: '#141B2D', // ✅ deep navy
-  GRAY_100: '#111827', // ✅ near black navy
-  GRAY_200: '#1C2541',
-  GRAY_300: '#1E2D45',
-  GRAY_400: '#4A5568',
-  GRAY_500: '#718096',
-  GRAY_600: '#A0AEC0',
-  GRAY_700: '#CBD5E0',
-  GRAY_800: '#E2E8F0',
-  GRAY_900: '#F7FAFC',
-  TEXT_PRIMARY: '#F0F4FF', // ✅ bright white-blue text
-  TEXT_SECONDARY: '#8892A4', // ✅ muted blue-grey
-  TEXT_TERTIARY: '#4A5568',
-  TEXT_DISABLED: '#2D3748',
-  TEXT_INVERSE: '#000000',
-  BACKGROUND: '#0B0F19', // ✅ exact Figma near-black background
-  BACKGROUND_LIGHT: '#0D1117', // ✅ slightly lighter near-black
-  BACKGROUND_DARK: '#080C12', // ✅ deepest black
-  SURFACE: '#141E2E', // ✅ exact Figma dark blue card surface
-  BORDER: '#1E2D45',
-  BORDER_LIGHT: '#172035',
-  BORDER_DARK: '#243552',
+  GRAY_50: '#0F172A', // ✅ Tailwind slate-900
+  GRAY_100: '#1E293B', // ✅ Tailwind slate-800
+  GRAY_200: '#334155', // ✅ Tailwind slate-700
+  GRAY_300: '#475569', // ✅ Tailwind slate-600
+  GRAY_400: '#64748B', // ✅ Tailwind slate-500
+  GRAY_500: '#94A3B8', // ✅ Tailwind slate-400
+  GRAY_600: '#CBD5E1', // ✅ Tailwind slate-300
+  GRAY_700: '#E2E8F0', // ✅ Tailwind slate-200
+  GRAY_800: '#F1F5F9', // ✅ Tailwind slate-100
+  GRAY_900: '#F8FAFC', // ✅ Tailwind slate-50
+  TEXT_PRIMARY: '#F1F5F9', // ✅ slate-100 — bright white
+  TEXT_SECONDARY: '#94A3B8', // ✅ slate-400 — muted
+  TEXT_TERTIARY: '#64748B', // ✅ slate-500
+  TEXT_DISABLED: '#334155', // ✅ slate-700
+  TEXT_INVERSE: '#0F172A',
+  BACKGROUND: '#0F172A', // ✅ Tailwind slate-900 — exact Figma bg
+  BACKGROUND_LIGHT: '#0F172A', // ✅ same slate-900
+  BACKGROUND_DARK: '#020617', // ✅ Tailwind slate-950
+  SURFACE: '#1E293B', // ✅ Tailwind slate-800 — exact Figma card/tile
+  BORDER: '#334155', // ✅ Tailwind slate-700
+  BORDER_LIGHT: '#1E293B', // ✅ Tailwind slate-800
+  BORDER_DARK: '#475569', // ✅ Tailwind slate-600
   LINK: '#7EB8FF',
   LINK_VISITED: '#B09FFF',
   SHADOW: '#000000',

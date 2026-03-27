@@ -1,5 +1,6 @@
 // src/screens/user/ProfileScreen.tsx
 // ✅ Dark theme aware + gallery photo picker
+// ✅ Menu rows now navigate to real screens instead of "Coming Soon"
 
 import React, { useState } from 'react';
 import {
@@ -24,25 +25,35 @@ interface MenuRowProps {
   label: string;
   onPress: () => void;
   colors: any;
+  isDark: boolean;
 }
 
-const MenuRow = ({ icon, label, onPress, colors }: MenuRowProps) => (
-  <TouchableOpacity
-    style={styles.menuRow}
-    onPress={onPress}
-    activeOpacity={0.7}
-  >
-    <Image source={icon} style={styles.menuIcon} resizeMode="contain" />
-    <Text style={[styles.menuLabel, { color: colors.TEXT_PRIMARY }]}>
-      {label}
-    </Text>
-    <Text style={[styles.menuChevron, { color: colors.TEXT_TERTIARY }]}>›</Text>
-  </TouchableOpacity>
-);
+const MenuRow = ({ icon, label, onPress, colors, isDark }: MenuRowProps) => {
+  const iconTint = isDark ? '#F1F5F9' : '#000000';
+  return (
+    <TouchableOpacity
+      style={styles.menuRow}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Image
+        source={icon}
+        style={[styles.menuIcon, { tintColor: iconTint }]}
+        resizeMode="contain"
+      />
+      <Text style={[styles.menuLabel, { color: colors.TEXT_PRIMARY }]}>
+        {label}
+      </Text>
+      <Text style={[styles.menuChevron, { color: colors.TEXT_TERTIARY }]}>
+        ›
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 const ProfileScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors, isDark } = useTheme();
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   const handlePickPhoto = () => {
@@ -71,10 +82,6 @@ const ProfileScreen = ({ navigation }: any) => {
     ]);
   };
 
-  const handleComingSoon = (feature: string) => {
-    Alert.alert('Coming Soon', `${feature} will be available soon!`);
-  };
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
@@ -83,7 +90,7 @@ const ProfileScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* ── Header ── */}
         <View
           style={[
             styles.header,
@@ -107,7 +114,7 @@ const ProfileScreen = ({ navigation }: any) => {
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Avatar */}
+        {/* ── Avatar ── */}
         <View
           style={[styles.avatarSection, { backgroundColor: colors.SURFACE }]}
         >
@@ -143,7 +150,7 @@ const ProfileScreen = ({ navigation }: any) => {
           </Text>
         </View>
 
-        {/* Connected Bean Robot card */}
+        {/* ── Connected Bean Robot card ── */}
         <TouchableOpacity
           style={[styles.beanCard, { backgroundColor: colors.SURFACE }]}
           onPress={() => navigation.navigate('RobotConnectivity')}
@@ -152,7 +159,10 @@ const ProfileScreen = ({ navigation }: any) => {
           <View style={styles.beanCardLeft}>
             <Image
               source={require('../../../assets/images/select-user.png')}
-              style={styles.beanCardIcon}
+              style={[
+                styles.beanCardIcon,
+                { tintColor: isDark ? '#F1F5F9' : '#000000' },
+              ]}
               resizeMode="contain"
             />
             <View>
@@ -172,14 +182,16 @@ const ProfileScreen = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        {/* General Settings */}
+        {/* ── General Settings ── */}
         <Text style={styles.sectionGreen}>General Settings</Text>
         <View style={[styles.menuCard, { backgroundColor: colors.SURFACE }]}>
+          {/* ✅ Navigates to AccountInformationScreen */}
           <MenuRow
             icon={require('../../../assets/images/account-info.png')}
             label="Account Info"
-            onPress={() => handleComingSoon('Account Info')}
+            onPress={() => navigation.navigate('AccountInfo')}
             colors={colors}
+            isDark={isDark}
           />
           <View
             style={[
@@ -187,11 +199,13 @@ const ProfileScreen = ({ navigation }: any) => {
               { backgroundColor: colors.BORDER_LIGHT },
             ]}
           />
+          {/* ✅ Navigates to NotificationPreferencesScreen */}
           <MenuRow
             icon={require('../../../assets/images/notification-preferences.png')}
             label="Notification Preferences"
-            onPress={() => handleComingSoon('Notification Preferences')}
+            onPress={() => navigation.navigate('NotificationPreferences')}
             colors={colors}
+            isDark={isDark}
           />
           <View
             style={[
@@ -199,26 +213,30 @@ const ProfileScreen = ({ navigation }: any) => {
               { backgroundColor: colors.BORDER_LIGHT },
             ]}
           />
+          {/* ✅ Navigates to PrivacySettingsScreen */}
           <MenuRow
             icon={require('../../../assets/images/privacy-settings.png')}
             label="Privacy Settings"
-            onPress={() => handleComingSoon('Privacy Settings')}
+            onPress={() => navigation.navigate('PrivacySettings')}
             colors={colors}
+            isDark={isDark}
           />
         </View>
 
-        {/* Support */}
+        {/* ── Support ── */}
         <Text style={styles.sectionGreen}>Support</Text>
         <View style={[styles.menuCard, { backgroundColor: colors.SURFACE }]}>
+          {/* ✅ Navigates to HelpCenterScreen */}
           <MenuRow
             icon={require('../../../assets/images/help-centre.png')}
             label="Help Center"
-            onPress={() => handleComingSoon('Help Center')}
+            onPress={() => navigation.navigate('HelpCenter')}
             colors={colors}
+            isDark={isDark}
           />
         </View>
 
-        {/* Log Out */}
+        {/* ── Log Out ── */}
         <TouchableOpacity
           style={[
             styles.logOutBtn,
@@ -237,7 +255,7 @@ const ProfileScreen = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Footer */}
+        {/* ── Footer ── */}
         <Text style={[styles.footer, { color: colors.TEXT_TERTIARY }]}>
           Bean App Version 2.4.1
         </Text>

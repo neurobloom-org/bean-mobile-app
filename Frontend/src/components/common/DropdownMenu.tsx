@@ -1,5 +1,6 @@
 // src/components/common/DropdownMenu.tsx
-// ✅ Full right-side panel · Dark theme aware · Real asset icons
+// ✅ Updated icons + tintColor white in dark mode, black in light mode
+// ✅ Routes correct + 320ms delay fix
 
 import React from 'react';
 import {
@@ -19,58 +20,59 @@ import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 const PANEL_WIDTH = width * 0.72;
+const MODAL_CLOSE_DELAY = 320;
 
 interface MenuItem {
   id: string;
   label: string;
-  type: 'image' | 'emoji';
-  iconSource?: any;
-  emoji?: string;
+  iconSource: any;
   route: string;
+  // whether to apply tintColor (false for display icon which may be colored)
+  tintable: boolean;
 }
 
 const MENU_ITEMS: MenuItem[] = [
   {
     id: 'account',
     label: 'Account Info',
-    type: 'image',
-    iconSource: require('../../../assets/images/account-info.png'),
+    iconSource: require('../../../assets/images/person.png'), // ✅ new
     route: 'AccountInfo',
+    tintable: true,
   },
   {
     id: 'notifications',
     label: 'Notifications',
-    type: 'image',
-    iconSource: require('../../../assets/images/notification-preferences.png'),
-    route: 'Notifications',
+    iconSource: require('../../../assets/images/notifications.png'), // ✅ new
+    route: 'NotificationPreferences',
+    tintable: true,
   },
   {
     id: 'privacy',
     label: 'Privacy',
-    type: 'image',
-    iconSource: require('../../../assets/images/privacy-settings.png'),
-    route: 'Privacy',
+    iconSource: require('../../../assets/images/Frame 2121452668.png'), // ✅ new lock icon
+    route: 'PrivacySettings',
+    tintable: true,
   },
   {
     id: 'help',
     label: 'Help',
-    type: 'image',
-    iconSource: require('../../../assets/images/help-centre.png'),
-    route: 'Help',
-  },
-  {
-    id: 'bean',
-    label: 'Bean',
-    type: 'image',
-    iconSource: require('../../../assets/images/login-page.png'),
-    route: 'Bean',
+    iconSource: require('../../../assets/images/help_center.png'), // ✅ new
+    route: 'HelpCenter',
+    tintable: true,
   },
   {
     id: 'display',
     label: 'Display & Brightness',
-    type: 'image',
-    iconSource: require('../../../assets/images/display-and-brightness.png'),
+    iconSource: require('../../../assets/images/emergency-contact-top-icon.png'), // unchanged
     route: 'Display',
+    tintable: true, // also tinted so it stays consistent in dark mode
+  },
+  {
+    id: 'robotConnectivity',
+    label: 'Robot Connectivity',
+    iconSource: require('../../../assets/images/login-page.png'), // unchanged
+    route: 'RobotConnectivity',
+    tintable: true,
   },
 ];
 
@@ -87,28 +89,37 @@ const DropdownMenu = ({
   navigation,
   appVersion = '2.4.8',
 }: DropdownMenuProps) => {
-  // ✅ Theme hook
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+
+  // ✅ Resolved hex strings from colors.ts:
+  //    LIGHT: TEXT_PRIMARY = '#000000'
+  //    DARK:  TEXT_PRIMARY = '#F1F5F9'
+  // Pre-resolved so Android tinting never silently fails.
+  const iconTint = isDark ? '#F1F5F9' : '#000000';
 
   const handleMenuPress = (route: string) => {
     onClose();
-    try {
-      navigation.navigate(route);
-    } catch {
-      Alert.alert('Coming Soon', 'This feature will be available soon!');
-    }
+    setTimeout(() => {
+      try {
+        navigation.navigate(route);
+      } catch {
+        Alert.alert('Coming Soon', 'This feature will be available soon!');
+      }
+    }, MODAL_CLOSE_DELAY);
   };
 
   const handleLogOut = () => {
     onClose();
-    Alert.alert('Log Out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log Out',
-        style: 'destructive',
-        onPress: () => navigation.navigate('Welcome'),
-      },
-    ]);
+    setTimeout(() => {
+      Alert.alert('Log Out', 'Are you sure you want to log out?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: () => navigation.navigate('Welcome'),
+        },
+      ]);
+    }, MODAL_CLOSE_DELAY);
   };
 
   return (
@@ -123,9 +134,9 @@ const DropdownMenu = ({
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
 
-      {/* ✅ Panel — background from theme */}
+      {/* Side panel */}
       <View style={[styles.panel, { backgroundColor: colors.SURFACE }]}>
-        {/* ✅ Close button */}
+        {/* Close button */}
         <TouchableOpacity
           style={[styles.closeButton, { backgroundColor: colors.GRAY_100 }]}
           onPress={onClose}
@@ -144,25 +155,28 @@ const DropdownMenu = ({
               onPress={() => handleMenuPress(item.route)}
               activeOpacity={0.65}
             >
-              {/* ✅ Icon box — background from theme */}
               <View
                 style={[
                   styles.iconBox,
                   { backgroundColor: colors.SECONDARY_LIGHT },
                 ]}
               >
-                {item.type === 'image' ? (
-                  <Image
-                    source={item.iconSource}
-                    style={styles.menuIconImage}
-                    resizeMode="contain"
-                  />
-                ) : (
-                  <Text style={styles.menuIconEmoji}>{item.emoji}</Text>
-                )}
+                {/*
+                 * ✅ tintColor = iconTint (resolved hex string).
+                 * Light mode → '#000000' (black icons)
+                 * Dark mode  → '#F1F5F9' (white icons)
+                 * Using pre-resolved hex instead of colors.TEXT_PRIMARY token
+                 * to guarantee Android renders the tint correctly.
+                 */}
+                <Image
+                  source={item.iconSource}
+                  style={[
+                    styles.menuIconImage,
+                    item.tintable && { tintColor: iconTint },
+                  ]}
+                  resizeMode="contain"
+                />
               </View>
-
-              {/* ✅ Label — color from theme */}
               <Text style={[styles.menuLabel, { color: colors.TEXT_PRIMARY }]}>
                 {item.label}
               </Text>
@@ -172,12 +186,11 @@ const DropdownMenu = ({
 
         <View style={{ flex: 1 }} />
 
-        {/* ✅ Divider — color from theme */}
         <View
           style={[styles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
         />
 
-        {/* Log Out button — always red, no theme change needed */}
+        {/* Log Out */}
         <TouchableOpacity
           style={styles.logOutButton}
           onPress={handleLogOut}
@@ -186,7 +199,6 @@ const DropdownMenu = ({
           <Text style={styles.logOutText}>→ Log Out</Text>
         </TouchableOpacity>
 
-        {/* ✅ Version text — color from theme */}
         <Text style={[styles.versionText, { color: colors.TEXT_TERTIARY }]}>
           App Version {appVersion}
         </Text>
@@ -255,9 +267,6 @@ const styles = StyleSheet.create({
   menuIconImage: {
     width: 26,
     height: 26,
-  },
-  menuIconEmoji: {
-    fontSize: 22,
   },
   menuLabel: {
     fontSize: 16,
