@@ -1,6 +1,6 @@
 // src/screens/auth/CreateAccountScreen.tsx
-// ✅ Dark theme aware + white bean icon + white social borders in dark mode
-
+// ✅ Dark theme aware + REFACTORED VERSION
+import { supabase } from '../../lib/supabase';
 import React, { useState } from 'react';
 import {
   View,
@@ -26,8 +26,10 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = async () => {
+    // Validation
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -44,8 +46,36 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
-    if (userType === 'user') navigation.navigate('ConnectBean');
-    else navigation.navigate('CaregiverApp');
+
+    setIsLoading(true);
+
+    try {
+      // Call Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            full_name: fullName,
+            user_type: userType, // 'user' or 'guardian'
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      // Success Feedback
+      Alert.alert(
+        'Registration Successful',
+        'Please check your email to verify your account before signing in.',
+        [{ text: 'OK', onPress: () => navigation.navigate(userType === 'user' ? 'LoginUser' : 'LoginGuardian') }]
+      );
+
+    } catch (error: any) {
+      Alert.alert('Registration Error', error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -163,8 +193,9 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           />
 
           <PrimaryButton
-            title="Sign Up"
+            title={isLoading ? "Creating Account..." : "Sign Up"}
             onPress={handleCreateAccount}
+            disabled={isLoading}
             variant="primary"
             size="large"
             fullWidth

@@ -20,7 +20,6 @@ import LoginUserScreen from '../screens/auth/LoginUserScreen';
 import LoginGuardianScreen from '../screens/auth/LoginGuardianScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import VerifyCodeScreen from '../screens/auth/VerifyCodeScreen';
-
 // ✅ Forgot password flow
 import OTPVerificationScreen from '../screens/auth/OTPVerificationScreen';
 import CreateNewPasswordScreen from '../screens/auth/CreateNewPasswordScreen';
@@ -29,6 +28,14 @@ import PasswordResetSuccessScreen from '../screens/auth/PasswordResetSuccessScre
 // Navigators
 import UserNavigator from './UserNavigator';
 import CaregiverNavigator from './CaregiverNavigator';
+
+// Feature branch screens
+import HomeScreen from '../screens/user/HomeScreen';
+import ChatScreen from '../screens/user/ChatScreen';
+import FocusModeScreen from '../screens/user/FocusModeScreen';
+import TasksScreen from '../screens/user/TasksScreen';
+import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
+import PairingScreen from '../screens/user/PairingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,8 +61,12 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginGuardian" component={LoginGuardianScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyCode" component={VerifyCodeScreen} />
-
         {/* ✅ Forgot password flow */}
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="FocusMode" component={FocusModeScreen} />
+        <Stack.Screen name="Tasks" component={TasksScreen} />
+        <Stack.Screen name="PairingScreen" component={PairingScreen} />
         <Stack.Screen
           name="OTPVerification"
           component={OTPVerificationScreen}

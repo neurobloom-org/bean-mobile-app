@@ -8,20 +8,106 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
+import { supabase } from '../../lib/supabase'; //Supabase import
 import { BackButton, PrimaryButton, Input } from '../../components';
-import { SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY, COLORS } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LoginUserScreen = ({ navigation }: any) => {
   const { colors } = useTheme(); // ✅
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
+  const handleSignIn = async () => {
+    // 1. Basic Validation
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please enter both email and password.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // 2. Authenticate with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
+      });
+
+      if (error) {
+        Alert.alert('Login Failed', error.message);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Security Check: Ensure this is a "User" (not a Guardian)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_type')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profile?.user_type === 'guardian') {
+        Alert.alert(
+          'Access Denied',
+          'This account is registered as a Guardian. Please use the Guardian Login.'
+        );
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
+
+      // 4. SMART CHECK: Does this user have a robot paired?
+      const { data: robot, error: robotError } = await supabase
+        .from('robots')
+        .select('id')
+        .eq('owner_id', data.user.id)
+        .maybeSingle(); // Returns null if no robot found (doesn't crash)
+
+      setLoading(false);
+
+      // 5. Navigate based on status
+      if (robot) {
+        // Robot found -> Go straight to Dashboard
+        console.log('Robot found, going to Home');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
+      } else {
+        // ❌ No robot -> Must pair first
+        console.log('No robot found, going to Pairing');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'PairingScreen' }],
+        });
+      }
+
+    } catch (error: any) {
+      Alert.alert('System Error', error.message);
+      setLoading(false);
+    }
+  };
+
+  const handleSocialLogin = (provider: string) => {
+    Alert.alert('Coming Soon', `${provider} login is not set up yet.`);
+  };
+
+  const handleSignUp = () => {
+    navigation.navigate('CreateAccount', { userType: 'user' });
+  };
+
+  const handleForgotPassword = () => {
+    // navigation.navigate('ForgotPassword', { userType: 'user' });
+    Alert.alert('Coming Soon', 'Forgot Password flow will be implemented here.');
+  };
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.SURFACE }]}
@@ -48,7 +134,7 @@ const LoginUserScreen = ({ navigation }: any) => {
             Welcome back!
           </Text>
           <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
-            Sign in to continue as an <Text style={styles.boldText}>User</Text>
+            Sign in to continue as a <Text style={styles.boldText}>User</Text>
           </Text>
 
           <Input
@@ -77,7 +163,17 @@ const LoginUserScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* Social */}
+          {/* Sign In Button (Updated with Loading state) */}
+          <PrimaryButton
+            title={loading ? "Signing In..." : "Sign In"}
+            onPress={handleSignIn}
+            disabled={loading}
+            variant="primary"
+            size="large"
+            fullWidth
+          />
+
+          {/* Social Login Buttons */}
           <View style={styles.socialContainer}>
             {[
               require('../../../assets/images/fb.png'),
@@ -104,14 +200,7 @@ const LoginUserScreen = ({ navigation }: any) => {
             ))}
           </View>
 
-          <PrimaryButton
-            title="Sign In"
-            onPress={() => navigation.navigate('UserApp')}
-            variant="primary"
-            size="large"
-            fullWidth
-          />
-
+          {/* Sign Up Link */}
           <View style={styles.signUpContainer}>
             <Text style={[styles.signUpText, { color: colors.TEXT_SECONDARY }]}>
               Don't have an account?{' '}
@@ -153,12 +242,15 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.BODY,
     marginBottom: SPACING.XL,
     fontWeight: '600',
+    textAlign: 'right', // Added alignment to make it look better
+    marginTop: SPACING.SM,
   },
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: SPACING.XL,
     marginBottom: SPACING.XXL,
+    marginTop: SPACING.LG, // Added some top margin for spacing
   },
   socialButton: {
     width: 60,
