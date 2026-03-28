@@ -13,7 +13,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
@@ -56,19 +56,21 @@ const ProfileScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
-  const handlePickPhoto = () => {
-    launchImageLibrary(
-      { mediaType: 'photo', quality: 0.8, selectionLimit: 1 },
-      response => {
-        if (response.didCancel) return;
-        if (response.errorCode) {
-          Alert.alert('Error', 'Could not open gallery.');
-          return;
-        }
-        const uri = response.assets?.[0]?.uri;
-        if (uri) setProfilePhoto(uri);
-      },
-    );
+  const handlePickPhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please allow access to your photo library.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      setProfilePhoto(result.assets[0].uri);
+    }
   };
 
   const handleLogOut = () => {
