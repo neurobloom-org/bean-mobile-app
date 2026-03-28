@@ -35,36 +35,64 @@ const ChatScreen = ({ navigation }: any) => {
 
   const quickReplies = ['Yes, please', 'Maybe later', 'Tell me a joke'];
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim()) return;
-    const now = new Date().toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+
+    // 1. Save the text and clear the input instantly for a snappy UI
+    const userText = message;
+    setMessage('');
+    setIsTyping(true);
+
+    const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    // 2. Add User Message to the screen
     const userMsg: Message = {
       id: Date.now(),
-      text: message,
+      text: userText,
       sender: 'user',
       timestamp: now,
     };
     setMessages(prev => [...prev, userMsg]);
-    setMessage('');
-    setIsTyping(true);
-    setTimeout(() => {
-      const beanMsg: Message = {
-        id: Date.now() + 1,
-        text: "I understand. Can you tell me more about how you're feeling?",
-        sender: 'bean',
-        timestamp: new Date().toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
+    
+    // Scroll down after user types
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+
+    try {
+      // 3. Send the message to your Flask Backend
+      // TODO: Replace with your actual Server IP and dynamically fetch the logged-in User's ID
+      const response = await fetch('http://192.168.8.146:5001/api/app/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: "REPLACE_WITH_REAL_USER_ID", // e.g., auth.currentUser.id
+          message: userText
         }),
-      };
-      setMessages(prev => [...prev, beanMsg]);
+      });
+
+      const data = await response.json();
+
+      // 4. Add Bean's AI response to the screen
+      if (response.ok && data.status === "success") {
+        const beanMsg: Message = {
+          id: Date.now() + 1,
+          text: data.response, // The text returned from Flask
+          sender: 'bean',
+          timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages(prev => [...prev, beanMsg]);
+      } else {
+        console.error("Backend Error:", data.message);
+      }
+
+    } catch (error) {
+      console.error("Network Error: Could not reach Bean's brain.", error);
+    } finally {
+      // 5. Turn off the typing indicator and scroll to bottom
       setIsTyping(false);
-      scrollRef.current?.scrollToEnd({ animated: true });
-    }, 1500);
-    scrollRef.current?.scrollToEnd({ animated: true });
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    }
   };
 
   const handleQuickReply = (reply: string) => setMessage(reply);

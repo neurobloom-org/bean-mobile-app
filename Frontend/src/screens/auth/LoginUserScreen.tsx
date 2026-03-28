@@ -64,31 +64,14 @@ const LoginUserScreen = ({ navigation }: any) => {
         return;
       }
 
-      // 4. SMART CHECK: Does this user have a robot paired?
-      const { data: robot, error: robotError } = await supabase
-        .from('robots')
-        .select('id')
-        .eq('owner_id', data.user.id)
-        .maybeSingle(); // Returns null if no robot found (doesn't crash)
-
       setLoading(false);
 
-      // 5. Navigate based on status
-      if (robot) {
-        // Robot found -> Go straight to Dashboard
-        console.log('Robot found, going to Home');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      } else {
-        // ❌ No robot -> Must pair first
-        console.log('No robot found, going to Pairing');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'PairingScreen' }],
-        });
-      }
+      // 4. Navigate directly to User Dashboard
+      console.log('Login successful, going to Dashboard');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'UserApp' }],
+      });
 
     } catch (error: any) {
       Alert.alert('System Error', error.message);
