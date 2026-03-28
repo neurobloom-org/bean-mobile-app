@@ -1,5 +1,7 @@
-// src/screens/user/DisplayBrightnessScreen.tsx
-// ✅ Matches Figma exactly — Light/Dark selector + Brightness + True Tone
+// Appearance and brightness settings screen. Selecting Light or Dark applies
+// the theme immediately across the entire app via toggleTheme. The brightness
+// slider and True Tone switch are static UI placeholders pending system API
+// integration.
 
 import React, { useState } from 'react';
 import {
@@ -17,15 +19,18 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 
 const DisplayBrightnessScreen = ({ navigation }: any) => {
   const { isDark, colors, toggleTheme } = useTheme();
+
+  // Local selection mirrors the active theme so the correct card is highlighted on mount.
   const [selected, setSelected] = useState<'light' | 'dark'>(
     isDark ? 'dark' : 'light',
   );
   const [auto, setAuto] = useState(false);
   const [trueTone, setTrueTone] = useState(true);
 
+  // Applies the selected theme globally and updates the local highlight state.
   const handleSelect = (mode: 'light' | 'dark') => {
     setSelected(mode);
-    toggleTheme(mode === 'dark'); // ✅ instantly applies theme app-wide
+    toggleTheme(mode === 'dark');
   };
 
   return (
@@ -60,7 +65,7 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── APPEARANCE ── */}
+        {/* Appearance section */}
         <Text style={[styles.sectionLabel, { color: colors.TEXT_TERTIARY }]}>
           APPEARANCE
         </Text>
@@ -74,9 +79,9 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
             },
           ]}
         >
-          {/* Light + Dark selector row */}
+          {/* Side-by-side Light / Dark selector cards */}
           <View style={styles.themeRow}>
-            {/* Light */}
+            {/* Light mode card — fixed light background so the mockup always reads correctly */}
             <TouchableOpacity
               style={[
                 styles.themeBox,
@@ -89,7 +94,7 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
               onPress={() => handleSelect('light')}
               activeOpacity={0.85}
             >
-              {/* Phone mockup preview — light */}
+              {/* Simplified phone UI mockup representing the light theme */}
               <View style={styles.mockupLight}>
                 <View style={styles.mockupBarLight} />
                 <View style={styles.mockupLineLight} />
@@ -101,8 +106,6 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
                   ]}
                 />
               </View>
-
-              {/* Label row */}
               <View style={styles.labelRow}>
                 <Text style={styles.lightLabel}>Light</Text>
                 {selected === 'light' && (
@@ -118,7 +121,7 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
               </View>
             </TouchableOpacity>
 
-            {/* Dark */}
+            {/* Dark mode card — fixed dark background so the mockup always reads correctly */}
             <TouchableOpacity
               style={[
                 styles.themeBox,
@@ -131,7 +134,7 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
               onPress={() => handleSelect('dark')}
               activeOpacity={0.85}
             >
-              {/* Phone mockup preview — dark */}
+              {/* Simplified phone UI mockup representing the dark theme */}
               <View style={styles.mockupDark}>
                 <View style={styles.mockupBarDark} />
                 <View style={styles.mockupLineDark} />
@@ -143,8 +146,6 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
                   ]}
                 />
               </View>
-
-              {/* Label row */}
               <View style={styles.labelRow}>
                 <Text style={styles.darkLabel}>Dark</Text>
                 {selected === 'dark' && (
@@ -161,12 +162,11 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
 
-          {/* Divider */}
           <View
             style={[styles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
           />
 
-          {/* Automatic */}
+          {/* Automatic toggle — reserved for system-level dark mode following */}
           <View style={styles.toggleRow}>
             <Text style={[styles.toggleLabel, { color: colors.TEXT_PRIMARY }]}>
               Automatic
@@ -180,7 +180,7 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* ── BRIGHTNESS ── */}
+        {/* Brightness section */}
         <Text
           style={[
             styles.sectionLabel,
@@ -199,7 +199,7 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
             },
           ]}
         >
-          {/* Slider row */}
+          {/* Static brightness slider — small sun on left, large on right to indicate range */}
           <View style={styles.sliderRow}>
             <Text style={[styles.sunSmall, { color: colors.TEXT_TERTIARY }]}>
               ☀
@@ -207,6 +207,7 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
             <View
               style={[styles.sliderTrack, { backgroundColor: colors.BORDER }]}
             >
+              {/* Filled portion of the track set at 65% for the default visual */}
               <View
                 style={[styles.sliderFill, { backgroundColor: colors.PRIMARY }]}
               />
@@ -222,12 +223,11 @@ const DisplayBrightnessScreen = ({ navigation }: any) => {
             </Text>
           </View>
 
-          {/* Divider */}
           <View
             style={[styles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
           />
 
-          {/* True Tone */}
+          {/* True Tone toggle — adapts white balance to ambient lighting */}
           <View style={styles.toggleRow}>
             <View>
               <Text
@@ -288,12 +288,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.SM,
   },
 
-  // ── Theme selector ──
-  themeRow: {
-    flexDirection: 'row',
-    gap: SPACING.MD,
-    marginBottom: SPACING.LG,
-  },
+  // Theme selector
+  themeRow: { flexDirection: 'row', gap: SPACING.MD, marginBottom: SPACING.LG },
   themeBox: {
     flex: 1,
     borderRadius: BORDER_RADIUS.LG,
@@ -302,7 +298,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
 
-  // Light mockup
+  // Light mockup blocks — light grey palette
   mockupLight: {
     height: 90,
     backgroundColor: '#E8E8E8',
@@ -324,7 +320,7 @@ const styles = StyleSheet.create({
     width: '90%',
   },
 
-  // Dark mockup
+  // Dark mockup blocks — dark navy palette
   mockupDark: {
     height: 90,
     backgroundColor: '#111120',
@@ -351,16 +347,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  lightLabel: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: '#333333',
-  },
-  darkLabel: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: '#E0E0FF',
-  },
+  lightLabel: { fontSize: 14, fontWeight: '600' as const, color: '#333333' },
+  darkLabel: { fontSize: 14, fontWeight: '600' as const, color: '#E0E0FF' },
   checkCircle: {
     width: 20,
     height: 20,
@@ -368,14 +356,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkText: {
-    fontSize: 11,
-    color: '#000000',
-    fontWeight: '800' as const,
-  },
+  checkText: { fontSize: 11, color: '#000000', fontWeight: '800' as const },
 
   divider: { height: 1, marginVertical: SPACING.MD },
-
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -385,7 +368,7 @@ const styles = StyleSheet.create({
   toggleLabel: { fontSize: 15, fontWeight: '500' as const },
   toggleSub: { fontSize: 12, marginTop: 2 },
 
-  // ── Brightness slider ──
+  // Brightness slider — static layout at 65% fill
   sliderRow: {
     flexDirection: 'row',
     alignItems: 'center',

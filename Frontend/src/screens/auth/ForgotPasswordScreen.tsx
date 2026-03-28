@@ -1,5 +1,5 @@
-// src/screens/auth/ForgotPasswordScreen.tsx
-// ✅ Dark theme aware
+// Entry point of the forgot-password flow. Accepts an email address or phone
+// number, masks it for display, then navigates to OTP verification.
 
 import React, { useState } from 'react';
 import {
@@ -16,15 +16,23 @@ import { SPACING } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 const ForgotPasswordScreen = ({ navigation, route }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
+  // Forwarded through each step of the flow so the final success screen
+  // can redirect to the correct login page.
   const { userType } = route.params || { userType: 'user' };
+
   const [contact, setContact] = useState('');
 
+  // Validates the input, builds a masked version for display on the next screen,
+  // then navigates to OTP verification with the masked contact and userType.
   const handleSendCode = () => {
     if (!contact.trim()) {
       Alert.alert('Error', 'Please enter your email or phone number');
       return;
     }
+
+    // Mask email as f****@domain.com; mask phone by hiding the middle digits.
     let masked = '';
     if (contact.includes('@')) {
       const [local, domain] = contact.split('@');
@@ -32,6 +40,7 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
     } else {
       masked = '+1 (555) **** ' + contact.slice(-4);
     }
+
     navigation.navigate('OTPVerification', { maskedContact: masked, userType });
   };
 
@@ -45,7 +54,7 @@ const ForgotPasswordScreen = ({ navigation, route }: any) => {
       >
         <BackButton />
 
-        {/* Icon */}
+        {/* Two concentric green-tinted circles form a soft glow around the icon */}
         <View style={styles.iconContainer}>
           <View style={styles.glowOuter}>
             <View style={styles.glowInner}>
@@ -104,6 +113,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.XL,
     marginBottom: SPACING.XL,
   },
+  // Outer halo ring at 10% green opacity
   glowOuter: {
     width: 120,
     height: 120,
@@ -112,6 +122,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Inner halo ring at 18% green opacity
   glowInner: {
     width: 88,
     height: 88,

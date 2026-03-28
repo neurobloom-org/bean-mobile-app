@@ -1,5 +1,6 @@
-// src/screens/caregiver/VerifyPatientEmailScreen.tsx
-// ✅ Dark theme aware
+// Second step of the guardian onboarding flow.
+// The patient receives a 6-digit OTP at their registered address; the guardian
+// enters it here to confirm the account link. A countdown gates the resend action.
 
 import React, { useRef, useState, useEffect } from 'react';
 import {
@@ -24,17 +25,21 @@ const OTP_LENGTH = 6;
 const RESEND_SECONDS = 59;
 
 const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
+  // maskedEmail is built in EnterWardEmailScreen and forwarded for display.
   const { maskedEmail = 'p****t@healthcare.com' } = route.params || {};
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [timer, setTimer] = useState(RESEND_SECONDS);
   const [canResend, setCanResend] = useState(false);
 
+  // Refs allow programmatic focus movement between digit cells.
   const inputRefs = useRef<Array<TextInput | null>>(
     Array(OTP_LENGTH).fill(null),
   );
 
+  // Counts down one second at a time; enables the resend link at zero.
   useEffect(() => {
     if (timer <= 0) {
       setCanResend(true);
@@ -44,6 +49,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
     return () => clearTimeout(id);
   }, [timer]);
 
+  // Strips non-numeric characters, keeps only the last digit, and advances focus.
   const handleChange = (text: string, index: number) => {
     const digit = text.replace(/[^0-9]/g, '').slice(-1);
     const updated = [...otp];
@@ -52,12 +58,14 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
     if (digit && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
   };
 
+  // Moves focus back to the previous cell when Backspace is pressed on an empty cell.
   const handleKeyPress = (e: any, index: number) => {
     if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
+  // Resets the countdown and clears the input when the user requests a new code.
   const handleResend = () => {
     if (!canResend) return;
     setTimer(RESEND_SECONDS);
@@ -66,6 +74,8 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
     Alert.alert('Code Resent', 'A new verification code has been sent.');
   };
 
+  // Validates that all six digits are filled before proceeding.
+  // TODO: replace the direct navigate with a real OTP verification API call.
   const handleVerify = () => {
     const code = otp.join('');
     if (code.length < OTP_LENGTH) {
@@ -75,6 +85,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
     navigation.navigate('VerificationSuccessful');
   };
 
+  // Left-pads a number to two digits for the countdown display.
   const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
@@ -90,7 +101,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Top icon */}
+          {/* Green circle housing the top icon */}
           <View style={styles.iconContainer}>
             <Image
               source={require('../../../assets/images/verify-patient-email-top-icon.png')}
@@ -103,6 +114,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
             Verify Patient Email
           </Text>
 
+          {/* Masked email shown so the guardian knows where the code was sent */}
           <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             We've sent a 6-digit verification code to{' '}
             <Text style={[styles.emailBold, { color: colors.TEXT_PRIMARY }]}>
@@ -111,7 +123,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
             . Please enter it below.
           </Text>
 
-          {/* OTP boxes */}
+          {/* Six digit cells; filled cells are highlighted with a green border */}
           <View style={styles.otpRow}>
             {otp.map((digit, i) => (
               <TextInput
@@ -144,7 +156,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
             ))}
           </View>
 
-          {/* Resend row */}
+          {/* Countdown badge; switches to a tappable resend link when the timer expires */}
           <View style={styles.resendRow}>
             <Text
               style={[styles.resendLabel, { color: colors.TEXT_SECONDARY }]}
@@ -172,6 +184,7 @@ const VerifyPatientEmailScreen = ({ navigation, route }: any) => {
             </Text>
           </TouchableOpacity>
 
+          {/* Flexible spacer keeps the button at the bottom on taller screens */}
           <View style={styles.spacer} />
 
           <PrimaryButton
@@ -196,6 +209,8 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.XL,
     alignItems: 'center',
   },
+
+  // Solid green circle acting as the icon background.
   iconContainer: {
     width: 80,
     height: 80,
@@ -205,7 +220,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.LG,
   },
+  // Icon is tinted white to stand out against the green background.
   topIcon: { width: 44, height: 44, tintColor: '#FFFFFF' },
+
   title: {
     fontSize: 22,
     fontWeight: '800',
@@ -220,6 +237,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.SM,
   },
   emailBold: { fontWeight: '700' },
+
+  // OTP input row
   otpRow: { flexDirection: 'row', gap: SPACING.SM, marginBottom: SPACING.LG },
   otpBox: {
     width: 46,
@@ -229,6 +248,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
   },
+
+  // Resend section
   resendRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -247,6 +268,7 @@ const styles = StyleSheet.create({
     color: '#07882C',
     marginBottom: SPACING.XL,
   },
+
   spacer: { flex: 1, minHeight: SPACING.XL },
 });
 

@@ -1,5 +1,6 @@
-// src/screens/user/SOSDetectionScreen.tsx
-// ✅ Dark theme aware
+// SOS Detection screen — explains how to trigger an emergency alert via voice
+// ("HELP!") or the physical red button, shows the robot's response behaviour,
+// and links to the Emergency Contacts setup screen. Dark theme aware.
 
 import React from 'react';
 import {
@@ -16,13 +17,13 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
 const SOSDetectionScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Top bar: back button and screen title */}
       <View
         style={[
           styles.header,
@@ -32,6 +33,7 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           },
         ]}
       >
+        {/* Back chevron — pops the screen from the navigation stack */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
@@ -44,6 +46,7 @@ const SOSDetectionScreen = ({ navigation }: any) => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           SOS Detection
         </Text>
+        {/* Spacer keeps the title centred */}
         <View style={{ width: 40 }} />
       </View>
 
@@ -51,12 +54,12 @@ const SOSDetectionScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Subtitle */}
+        {/* Introductory subtitle above the hero image */}
         <Text style={[styles.subtitle, { color: colors.TEXT_PRIMARY }]}>
           Learn how to signal your Bean for{'\n'}immediate assistance.
         </Text>
 
-        {/* Hero image */}
+        {/* Hero image inside a soft green circular glow */}
         <View style={styles.heroOuter}>
           <Image
             source={require('../../../assets/images/sos-front-image.png')}
@@ -65,9 +68,9 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Trigger cards */}
+        {/* ── Trigger cards ── */}
         <View style={styles.cardsContainer}>
-          {/* Voice Trigger */}
+          {/* Voice Trigger — shout "HELP!" to activate */}
           <View
             style={[styles.triggerCard, { backgroundColor: colors.SURFACE }]}
           >
@@ -91,7 +94,7 @@ const SOSDetectionScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Physical Trigger */}
+          {/* Physical Trigger — double-press the red button to activate */}
           <View
             style={[styles.triggerCard, { backgroundColor: colors.SURFACE }]}
           >
@@ -116,7 +119,7 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Robot Response card */}
+        {/* Robot Response banner — describes what the robot does when SOS fires */}
         <View
           style={[
             styles.responseCard,
@@ -143,13 +146,13 @@ const SOSDetectionScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Disclaimer */}
+        {/* Fine-print disclaimer about the internet connection requirement */}
         <Text style={[styles.disclaimer, { color: colors.TEXT_TERTIARY }]}>
           Disclaimer: This feature requires an active internet connection to
           alert emergency contacts.
         </Text>
 
-        {/* Setup button */}
+        {/* CTA button — navigates to the Emergency Contacts setup screen */}
         <TouchableOpacity
           style={[styles.setupBtn, { backgroundColor: colors.PRIMARY }]}
           onPress={() => navigation.navigate('EmergencyContacts')}
@@ -164,8 +167,12 @@ const SOSDetectionScreen = ({ navigation }: any) => {
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -177,12 +184,15 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   backIcon: { fontSize: 28, lineHeight: 32 },
   headerTitle: { ...TYPOGRAPHY.H4 },
+
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
+
+  // Introductory subtitle
   subtitle: {
     fontSize: 16,
     fontWeight: '500' as const,
@@ -190,6 +200,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginBottom: SPACING.XL,
   },
+
+  // Circular green glow container behind the hero image
   heroOuter: {
     width: 200,
     height: 200,
@@ -200,6 +212,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XL,
   },
   heroImage: { width: 150, height: 150 },
+
+  // ── Trigger cards
   cardsContainer: { width: '100%', gap: SPACING.MD, marginBottom: SPACING.LG },
   triggerCard: {
     flexDirection: 'row',
@@ -217,7 +231,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XS,
   },
   triggerDesc: { ...TYPOGRAPHY.BODY_SMALL, lineHeight: 20 },
+
+  // Red emphasis used for "HELP!" and "RED" inside trigger descriptions
   highlightRed: { color: '#E74C3C', fontWeight: '700' as const },
+
+  // Robot Response banner
   responseCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -235,6 +253,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XS,
   },
   responseDesc: { ...TYPOGRAPHY.BODY_SMALL, lineHeight: 19 },
+
+  // Fine-print disclaimer
   disclaimer: {
     ...TYPOGRAPHY.CAPTION,
     textAlign: 'center',
@@ -242,6 +262,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.MD,
     marginBottom: SPACING.XL,
   },
+
+  // Full-width primary CTA button
   setupBtn: {
     width: '100%',
     borderRadius: BORDER_RADIUS.ROUND,

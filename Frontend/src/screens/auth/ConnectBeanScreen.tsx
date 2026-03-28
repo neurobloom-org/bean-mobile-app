@@ -1,5 +1,6 @@
-// src/screens/auth/ConnectBeanScreen.tsx
-// ✅ Dark theme aware
+// Guides the user through pairing their Bean robot via a 6-digit code.
+// Displays a four-step instruction list, a segmented OTP-style code input,
+// and a help link that explains where to find the pairing code.
 
 import React, { useState, useRef } from 'react';
 import {
@@ -18,10 +19,15 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 const ConnectBeanScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
+  // Six individual digit values forming the pairing code.
   const [code, setCode] = useState(['', '', '', '', '', '']);
+
+  // Refs used to programmatically move focus between digit inputs.
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
+  // Updates the digit at the given index and advances focus to the next field.
   const handleCodeChange = (text: string, index: number) => {
     if (text.length > 1) text = text.charAt(0);
     const newCode = [...code];
@@ -30,6 +36,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
     if (text && index < 5) inputRefs.current[index + 1]?.focus();
   };
 
+  // Moves focus back to the previous field when Backspace is pressed on an empty cell.
   const handleKeyPress = (key: string, index: number) => {
     if (key === 'Backspace' && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
@@ -40,6 +47,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
     navigation.navigate('BeanConnected');
   };
 
+  // Informs the user where to locate the 6-digit code in the product packaging.
   const handleCheckPaperWorks = () => {
     Alert.alert(
       'Find Your Code',
@@ -56,7 +64,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Icon */}
+        {/* Pairing illustration */}
         <View style={styles.iconContainer}>
           <Image
             source={require('../../../assets/images/connect-bean-final.png')}
@@ -65,7 +73,6 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Title */}
         <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
           Connect Bean
         </Text>
@@ -73,7 +80,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           How to Connect to the Robot:
         </Text>
 
-        {/* Steps */}
+        {/* Numbered instruction cards */}
         <View style={styles.stepsContainer}>
           {[
             'Turn on your robot',
@@ -102,7 +109,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Code Input */}
+        {/* Segmented digit input: each cell accepts one numeric character */}
         <View style={styles.codeContainer}>
           {code.map((digit, index) => (
             <TextInput
@@ -138,7 +145,7 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           fullWidth
         />
 
-        {/* Help Link */}
+        {/* Help row directing the user to the physical pairing code */}
         <View style={styles.helpContainer}>
           <Text style={[styles.helpText, { color: colors.TEXT_SECONDARY }]}>
             Where is the code?{' '}
@@ -193,6 +200,8 @@ const styles = StyleSheet.create({
   },
   stepNumberText: { ...TYPOGRAPHY.BODY, color: '#FFFFFF', fontWeight: 'bold' },
   stepText: { ...TYPOGRAPHY.BODY, flex: 1, fontWeight: 'bold' },
+
+  // Six equal-width cells laid out in a row.
   codeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -208,6 +217,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
+
   helpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

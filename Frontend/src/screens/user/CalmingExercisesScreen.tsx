@@ -1,5 +1,6 @@
-// src/screens/user/CalmingExercisesScreen.tsx
-// ✅ Dark theme aware
+// Guided breathing session screen. The user selects a duration (3, 4, or 5 min),
+// then starts a countdown. A pulsing circle provides the visual breathing cue.
+// Four instruction cards explain how the Bean robot supports the session.
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -18,14 +19,18 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
+
+// Breathing circle diameter is 52% of screen width so it scales across devices.
 const CIRCLE = width * 0.52;
 
+// Available session durations with pre-computed breath counts.
 const DURATIONS = [
   { label: '3 min', breaths: 18, minutes: 3, seconds: 180 },
   { label: '4 min', breaths: 24, minutes: 4, seconds: 240 },
   { label: '5 min', breaths: 30, minutes: 5, seconds: 300 },
 ];
 
+// Static guidance cards shown below the timer.
 const INFO_CARDS = [
   {
     icon: require('../../../assets/images/try-and-see.png'),
@@ -50,13 +55,16 @@ const INFO_CARDS = [
 ];
 
 const CalmingExercisesScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   const [selected, setSelected] = useState(1);
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(DURATIONS[1].seconds);
+
+  // Holds the interval reference so it can be cleared on unmount or pause.
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Starts or clears the countdown interval whenever isRunning changes.
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -82,12 +90,14 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
     };
   }, [isRunning]);
 
+  // Changing duration while the timer is running is blocked.
   const handleSelectDuration = (index: number) => {
     if (isRunning) return;
     setSelected(index);
     setTimeLeft(DURATIONS[index].seconds);
   };
 
+  // Toggles between running and paused; restarts from the beginning if time has expired.
   const handleStartStop = () => {
     if (timeLeft === 0) {
       setTimeLeft(DURATIONS[selected].seconds);
@@ -102,6 +112,7 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
     setTimeLeft(DURATIONS[selected].seconds);
   };
 
+  // Formats a total number of seconds into MM:SS display.
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
     const sec = s % 60;
@@ -116,7 +127,7 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Header — resets the timer before navigating back */}
       <View
         style={[
           styles.header,
@@ -155,7 +166,7 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
           Regulate your nervous system with your{'\n'}Bean's rhythmic guidance.
         </Text>
 
-        {/* Breathing circle */}
+        {/* Three concentric circles; the inner ring highlights green while running */}
         <View style={styles.circleOuter}>
           <View style={styles.circleMiddle}>
             <View
@@ -201,7 +212,6 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Breath count */}
         <Text style={[styles.breathCount, { color: colors.PRIMARY_DARK }]}>
           {current.breaths} breaths, estimated duration:
         </Text>
@@ -209,7 +219,7 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
           {current.minutes} minutes
         </Text>
 
-        {/* Duration selector */}
+        {/* Pill-shaped duration selector; disabled while a session is running */}
         <View
           style={[
             styles.durationRow,
@@ -243,7 +253,7 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Start / Pause button */}
+        {/* Primary action button; turns orange while paused to indicate a paused state */}
         <TouchableOpacity
           style={[styles.startBtn, isRunning && styles.pauseBtn]}
           onPress={handleStartStop}
@@ -258,7 +268,7 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Reset button */}
+        {/* Reset button; only visible when paused mid-session */}
         {!isRunning && timeLeft !== DURATIONS[selected].seconds && (
           <TouchableOpacity
             style={[styles.resetBtn, { borderColor: colors.BORDER }]}
@@ -270,7 +280,7 @@ const CalmingExercisesScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         )}
 
-        {/* Info cards */}
+        {/* Instructional cards explaining robot interaction during the session */}
         <View style={styles.infoContainer}>
           {INFO_CARDS.map((card, i) => (
             <View
@@ -340,6 +350,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: SPACING.XL,
   },
+
+  // Concentric circles: outer (15% opacity) → middle (25% opacity) → inner (solid surface + border)
   circleOuter: {
     width: CIRCLE,
     height: CIRCLE,
@@ -366,11 +378,9 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     elevation: 5,
   },
-  circleInnerActive: {
-    borderWidth: 4,
-    borderColor: '#22C55E',
-    elevation: 10,
-  },
+  // Active state: thicker border and elevated shadow reinforce the running state.
+  circleInnerActive: { borderWidth: 4, borderColor: '#22C55E', elevation: 10 },
+
   circleNumber: { fontSize: 42, fontWeight: '800' as const, lineHeight: 46 },
   circleTimer: {
     fontSize: 34,
@@ -380,6 +390,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   circleLabel: { fontSize: 11, fontWeight: '600' as const, letterSpacing: 1.5 },
+
   breathCount: {
     fontSize: 13,
     fontWeight: '500' as const,
@@ -391,6 +402,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: SPACING.LG,
   },
+
   durationRow: {
     flexDirection: 'row',
     borderRadius: BORDER_RADIUS.ROUND,
@@ -406,6 +418,7 @@ const styles = StyleSheet.create({
   },
   durationBtnDisabled: { opacity: 0.5 },
   durationText: { fontSize: 14, fontWeight: '600' as const },
+
   startBtn: {
     width: '100%',
     backgroundColor: '#4ECCA3',
@@ -422,6 +435,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.3,
   },
+
   resetBtn: {
     paddingHorizontal: SPACING.XL,
     paddingVertical: SPACING.SM,
@@ -430,6 +444,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG,
   },
   resetText: { fontSize: 14, fontWeight: '600' as const },
+
   infoContainer: { width: '100%', gap: SPACING.MD, marginTop: SPACING.SM },
   infoCard: {
     flexDirection: 'row',

@@ -1,5 +1,6 @@
-// src/screens/onboarding/PrivacyScreen.tsx
-// ✅ Dark theme aware
+// Onboarding step 3 of 3. Summarises the four key privacy commitments
+// as scrollable cards. Tapping "I Understand" completes onboarding and
+// navigates to role selection.
 
 import React from 'react';
 import {
@@ -17,6 +18,7 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
+// Static list of privacy policy sections, each rendered as a PolicyCard.
 const POLICIES = [
   {
     id: '1',
@@ -55,6 +57,7 @@ interface PolicyCardProps {
   colors: any;
 }
 
+// Renders a single horizontal card with an icon on the left and text on the right.
 const PolicyCard = ({
   iconSource,
   title,
@@ -75,13 +78,13 @@ const PolicyCard = ({
 );
 
 const PrivacyScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Header with back arrow and centred title */}
       <View
         style={[
           styles.header,
@@ -103,6 +106,7 @@ const PrivacyScreen = ({ navigation }: any) => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Privacy Policy
         </Text>
+        {/* Spacer keeps the title centred by matching the back button width */}
         <View style={styles.backButton} />
       </View>
 
@@ -111,12 +115,11 @@ const PrivacyScreen = ({ navigation }: any) => {
         showsVerticalScrollIndicator={false}
         bounces
       >
-        {/* Last updated */}
         <Text style={[styles.lastUpdated, { color: colors.TEXT_TERTIARY }]}>
           LAST UPDATED: OCTOBER 2025
         </Text>
 
-        {/* Policy Cards */}
+        {/* Policy section cards */}
         {POLICIES.map(policy => (
           <PolicyCard
             key={policy.id}
@@ -127,7 +130,7 @@ const PrivacyScreen = ({ navigation }: any) => {
           />
         ))}
 
-        {/* Contact link */}
+        {/* External contact link opens the Neurobloom website */}
         <Text style={[styles.contactText, { color: colors.TEXT_TERTIARY }]}>
           Questions?{' '}
           <Text
@@ -138,7 +141,7 @@ const PrivacyScreen = ({ navigation }: any) => {
           </Text>
         </Text>
 
-        {/* I Understand Button */}
+        {/* Completes onboarding and proceeds to role selection */}
         <View style={styles.buttonWrapper}>
           <PrimaryButton
             title="I Understand"
@@ -185,6 +188,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: SPACING.LG,
   },
+
+  // Card layout: icon on left, text block on right
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -197,6 +202,7 @@ const styles = StyleSheet.create({
   cardContent: { flex: 1 },
   cardTitle: { fontSize: 16, fontWeight: '700', marginBottom: SPACING.XS },
   cardDescription: { ...TYPOGRAPHY.BODY, lineHeight: 21 },
+
   contactText: {
     ...TYPOGRAPHY.CAPTION,
     textAlign: 'center',

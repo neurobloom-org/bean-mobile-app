@@ -1,5 +1,6 @@
-// src/screens/user/PlayGamesScreen.tsx
-// ✅ Dark theme aware
+// Play Games screen — shows a hero illustration, a title, and a list of
+// example voice commands the user can say to start playing with Bean.
+// Includes a Pro Tip card at the bottom. Fully dark/light theme aware.
 
 import React from 'react';
 import {
@@ -15,6 +16,7 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
+// Voice command examples shown as prompt cards on the screen
 const COMMANDS = [
   '"Let\'s play a trivia game"',
   '"Start a word puzzle"',
@@ -22,13 +24,13 @@ const COMMANDS = [
 ];
 
 const PlayGamesScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Top bar: back button and screen title */}
       <View
         style={[
           styles.header,
@@ -38,6 +40,7 @@ const PlayGamesScreen = ({ navigation }: any) => {
           },
         ]}
       >
+        {/* Back chevron — pops the screen from the navigation stack */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
@@ -50,6 +53,7 @@ const PlayGamesScreen = ({ navigation }: any) => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Play Games
         </Text>
+        {/* Spacer keeps the title centred */}
         <View style={{ width: 40 }} />
       </View>
 
@@ -57,14 +61,14 @@ const PlayGamesScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero image */}
+        {/* Hero illustration centred at the top of the scroll area */}
         <Image
           source={require('../../../assets/images/game-time.png')}
           style={styles.heroImage}
           resizeMode="contain"
         />
 
-        {/* Title + subtitle */}
+        {/* Screen headline and instructional subtitle */}
         <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
           Game Time!
         </Text>
@@ -73,7 +77,7 @@ const PlayGamesScreen = ({ navigation }: any) => {
           Try saying these voice commands to start playing.
         </Text>
 
-        {/* Try Saying cards */}
+        {/* Voice command cards — each shows a mic icon and an example phrase */}
         <View style={styles.commandsContainer}>
           {COMMANDS.map((cmd, i) => (
             <View
@@ -93,6 +97,7 @@ const PlayGamesScreen = ({ navigation }: any) => {
                 />
               </View>
               <View style={styles.commandText}>
+                {/* ALL-CAPS label above the command phrase */}
                 <Text
                   style={[
                     styles.trySayingLabel,
@@ -111,7 +116,7 @@ const PlayGamesScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Pro Tip card */}
+        {/* Pro Tip banner — informs the user about automatic game updates */}
         <View
           style={[
             styles.proTipCard,
@@ -139,8 +144,12 @@ const PlayGamesScreen = ({ navigation }: any) => {
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -152,13 +161,18 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   backIcon: { fontSize: 28, lineHeight: 32 },
   headerTitle: { ...TYPOGRAPHY.H4 },
+
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
+
+  // Hero illustration
   heroImage: { width: 140, height: 140, marginBottom: SPACING.XL },
+
+  // Title and subtitle
   title: {
     fontSize: 28,
     fontWeight: '800' as const,
@@ -172,6 +186,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XL,
     paddingHorizontal: SPACING.MD,
   },
+
+  // ── Command cards
   commandsContainer: {
     width: '100%',
     gap: SPACING.MD,
@@ -205,6 +221,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   commandValue: { fontSize: 15, fontWeight: '600' as const },
+
+  // Pro Tip banner
   proTipCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',

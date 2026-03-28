@@ -1,5 +1,5 @@
-// src/screens/user/CasualConvoScreen.tsx
-// ✅ Dark theme aware + real icons instead of emojis
+// Introduction screen for the Bean voice conversation feature.
+// Explains the wake word and interaction model before routing to the Chat screen.
 
 import React from 'react';
 import {
@@ -51,7 +51,7 @@ const CasualConvoScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Robot circle */}
+        {/* Robot illustration centred in a tinted circle */}
         <View
           style={[
             styles.robotCircle,
@@ -65,7 +65,6 @@ const CasualConvoScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Title + subtitle */}
         <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
           Casual Convo
         </Text>
@@ -74,9 +73,9 @@ const CasualConvoScreen = ({ navigation }: any) => {
           its attention with a wake word.
         </Text>
 
-        {/* Info cards */}
+        {/* Instruction cards using image icons instead of emojis */}
         <View style={styles.cardsContainer}>
-          {/* Wake Word card — talk.png */}
+          {/* Wake word card */}
           <View
             style={[
               styles.infoCard,
@@ -102,7 +101,7 @@ const CasualConvoScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Interaction card — talk-to-bean.png */}
+          {/* Interaction model card */}
           <View
             style={[
               styles.infoCard,
@@ -129,12 +128,11 @@ const CasualConvoScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Footer note */}
         <Text style={[styles.footerNote, { color: colors.TEXT_TERTIARY }]}>
           You can always access this guide by clicking upon the relevant feature
         </Text>
 
-        {/* Start chatting button */}
+        {/* Proceeds to the full chat interface */}
         <TouchableOpacity
           style={[styles.startBtn, { backgroundColor: colors.PRIMARY }]}
           onPress={() => navigation.navigate('Chat')}
@@ -191,6 +189,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.MD,
     marginBottom: SPACING.XXL,
   },
+
   cardsContainer: { width: '100%', gap: SPACING.MD, marginBottom: SPACING.XL },
   infoCard: {
     flexDirection: 'row',
@@ -207,11 +206,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // ✅ Replaced emoji with real image
-  cardIconImage: {
-    width: 26,
-    height: 26,
-  },
+  cardIconImage: { width: 26, height: 26 },
   cardText: { flex: 1 },
   cardLabel: {
     fontSize: 12,
@@ -221,6 +216,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   cardValue: { fontSize: 16, fontWeight: '700' as const },
+
   footerNote: {
     ...TYPOGRAPHY.CAPTION,
     textAlign: 'center',

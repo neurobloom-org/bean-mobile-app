@@ -1,5 +1,5 @@
-// src/components/common/Input.tsx
-// ✅ Dark theme aware
+// Themed text input with optional label, error message, leading icon,
+// and a password visibility toggle rendered as a custom SVG-style eye icon.
 
 import React, { useState } from 'react';
 import {
@@ -14,23 +14,31 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 interface InputProps extends TextInputProps {
+  // Optional field label rendered above the input.
   label?: string;
+  // Validation error message displayed below the input in red.
   error?: string;
+  // Optional leading icon node rendered inside the input container.
   icon?: React.ReactNode;
+  // When true, text is hidden by default and the toggle button is relevant.
   isPassword?: boolean;
+  // When true, renders the eye icon button to reveal/hide the password.
   showPasswordToggle?: boolean;
 }
 
-// ✅ Eye icon now accepts color prop
+// Draws a simple open or crossed-out eye using nested View shapes.
+// Accepts a colour prop so it inherits the active theme's text colour.
 const EyeIcon = ({ visible, color }: { visible: boolean; color: string }) => (
   <View style={styles.eyeIconSvg}>
     {visible ? (
+      // Open eye: oval outline with a filled pupil
       <View style={styles.eyeOpen}>
         <View style={[styles.eyeOutline, { borderColor: color }]}>
           <View style={[styles.eyePupil, { backgroundColor: color }]} />
         </View>
       </View>
     ) : (
+      // Closed eye: oval outline with a diagonal slash overlaid
       <View style={styles.eyeClosed}>
         <View style={[styles.eyeOutline, { borderColor: color }]}>
           <View style={[styles.eyePupil, { backgroundColor: color }]} />
@@ -49,20 +57,24 @@ export const Input: React.FC<InputProps> = ({
   showPasswordToggle = false,
   ...textInputProps
 }) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
+  // Tracks whether the password characters are currently hidden.
   const [secureTextEntry, setSecureTextEntry] = useState(isPassword);
+
+  // Drives the focused border and background highlight.
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View style={styles.container}>
-      {/* Label */}
+      {/* Optional label above the field */}
       {label && (
         <Text style={[styles.label, { color: colors.TEXT_PRIMARY }]}>
           {label}
         </Text>
       )}
 
-      {/* Input Container */}
+      {/* Input row: optional icon, text field, optional eye toggle */}
       <View
         style={[
           styles.inputContainer,
@@ -88,6 +100,7 @@ export const Input: React.FC<InputProps> = ({
           {...textInputProps}
         />
 
+        {/* Password visibility toggle; only rendered when both flags are set */}
         {isPassword && showPasswordToggle && (
           <TouchableOpacity
             style={styles.eyeIconContainer}
@@ -99,6 +112,7 @@ export const Input: React.FC<InputProps> = ({
         )}
       </View>
 
+      {/* Inline validation error */}
       {error && (
         <Text style={[styles.errorText, { color: colors.ERROR }]}>{error}</Text>
       )}
@@ -109,6 +123,8 @@ export const Input: React.FC<InputProps> = ({
 const styles = StyleSheet.create({
   container: { marginBottom: SPACING.LG },
   label: { ...TYPOGRAPHY.LABEL, marginBottom: SPACING.XS },
+
+  // Border colour is transparent by default; overridden on focus or error.
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -117,6 +133,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.MD,
     borderWidth: 1,
   },
+
   iconContainer: { marginRight: SPACING.SM },
   input: { flex: 1, ...TYPOGRAPHY.INPUT },
   eyeIconContainer: {
@@ -125,6 +142,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: { ...TYPOGRAPHY.CAPTION, marginTop: SPACING.XS },
+
+  // Eye icon geometry
   eyeIconSvg: {
     width: 24,
     height: 24,
@@ -152,6 +171,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  // Diagonal bar that crosses out the eye shape when password is hidden
   eyeSlash: {
     position: 'absolute',
     width: 26,

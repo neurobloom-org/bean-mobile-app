@@ -1,7 +1,7 @@
-// src/screens/auth/LoginGuardianScreen.tsx
-// ✅ Dark theme aware
-// ✅ AuthGuard: social logins + Sign In now validate auth before navigating
-//    If auth fails → stays on screen + shows "Login Failed" toast
+// Sign-in screen for the guardian/caregiver role.
+// All authentication paths (email and social) pass through a centralised
+// handler that validates the response before navigating. If authentication
+// fails, the user stays on this screen and receives a toast notification.
 
 import React, { useState } from 'react';
 import {
@@ -22,7 +22,7 @@ import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
-// ─── Auth Guard Helper ────────────────────────────────────────────────────────
+// Displays a bottom toast on Android and an Alert on iOS when login fails.
 const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
   if (Platform.OS === 'android') {
     ToastAndroid.showWithGravity(
@@ -35,32 +35,31 @@ const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
   }
 };
 
-// ─── Mock Auth — replace with real backend call ───────────────────────────────
-// TODO: replace with actual auth from feature/backend-fix branch
-// Expected: { success: boolean; user_id?: string; auth_token?: string }
+// Stub authentication function.
+// TODO: replace with real Supabase guardian auth from feature/backend-fix.
+// Expected shape: { success: boolean; user_id?: string; auth_token?: string }
+// Example implementation:
+//   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+//   if (error || !data.user) return { success: false }
+//   const guardianRecord = await supabase.from('guardians').select().eq('user_id', data.user.id)
+//   if (!guardianRecord.data?.length) return { success: false }
+//   return { success: true, user_id: data.user.id }
 const authenticateGuardian = async (
   provider: 'email' | 'google' | 'apple' | 'facebook',
   credentials?: { email: string; password: string },
 ): Promise<{ success: boolean; user_id?: string }> => {
-  // TODO: wire up to real Supabase guardian auth
-  // Example:
-  //   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  //   if (error || !data.user) return { success: false }
-  //   const guardianRecord = await supabase.from('guardians').select().eq('user_id', data.user.id)
-  //   if (!guardianRecord.data?.length) return { success: false }
-  //   return { success: true, user_id: data.user.id }
-
   return { success: true, user_id: 'stub-guardian-id' };
 };
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const LoginGuardianScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
+
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ── Centralized Auth Handler ──────────────────────────────────────────────
+  // Single handler for all auth providers.
+  // Navigates only when a valid user_id is returned; otherwise shows the failure toast.
   const handleAuth = async (
     provider: 'email' | 'google' | 'apple' | 'facebook',
   ) => {
@@ -71,11 +70,9 @@ const LoginGuardianScreen = ({ navigation }: any) => {
         provider === 'email' ? { email: emailGuardian, password } : undefined,
       );
 
-      // ✅ AuthGuard: only navigate if valid user_id returned
       if (result.success && result.user_id) {
         navigation.navigate('CaregiverApp', { screen: 'CaregiverDashboard' });
       } else {
-        // ✅ Stay on screen + show toast
         showLoginFailedToast(
           provider === 'email'
             ? 'Invalid email or password.'
@@ -154,7 +151,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* ── Social Login Buttons ── */}
+          {/* Social login buttons; each triggers the centralised auth handler */}
           <View style={styles.socialContainer}>
             {socialProviders.map(({ src, provider }) => (
               <TouchableOpacity
@@ -179,7 +176,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             ))}
           </View>
 
-          {/* ── Loading indicator ── */}
+          {/* Shown while an auth request is in flight */}
           {loading && (
             <ActivityIndicator
               size="small"
@@ -188,7 +185,6 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             />
           )}
 
-          {/* ── Email Sign In Button ── */}
           <PrimaryButton
             title={loading ? 'Signing In...' : 'Sign In'}
             onPress={() => handleAuth('email')}

@@ -1,5 +1,6 @@
-// src/screens/auth/OTPVerificationScreen.tsx
-// ✅ Dark theme aware
+// Second step of the forgot-password flow. Displays a custom numeric keypad
+// and six OTP digit boxes. A countdown timer gates the resend action, and a
+// spinner replaces the verify button while the code is being checked.
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -19,7 +20,9 @@ const OTP_LENGTH = 6;
 const RESEND_SECONDS = 59;
 
 const OTPVerificationScreen = ({ navigation, route }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
+  // maskedContact is built in ForgotPasswordScreen and forwarded here for display.
   const { maskedContact = '+1 (555) **** 5678', userType } = route.params || {};
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
@@ -27,9 +30,11 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Animated value and reference used to drive the loading spinner rotation.
   const spinValue = useRef(new Animated.Value(0)).current;
   const spinAnimation = useRef<Animated.CompositeAnimation | null>(null);
 
+  // Counts down one second at a time; enables the resend button when it reaches zero.
   useEffect(() => {
     if (timer <= 0) {
       setCanResend(true);
@@ -39,6 +44,7 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
     return () => clearTimeout(id);
   }, [timer]);
 
+  // Begins an infinite rotation animation used as a verification spinner.
   const startSpin = () => {
     spinValue.setValue(0);
     spinAnimation.current = Animated.loop(
@@ -56,6 +62,8 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
     outputRange: ['0deg', '360deg'],
   });
 
+  // Handles both digit entry and delete actions from the custom keypad.
+  // Entry fills the first empty box; delete clears the last filled box.
   const handleNumpad = (val: string) => {
     if (isVerifying) return;
     if (val === 'del') {
@@ -74,6 +82,7 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
     }
   };
 
+  // Resets the countdown and clears the OTP input when the user requests a new code.
   const handleResend = () => {
     if (!canResend) return;
     setTimer(RESEND_SECONDS);
@@ -82,6 +91,9 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
     Alert.alert('Code Resent', 'A new verification code has been sent.');
   };
 
+  // Validates that all six digits are entered, starts the spinner,
+  // then navigates to the password creation screen after a brief delay.
+  // TODO: replace the setTimeout with a real OTP verification API call.
   const handleVerify = () => {
     const code = otp.join('');
     if (code.length < OTP_LENGTH) {
@@ -96,6 +108,7 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
     }, 1500);
   };
 
+  // Left-pads a number to two digits for the countdown display (e.g. 9 → "09").
   const pad = (n: number) => String(n).padStart(2, '0');
 
   const numpadKeys = [
@@ -110,7 +123,6 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
       style={[styles.container, { backgroundColor: colors.SURFACE }]}
     >
       <View style={styles.inner}>
-        {/* Title */}
         <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
           Verify Account
         </Text>
@@ -121,7 +133,7 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
           </Text>
         </Text>
 
-        {/* OTP display boxes */}
+        {/* Six digit boxes; filled boxes are highlighted with a green border */}
         <View style={styles.otpRow}>
           {otp.map((digit, i) => (
             <View
@@ -144,7 +156,7 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
           ))}
         </View>
 
-        {/* Resend */}
+        {/* Resend row; the link is inactive until the countdown reaches zero */}
         <Text style={[styles.resendText, { color: colors.TEXT_SECONDARY }]}>
           Didn't receive a code?{' '}
           <Text
@@ -159,7 +171,7 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
           </Text>
         </Text>
 
-        {/* Verify button OR loading spinner */}
+        {/* Verify button is replaced by a spinner while verification is in progress */}
         {isVerifying ? (
           <View style={styles.spinnerContainer}>
             <Animated.View
@@ -176,11 +188,12 @@ const OTPVerificationScreen = ({ navigation, route }: any) => {
           </TouchableOpacity>
         )}
 
-        {/* Custom numpad */}
+        {/* Custom numeric keypad with a backspace key in the bottom-right cell */}
         <View style={styles.numpad}>
           {numpadKeys.map((row, ri) => (
             <View key={ri} style={styles.numpadRow}>
               {row.map((key, ki) => {
+                // Empty string acts as a blank spacer cell for layout alignment.
                 if (key === '')
                   return <View key={ki} style={styles.numpadKey} />;
                 return (
@@ -230,6 +243,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XL,
   },
   contactBold: { fontWeight: '800' },
+
+  // OTP input row
   otpRow: { flexDirection: 'row', gap: SPACING.SM, marginBottom: SPACING.MD },
   otpBox: {
     width: 46,
@@ -240,8 +255,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   otpDigit: { fontSize: 22, fontWeight: '700' },
+
+  // Resend row
   resendText: { fontSize: 13, marginBottom: SPACING.LG },
   resendTimer: { fontWeight: '600' },
+
+  // Verify button
   verifyBtn: {
     width: '100%',
     backgroundColor: '#07882C',
@@ -251,6 +270,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG,
   },
   verifyBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+
+  // Loading spinner: arc border rotated continuously via Animated
   spinnerContainer: {
     width: '100%',
     alignItems: 'center',
@@ -266,6 +287,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(7,136,44,0.2)',
     borderTopColor: '#07882C',
   },
+
+  // Custom numpad grid
   numpad: { width: '100%', marginTop: SPACING.SM },
   numpadRow: {
     flexDirection: 'row',

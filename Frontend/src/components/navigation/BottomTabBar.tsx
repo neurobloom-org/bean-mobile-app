@@ -1,11 +1,13 @@
-// src/components/navigation/BottomTabBar.tsx
-// ✅ Dark theme aware
+// Persistent bottom navigation bar with three tabs: Home, Tasks, and Profile.
+// The active tab is highlighted with the primary colour, a bolder label,
+// and a small indicator dot beneath the icon.
 
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { SPACING } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
+// Tab definitions are static; route names must match UserNavigator screen names.
 const TABS = [
   {
     id: 'Home',
@@ -29,24 +31,26 @@ const TABS = [
 
 interface BottomTabBarProps {
   navigation: any;
+  // Identifies which tab should render in its active state.
   activeTab: 'Home' | 'Tasks' | 'Profile';
 }
 
 const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
-  const { colors } = useTheme(); // ✅ theme hook
+  const { colors } = useTheme();
 
   return (
     <View
       style={[
         styles.container,
         {
-          backgroundColor: colors.SURFACE, // ✅ white in light, dark navy in dark
-          borderTopColor: colors.BORDER_LIGHT, // ✅ themed border
+          backgroundColor: colors.SURFACE,
+          borderTopColor: colors.BORDER_LIGHT,
         },
       ]}
     >
       {TABS.map(tab => {
         const isActive = activeTab === tab.id;
+
         return (
           <TouchableOpacity
             key={tab.id}
@@ -59,9 +63,8 @@ const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
               style={[
                 styles.icon,
                 {
-                  tintColor: isActive
-                    ? colors.PRIMARY // ✅ green when active
-                    : colors.TEXT_TERTIARY, // ✅ themed inactive color
+                  // Active: primary colour at full opacity; inactive: muted and dimmed.
+                  tintColor: isActive ? colors.PRIMARY : colors.TEXT_TERTIARY,
                   opacity: isActive ? 1 : 0.55,
                 },
               ]}
@@ -72,9 +75,7 @@ const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
               style={[
                 styles.label,
                 {
-                  color: isActive
-                    ? colors.PRIMARY // ✅ green when active
-                    : colors.TEXT_TERTIARY, // ✅ themed inactive color
+                  color: isActive ? colors.PRIMARY : colors.TEXT_TERTIARY,
                   fontWeight: isActive ? '700' : '500',
                 },
               ]}
@@ -82,12 +83,10 @@ const BottomTabBar = ({ navigation, activeTab }: BottomTabBarProps) => {
               {tab.label}
             </Text>
 
+            {/* Small dot indicator shown only under the active tab */}
             {isActive && (
               <View
-                style={[
-                  styles.activeDot,
-                  { backgroundColor: colors.PRIMARY }, // ✅ themed dot
-                ]}
+                style={[styles.activeDot, { backgroundColor: colors.PRIMARY }]}
               />
             )}
           </TouchableOpacity>
@@ -117,13 +116,10 @@ const styles = StyleSheet.create({
     gap: 3,
     position: 'relative',
   },
-  icon: {
-    width: 20,
-    height: 20,
-  },
-  label: {
-    fontSize: 10,
-  },
+  icon: { width: 20, height: 20 },
+  label: { fontSize: 10 },
+
+  // Positioned below the label to act as an underline-style active indicator.
   activeDot: {
     position: 'absolute',
     bottom: -4,

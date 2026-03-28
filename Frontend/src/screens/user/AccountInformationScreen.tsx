@@ -1,6 +1,6 @@
-// src/screens/user/AccountInformationScreen.tsx
-// ✅ FIGMA-MATCHED — Dark/Light mode · Personal Details · Security · Save/Delete
-// ✅ iconTint uses exact hex values from colors.ts (TEXT_PRIMARY light=#000000, dark=#F1F5F9)
+// Displays and edits the authenticated user's personal details and security
+// settings. The full-name field supports inline editing; all other fields are
+// read-only. Save persists changes; Delete navigates back to the Welcome screen.
 
 import React, { useState } from 'react';
 import {
@@ -22,23 +22,23 @@ const AccountInformationScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
 
   const [fullName, setFullName] = useState('Alex Johnson');
-  const [email, setEmail] = useState('alex.johnson@example.com');
-  const [phone, setPhone] = useState('+1 (555) 012-3456');
-  const [guardianPhone, setGuardianPhone] = useState('+1 (555) 045-2235');
+  const [email] = useState('alex.johnson@example.com');
+  const [phone] = useState('+1 (555) 012-3456');
+  const [guardianPhone] = useState('+1 (555) 045-2235');
   const [editingName, setEditingName] = useState(false);
 
-  // ✅ Exact TEXT_PRIMARY values from colors.ts:
-  //    LIGHT_COLORS.TEXT_PRIMARY = '#000000'
-  //    DARK_COLORS.TEXT_PRIMARY  = '#F1F5F9'
-  // Using resolved strings (not theme token refs) so Android tinting never fails.
+  // Pre-resolved hex strings (LIGHT_COLORS.TEXT_PRIMARY = '#000000',
+  // DARK_COLORS.TEXT_PRIMARY = '#F1F5F9') so Android image tinting never fails.
   const iconTint = isDark ? '#F1F5F9' : '#000000';
 
+  // TODO: persist updated fields to backend before showing the confirmation.
   const handleSaveChanges = () => {
     Alert.alert('Success', 'Your account information has been updated!', [
       { text: 'OK' },
     ]);
   };
 
+  // Requires confirmation before permanently removing the account.
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
@@ -54,6 +54,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
     );
   };
 
+  // Reuses the existing forgot-password flow to handle the password change.
   const handleChangePassword = () => {
     navigation.navigate('ForgotPassword', { userType: 'user' });
   };
@@ -62,7 +63,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND }]}
     >
-      {/* ── Header ── */}
+      {/* Header */}
       <View
         style={[
           styles.header,
@@ -91,7 +92,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Avatar + Premium badge ── */}
+        {/* Avatar and membership badge */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarWrap}>
             <Image
@@ -108,7 +109,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
           </Text>
         </View>
 
-        {/* ── Personal Details ── */}
+        {/* Personal details section */}
         <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
           Personal Details
         </Text>
@@ -122,7 +123,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
             },
           ]}
         >
-          {/* Full Name */}
+          {/* Full Name — the only editable field; tapping the pencil icon activates a TextInput */}
           <View style={styles.fieldWrap}>
             <Text style={[styles.fieldLabel, { color: colors.TEXT_TERTIARY }]}>
               Full Name
@@ -163,7 +164,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
             ]}
           />
 
-          {/* Email */}
+          {/* Email — read-only */}
           <View style={styles.fieldWrap}>
             <Text style={[styles.fieldLabel, { color: colors.TEXT_TERTIARY }]}>
               Email Address
@@ -187,7 +188,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
             ]}
           />
 
-          {/* Phone */}
+          {/* Phone — read-only */}
           <View style={styles.fieldWrap}>
             <Text style={[styles.fieldLabel, { color: colors.TEXT_TERTIARY }]}>
               Phone Number
@@ -211,7 +212,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
             ]}
           />
 
-          {/* Guardian Phone */}
+          {/* Guardian phone — read-only */}
           <View style={styles.fieldWrap}>
             <Text style={[styles.fieldLabel, { color: colors.TEXT_TERTIARY }]}>
               Guardian's Phone Number
@@ -229,11 +230,12 @@ const AccountInformationScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* ── Security ── */}
+        {/* Security section */}
         <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
           Security
         </Text>
 
+        {/* Tapping this row redirects to the ForgotPassword flow */}
         <TouchableOpacity
           style={[
             styles.securityCard,
@@ -272,7 +274,7 @@ const AccountInformationScreen = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        {/* ── Buttons ── */}
+        {/* Danger zone */}
         <TouchableOpacity
           style={styles.deleteBtn}
           onPress={handleDeleteAccount}
@@ -293,7 +295,6 @@ const AccountInformationScreen = ({ navigation }: any) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1 },
 
@@ -320,7 +321,7 @@ const styles = StyleSheet.create({
   avatarWrap: { marginBottom: SPACING.SM },
   avatarImage: { width: 80, height: 80, borderRadius: 40 },
 
-  // Premium badge
+  // Green membership badge
   premiumBadge: {
     backgroundColor: '#16A34A',
     borderRadius: BORDER_RADIUS.ROUND,
@@ -331,14 +332,13 @@ const styles = StyleSheet.create({
   premiumText: { fontSize: 12, fontWeight: '700' as const, color: '#FFFFFF' },
   expiry: { fontSize: 11 },
 
-  // Section title
   sectionTitle: {
     fontSize: 17,
     fontWeight: '700' as const,
     marginBottom: SPACING.MD,
   },
 
-  // Details card
+  // Details card containing all personal fields
   detailsCard: {
     borderRadius: BORDER_RADIUS.XL,
     borderWidth: 1,
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   editIcon: { fontSize: 14 },
   fieldDivider: { height: 1 },
 
-  // Security card
+  // Security row
   securityCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -377,16 +377,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  lockIconImage: {
-    width: 24,
-    height: 24,
-  },
+  lockIconImage: { width: 24, height: 24 },
   securityText: { flex: 1 },
   securityTitle: { fontSize: 15, fontWeight: '600' as const, marginBottom: 2 },
   securitySub: { fontSize: 12 },
   chevron: { fontSize: 20, lineHeight: 24 },
 
-  // Delete button
+  // Danger zone button
   deleteBtn: {
     borderWidth: 1.5,
     borderColor: '#EF4444',
@@ -398,7 +395,7 @@ const styles = StyleSheet.create({
   },
   deleteBtnText: { fontSize: 15, fontWeight: '700' as const, color: '#EF4444' },
 
-  // Save button
+  // Primary save button
   saveBtn: {
     borderRadius: BORDER_RADIUS.ROUND,
     paddingVertical: SPACING.LG,

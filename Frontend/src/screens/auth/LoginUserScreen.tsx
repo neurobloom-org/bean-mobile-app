@@ -1,7 +1,8 @@
 // src/screens/auth/LoginUserScreen.tsx
-// ✅ Dark theme aware
-// ✅ AuthGuard: social logins + Sign In now validate auth before navigating
-//    If auth fails → stays on screen + shows "Login Failed" toast
+// Sign-in screen for the standard user role.
+// All authentication paths (email and social) pass through a centralised
+// handler that validates the response before navigating. If authentication
+// fails, the user stays on this screen and receives a toast notification.
 
 import React, { useState } from 'react';
 import {
@@ -22,8 +23,8 @@ import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
-// ─── Auth Guard Helper ────────────────────────────────────────────────────────
-// Shows a platform-appropriate "Login Failed" message
+// Displays a bottom toast on Android and an Alert on iOS when login fails.
+// Swap the iOS path for a custom toast component if one is available.
 const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
   if (Platform.OS === 'android') {
     ToastAndroid.showWithGravity(
@@ -32,39 +33,38 @@ const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
       ToastAndroid.BOTTOM,
     );
   } else {
-    // iOS fallback — Alert (swap for a custom toast if you have one)
     Alert.alert('Login Failed', message);
   }
 };
 
-// ─── Mock Auth — replace with real Supabase/backend call ─────────────────────
-// TODO: replace this stub with your actual auth call from feature/backend-fix
-// Expected return: { success: boolean; user_id?: string; auth_token?: string }
+// Stub authentication function.
+// TODO: replace with real Supabase user auth from feature/backend-fix.
+// Expected shape: { success: boolean; user_id?: string; auth_token?: string }
+// Example implementation:
+//   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+//   if (error || !data.user) return { success: false }
+//   return { success: true, user_id: data.user.id }
+//
+// For social providers: use supabase.auth.signInWithOAuth({ provider })
+// and listen for the resulting session event.
+//
+// To test the failure path locally, temporarily return { success: false }.
 const authenticateUser = async (
   provider: 'email' | 'google' | 'apple' | 'facebook',
   credentials?: { email: string; password: string },
 ): Promise<{ success: boolean; user_id?: string }> => {
-  // TODO: wire up to real backend
-  // Example Supabase call:
-  //   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  //   if (error || !data.user) return { success: false }
-  //   return { success: true, user_id: data.user.id }
-  //
-  // For social: use supabase.auth.signInWithOAuth({ provider }) + listen for session
-
-  // ── Temporary stub: always succeeds so existing flow is not broken ──
-  // Change to `return { success: false }` to test the failed path
   return { success: true, user_id: 'stub-user-id' };
 };
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 const LoginUserScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ── Centralized Auth Handler ──────────────────────────────────────────────
+  // Single handler for all auth providers.
+  // Navigates only when a valid user_id is returned; otherwise shows the failure toast.
   const handleAuth = async (
     provider: 'email' | 'google' | 'apple' | 'facebook',
   ) => {
@@ -75,11 +75,9 @@ const LoginUserScreen = ({ navigation }: any) => {
         provider === 'email' ? { email, password } : undefined,
       );
 
-      // ✅ AuthGuard: only navigate if auth_token / user_id is valid
       if (result.success && result.user_id) {
         navigation.navigate('UserApp');
       } else {
-        // ✅ Stay on screen + show "Login Failed" toast
         showLoginFailedToast(
           provider === 'email'
             ? 'Invalid email or password.'
@@ -157,7 +155,7 @@ const LoginUserScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* ── Social Login Buttons ── */}
+          {/* Social login buttons; each triggers the centralised auth handler */}
           <View style={styles.socialContainer}>
             {socialProviders.map(({ src, provider }) => (
               <TouchableOpacity
@@ -182,7 +180,7 @@ const LoginUserScreen = ({ navigation }: any) => {
             ))}
           </View>
 
-          {/* ── Loading indicator ── */}
+          {/* Shown while an auth request is in flight */}
           {loading && (
             <ActivityIndicator
               size="small"
@@ -191,7 +189,6 @@ const LoginUserScreen = ({ navigation }: any) => {
             />
           )}
 
-          {/* ── Email Sign In Button ── */}
           <PrimaryButton
             title={loading ? 'Signing In...' : 'Sign In'}
             onPress={() => handleAuth('email')}

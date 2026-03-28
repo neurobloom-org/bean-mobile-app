@@ -1,5 +1,6 @@
-// src/screens/auth/RoleSelectionScreen.tsx
-// ✅ Dark theme aware + white user icon in dark mode only
+// Lets new users choose between the User and Guardian roles before account creation.
+// The selected role is forwarded to CreateAccountScreen via route params and also
+// determines which login screen the "Sign in" link navigates to.
 
 import React, { useState } from 'react';
 import {
@@ -19,9 +20,10 @@ import { useTheme } from '../../context/ThemeContext';
 type RoleType = 'user' | 'guardian' | null;
 
 const RoleSelectionScreen = ({ navigation }: any) => {
-  const { colors, isDark } = useTheme(); // ✅ added isDark
+  const { colors, isDark } = useTheme();
   const [selectedRole, setSelectedRole] = useState<RoleType>(null);
 
+  // Requires a role selection before navigating; forwards the chosen role.
   const handleContinue = () => {
     if (!selectedRole) {
       Alert.alert(
@@ -34,6 +36,7 @@ const RoleSelectionScreen = ({ navigation }: any) => {
     navigation.navigate('CreateAccount', { userType: selectedRole });
   };
 
+  // Routes to the role-specific login screen; prompts for a selection if none is active.
   const handleSignIn = () => {
     if (selectedRole === 'user') navigation.navigate('LoginUser');
     else if (selectedRole === 'guardian') navigation.navigate('LoginGuardian');
@@ -64,7 +67,7 @@ const RoleSelectionScreen = ({ navigation }: any) => {
         </Text>
 
         <View style={styles.rolesContainer}>
-          {/* I am a User */}
+          {/* User role card */}
           <TouchableOpacity
             style={[
               styles.roleCard,
@@ -100,7 +103,7 @@ const RoleSelectionScreen = ({ navigation }: any) => {
                       ? require('../../../assets/images/select-user-green.png')
                       : require('../../../assets/images/select-user.png')
                   }
-                  // ✅ white tint when unselected in dark mode
+                  // Unselected icon is tinted white in dark mode for visibility.
                   style={[
                     styles.roleIcon,
                     isDark &&
@@ -123,7 +126,7 @@ const RoleSelectionScreen = ({ navigation }: any) => {
             </View>
           </TouchableOpacity>
 
-          {/* I am a Guardian — unchanged */}
+          {/* Guardian role card */}
           <TouchableOpacity
             style={[
               styles.roleCard,
@@ -180,6 +183,7 @@ const RoleSelectionScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
 
+        {/* Continue button is disabled until a role is chosen */}
         <PrimaryButton
           title="Continue"
           onPress={handleContinue}
@@ -219,12 +223,12 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XXL,
     lineHeight: 20,
   },
+
   rolesContainer: { gap: SPACING.LG, marginBottom: SPACING.XL },
-  roleCard: {
-    borderWidth: 2,
-    borderRadius: SPACING.XL,
-    padding: SPACING.XL,
-  },
+
+  // Card border and background change when the role is selected.
+  roleCard: { borderWidth: 2, borderRadius: SPACING.XL, padding: SPACING.XL },
+
   roleContent: {
     flexDirection: 'row',
     marginBottom: SPACING.LG,
@@ -240,6 +244,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   roleIcon: { width: 70, height: 70 },
+
+  // Button background switches from black to primary when the role is selected.
   selectButton: {
     paddingVertical: SPACING.MD,
     paddingHorizontal: SPACING.XL,
@@ -247,6 +253,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   selectButtonText: { ...TYPOGRAPHY.BODY, fontWeight: '600' },
+
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

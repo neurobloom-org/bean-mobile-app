@@ -1,5 +1,6 @@
-// src/screens/auth/CreateAccountScreen.tsx
-// ✅ Dark theme aware + white bean icon + white social borders in dark mode
+// Registration screen shared by both the user and guardian roles.
+// The displayed copy and the post-registration navigation target are
+// determined by the userType route parameter passed from RoleSelectionScreen.
 
 import React, { useState } from 'react';
 import {
@@ -20,6 +21,8 @@ import { useTheme } from '../../context/ThemeContext';
 
 const CreateAccountScreen = ({ navigation, route }: any) => {
   const { colors, isDark } = useTheme();
+
+  // Defaults to 'user' if no userType is provided by the caller.
   const { userType } = route.params || { userType: 'user' };
 
   const [fullName, setFullName] = useState('');
@@ -27,6 +30,8 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Validates all fields before routing to the next step.
+  // Users proceed to the robot pairing flow; guardians go straight to their app.
   const handleCreateAccount = () => {
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
@@ -55,6 +60,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
     );
   };
 
+  // Routes to the correct login screen based on the active role.
   const handleSignIn = () => {
     if (userType === 'user') navigation.navigate('LoginUser');
     else navigation.navigate('LoginGuardian');
@@ -74,7 +80,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
         >
           <BackButton />
 
-          {/* Title */}
+          {/* Role-specific title: highlighted role word followed by "Sign Up" */}
           <Text style={styles.title}>
             {userType === 'guardian' ? (
               <>
@@ -97,7 +103,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             )}
           </Text>
 
-          {/* Bean Icon — white in dark mode */}
+          {/* Role icon; tinted white in dark mode for visibility on dark surfaces */}
           <View style={styles.iconContainer}>
             <Image
               source={require('../../../assets/images/select-user.png')}
@@ -106,14 +112,14 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             />
           </View>
 
-          {/* Subtitle */}
+          {/* Role-specific descriptive subtitle */}
           <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             {userType === 'guardian'
               ? 'Create an account to support your loved one'
               : 'Sign up to start your journey with Bean, your mental health companion.'}
           </Text>
 
-          {/* Full Name */}
+          {/* Registration form fields */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             FULL NAME
           </Text>
@@ -124,7 +130,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="words"
           />
 
-          {/* Email */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             EMAIL ADDRESS
           </Text>
@@ -136,7 +141,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Password */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             PASSWORD
           </Text>
@@ -149,7 +153,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Confirm Password */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             CONFIRM PASSWORD
           </Text>
@@ -170,14 +173,13 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             fullWidth
           />
 
-          {/* Divider */}
           <View style={styles.dividerContainer}>
             <Text style={[styles.dividerText, { color: colors.TEXT_TERTIARY }]}>
               OR CONTINUE WITH
             </Text>
           </View>
 
-          {/* Social Login — ✅ white border in dark mode */}
+          {/* Social login buttons; border is white in dark mode for contrast */}
           <View style={styles.socialContainer}>
             {[
               {
@@ -213,7 +215,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             ))}
           </View>
 
-          {/* Sign In Link */}
+          {/* Existing account prompt */}
           <View style={styles.signInContainer}>
             <Text style={[styles.signInText, { color: colors.TEXT_SECONDARY }]}>
               Already have an account?{' '}
@@ -255,6 +257,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     paddingHorizontal: SPACING.MD,
   },
+  // Uppercase field labels rendered above each Input component.
   label: {
     fontSize: 11,
     marginBottom: 6,

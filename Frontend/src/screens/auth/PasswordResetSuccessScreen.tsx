@@ -1,5 +1,7 @@
-// src/screens/auth/PasswordResetSuccessScreen.tsx
-// ✅ Dark theme aware + flower cracker fireworks
+// Final step of the forgot-password flow. Confirms the password was changed
+// and plays a looping firework animation composed of animated spike and star
+// elements. The "Back to Login" button routes to the correct login screen
+// based on the userType param forwarded from CreateNewPasswordScreen.
 
 import React, { useEffect, useRef } from 'react';
 import {
@@ -18,6 +20,8 @@ import { useTheme } from '../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
+// Renders a single radial spike that travels outward from an origin point.
+// Opacity fades in quickly and out gradually to simulate an explosion trail.
 const Spike = ({
   angle,
   length,
@@ -69,6 +73,8 @@ const Spike = ({
   );
 };
 
+// Renders a ✦ glyph that flies outward with a scale-in / fade-out effect.
+// The delay param staggers its appearance relative to the burst start.
 const Star = ({
   progress,
   originX,
@@ -113,6 +119,8 @@ const Star = ({
   );
 };
 
+// Composes one burst from evenly-spaced spikes and randomly-placed stars.
+// The animation loops indefinitely with a configurable delay between cycles.
 const FireworkBurst = ({
   x,
   y,
@@ -148,10 +156,13 @@ const FireworkBurst = ({
     return () => loop.stop();
   }, []);
 
+  // Distribute spikes evenly around the full circle.
   const spikes = Array.from({ length: spikeCount }, (_, i) => ({
     angle: (i / spikeCount) * 2 * Math.PI,
     color: colors[i % colors.length],
   }));
+
+  // Place stars at random angles with random distances for a natural scatter.
   const stars = Array.from({ length: starCount }, (_, i) => ({
     angle: Math.random() * 2 * Math.PI,
     dist: maxDist * (0.6 + Math.random() * 0.8),
@@ -193,6 +204,7 @@ const FireworkBurst = ({
   );
 };
 
+// Burst configurations spread around the screen edges so they frame the content.
 const BURSTS = [
   {
     x: width * 0.52,
@@ -257,9 +269,10 @@ const BURSTS = [
 ];
 
 const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
   const { userType } = route.params || { userType: 'user' };
 
+  // Navigates to the login screen matching the user's role.
   const handleBackToLogin = () => {
     if (userType === 'guardian') navigation.navigate('LoginGuardian');
     else navigation.navigate('LoginUser');
@@ -269,7 +282,7 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Fireworks layer */}
+      {/* Firework bursts rendered on a non-interactive layer behind the content */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         {BURSTS.map((b, i) => (
           <FireworkBurst key={i} {...b} />
@@ -277,7 +290,7 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
       </View>
 
       <View style={styles.content}>
-        {/* Success icon */}
+        {/* Two concentric green-tinted circles around the success icon */}
         <View style={styles.glowOuter}>
           <View style={styles.glowInner}>
             <Image
@@ -297,7 +310,7 @@ const PasswordResetSuccessScreen = ({ navigation, route }: any) => {
           <Text style={styles.bodyBold}>successfully</Text> reset.
         </Text>
 
-        {/* Account Updated badge */}
+        {/* Confirmation badge shown below the body text */}
         <View
           style={[
             styles.badge,
@@ -337,6 +350,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: SPACING.XL,
   },
+
+  // Outer and inner halo rings using progressively stronger green tints
   glowOuter: {
     width: 160,
     height: 160,
@@ -355,6 +370,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   successIcon: { width: 72, height: 72 },
+
   title: {
     fontSize: 34,
     fontWeight: '800',
@@ -368,6 +384,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG,
   },
   bodyBold: { fontWeight: '800', color: '#07882C' },
+
   badge: {
     flexDirection: 'row',
     alignItems: 'center',

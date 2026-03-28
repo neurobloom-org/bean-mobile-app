@@ -1,5 +1,6 @@
-// src/screens/caregiver/EnterWardEmailScreen.tsx
-// ✅ Dark theme aware
+// First step of the guardian onboarding flow.
+// Collects the patient's registered email address, masks it for display,
+// then navigates to the patient email verification screen.
 
 import React, { useState } from 'react';
 import {
@@ -18,9 +19,10 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 const EnterWardEmailScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
   const [wardEmail, setWardEmail] = useState('');
 
+  // Requires a non-empty string containing "@" before allowing submission.
   const isValidEmail = wardEmail.trim().length > 0 && wardEmail.includes('@');
 
   const handleSend = () => {
@@ -28,6 +30,7 @@ const EnterWardEmailScreen = ({ navigation }: any) => {
       Alert.alert('Error', 'Please enter a valid email address.');
       return;
     }
+    // Mask the email (e.g. j****@example.com) before passing it to the next screen.
     const masked =
       wardEmail[0] + '****' + wardEmail.slice(wardEmail.indexOf('@'));
     navigation.navigate('VerifyPatientEmail', { maskedEmail: masked });
@@ -66,7 +69,7 @@ const EnterWardEmailScreen = ({ navigation }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Hint text */}
+          {/* Reminder that the email must match the patient's registered address */}
           <View style={styles.hintRow}>
             <Text style={styles.hintDot}>●</Text>
             <Text style={styles.hintText}>
@@ -108,11 +111,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: SPACING.XL,
   },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: SPACING.XS,
-  },
+  label: { fontSize: 13, fontWeight: '600', marginBottom: SPACING.XS },
+
+  // Red hint row draws attention to the email registration requirement.
   hintRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',

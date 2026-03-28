@@ -1,6 +1,6 @@
-// src/screens/user/RobotConnectivityScreen.tsx
-// ✅ Dark theme aware + battery colour logic
-// ✅ Network Name row now navigates to BluetoothConnectivityScreen
+// Robot Connectivity screen — shows the paired robot's status, battery level,
+// firmware version, network name, and an auto-update toggle. The Network Name
+// row navigates to BluetoothConnectivityScreen. Dark theme aware.
 
 import React, { useState } from 'react';
 import {
@@ -18,12 +18,15 @@ import { SPACING } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
+// Returns a colour for the battery card based on the charge level:
+// red < 20%, amber ≤ 75%, green above 75%
 const getBatteryColor = (level: number): string => {
   if (level < 20) return '#EF4444';
   if (level <= 75) return '#F59E0B';
   return '#07882C';
 };
 
+// Placeholder values — replace with live data from the robot API
 const DEFAULT_BATTERY = 85;
 const DEFAULT_FIRMWARE = 'v2.1.0';
 const DEFAULT_NETWORK = 'Home_WiFi_5G';
@@ -31,11 +34,17 @@ const IS_CONNECTED = true;
 
 const RobotConnectivityScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
+
+  // Resolved hex tint so Android image tinting works reliably
   const iconTint = isDark ? '#F1F5F9' : '#000000';
+
+  // Controls the Auto-Update toggle — enabled by default
   const [autoUpdate, setAutoUpdate] = useState(true);
+
   const battery = DEFAULT_BATTERY;
   const batteryColor = getBatteryColor(battery);
 
+  // Two-step confirmation before disconnecting and popping the screen
   const handleDisconnect = () => {
     Alert.alert(
       'Disconnect Robot',
@@ -55,7 +64,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Top bar: back button and screen title */}
       <View
         style={[
           styles.header,
@@ -65,6 +74,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
           },
         ]}
       >
+        {/* Back chevron — pops the screen from the navigation stack */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
@@ -76,6 +86,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Robot Connectivity
         </Text>
+        {/* Spacer keeps the title centred */}
         <View style={{ width: 40 }} />
       </View>
 
@@ -83,7 +94,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Robot image */}
+        {/* Robot illustration centred at the top of the scroll area */}
         <View style={styles.robotContainer}>
           <Image
             source={require('../../../assets/images/robot-connectivity-top-icon.png')}
@@ -92,18 +103,20 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Robot name + status */}
+        {/* Robot name and live connection status */}
         <Text style={[styles.robotName, { color: colors.TEXT_PRIMARY }]}>
           Bean Robot v2
         </Text>
         <View style={styles.statusRow}>
           {IS_CONNECTED ? (
             <>
+              {/* Green dot when the robot is active and synced */}
               <View style={styles.statusDotGreen} />
               <Text style={styles.statusTextGreen}>Active & Synced</Text>
             </>
           ) : (
             <>
+              {/* Red dot when no robot is paired */}
               <View style={styles.statusDotRed} />
               <Text style={[styles.statusTextRed, { color: colors.ERROR }]}>
                 Not Connected
@@ -112,9 +125,9 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
           )}
         </View>
 
-        {/* Battery + Firmware row */}
+        {/* ── Battery + Firmware stat cards ── */}
         <View style={styles.statsRow}>
-          {/* Battery card */}
+          {/* Battery card — background colour reflects charge level */}
           <View style={[styles.statCard, { backgroundColor: batteryColor }]}>
             <View style={styles.statCardHeader}>
               <Image
@@ -127,7 +140,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
             <Text style={styles.statCardValue}>{battery}%</Text>
           </View>
 
-          {/* Firmware card */}
+          {/* Firmware card — uses the surface colour with a subtle border */}
           <View
             style={[
               styles.statCard,
@@ -161,12 +174,12 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Options section */}
+        {/* ── Options ── */}
         <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
           Options
         </Text>
         <View style={[styles.optionsCard, { backgroundColor: colors.SURFACE }]}>
-          {/* ✅ Network Name → navigates to BluetoothConnectivityScreen */}
+          {/* Network Name — tapping navigates to BluetoothConnectivityScreen */}
           <TouchableOpacity
             style={styles.optionRow}
             onPress={() => navigation.navigate('BluetoothConnectivity')}
@@ -198,7 +211,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
             style={[styles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
           />
 
-          {/* Auto-Update */}
+          {/* Auto-Update toggle — green track when enabled */}
           <View style={styles.optionRow}>
             <Image
               source={require('../../../assets/images/auto-update.png')}
@@ -226,7 +239,7 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Disconnect button */}
+        {/* Outlined danger button — triggers a two-step disconnect confirmation */}
         <TouchableOpacity
           style={[
             styles.disconnectBtn,
@@ -244,8 +257,12 @@ const RobotConnectivityScreen = ({ navigation }: any) => {
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -257,19 +274,25 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   backIcon: { fontSize: 28, lineHeight: 32 },
   headerTitle: { fontSize: 17, fontWeight: '700' as const },
+
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
+
+  // Robot illustration container
   robotContainer: { width: 160, height: 160, marginBottom: SPACING.MD },
   robotImage: { width: '100%', height: '100%' },
+
   robotName: {
     fontSize: 20,
     fontWeight: '800' as const,
     marginBottom: SPACING.XS,
   },
+
+  // Status row — dot + label showing connection state
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -294,6 +317,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
   },
   statusTextRed: { fontSize: 14, fontWeight: '600' as const },
+
+  // ── Stat cards row
   statsRow: {
     flexDirection: 'row',
     gap: SPACING.MD,
@@ -313,17 +338,22 @@ const styles = StyleSheet.create({
     gap: SPACING.XS,
     marginBottom: SPACING.SM,
   },
+  // White icon used on the coloured battery card
   statIcon: { width: 18, height: 18, tintColor: '#FFFFFF' },
   statCardLabel: { fontSize: 12, fontWeight: '600' as const, color: '#FFFFFF' },
   statCardLabelDark: { fontSize: 12, fontWeight: '600' as const },
   statCardValue: { fontSize: 28, fontWeight: '800' as const, color: '#FFFFFF' },
   statCardValueDark: { fontSize: 28, fontWeight: '800' as const },
+
+  // Options section heading
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
     alignSelf: 'flex-start',
     marginBottom: SPACING.MD,
   },
+
+  // Rounded card wrapping the option rows
   optionsCard: {
     width: '100%',
     borderRadius: BORDER_RADIUS.XL,
@@ -342,7 +372,11 @@ const styles = StyleSheet.create({
   optionLabel: { fontSize: 15, fontWeight: '600' as const },
   optionSub: { fontSize: 12, marginTop: 2 },
   chevron: { fontSize: 20 },
+
+  // Hairline divider between option rows
   divider: { height: 1, marginLeft: SPACING.LG + 26 + SPACING.MD },
+
+  // Outlined disconnect button — uses the theme's error colour
   disconnectBtn: {
     width: '100%',
     borderWidth: 1.5,

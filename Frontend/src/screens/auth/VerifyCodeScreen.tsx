@@ -1,5 +1,6 @@
-// src/screens/auth/VerifyCodeScreen.tsx
-// ✅ Dark theme aware
+// Email verification screen using a 6-digit code input.
+// Focus advances automatically on entry and retreats on Backspace.
+// On success, navigates to the login screen matching the user's role.
 
 import React, { useState, useRef } from 'react';
 import {
@@ -17,12 +18,17 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 const VerifyCodeScreen = ({ navigation, route }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
+  // email is displayed in the subtitle so the user knows where the code was sent.
   const { email, userType } = route.params || { email: '', userType: 'user' };
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
+
+  // Refs allow programmatic focus movement between the six input cells.
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
+  // Keeps only the most recent character and advances focus to the next cell.
   const handleCodeChange = (text: string, index: number) => {
     if (text.length > 1) text = text.charAt(text.length - 1);
     const newCode = [...code];
@@ -31,12 +37,14 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
     if (text && index < 5) inputRefs.current[index + 1]?.focus();
   };
 
+  // Moves focus back to the previous cell when Backspace is pressed on an empty cell.
   const handleKeyPress = (e: any, index: number) => {
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
+  // Validates the full six-digit code and routes to the correct login screen on success.
   const handleVerify = () => {
     const verificationCode = code.join('');
     if (verificationCode.length !== 6) {
@@ -54,6 +62,7 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
     ]);
   };
 
+  // Clears the input and refocuses the first cell after requesting a new code.
   const handleResendCode = () => {
     Alert.alert(
       'Code Sent',
@@ -73,7 +82,7 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
       >
         <BackButton />
 
-        {/* Icon */}
+        {/* Lock icon centred in a tinted circle */}
         <View style={styles.iconContainer}>
           <View
             style={[
@@ -85,7 +94,6 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
           </View>
         </View>
 
-        {/* Title */}
         <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
           Verification Code
         </Text>
@@ -96,7 +104,7 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
           </Text>
         </Text>
 
-        {/* Code Input Boxes */}
+        {/* Six digit cells; filled cells are highlighted with a primary-colour border */}
         <View style={styles.codeContainer}>
           {code.map((digit, index) => (
             <TextInput
@@ -128,7 +136,7 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
           ))}
         </View>
 
-        {/* Resend Code */}
+        {/* Resend row */}
         <View style={styles.resendContainer}>
           <Text style={[styles.resendText, { color: colors.TEXT_SECONDARY }]}>
             Didn't receive the code?{' '}
@@ -140,7 +148,6 @@ const VerifyCodeScreen = ({ navigation, route }: any) => {
           </TouchableOpacity>
         </View>
 
-        {/* Verify Button */}
         <PrimaryButton
           title="Verify!"
           onPress={handleVerify}
@@ -178,6 +185,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   emailText: { fontWeight: '600' },
+
+  // Six equal-width cells laid out in a row.
   codeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -193,6 +202,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
+
   resendContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

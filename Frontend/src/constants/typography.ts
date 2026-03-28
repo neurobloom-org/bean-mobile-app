@@ -1,7 +1,9 @@
-// src/constants/typography.ts
-// Typography system for consistent text styling
+// Design-system tokens for font sizes, weights, line heights, and
+// pre-composed text style presets. Spread a preset into a StyleSheet
+// object to apply a consistent typographic role, e.g.:
+//   title: { ...TYPOGRAPHY.H1, color: colors.TEXT_PRIMARY }
 
-// Font Sizes
+// Numeric font-size scale in logical pixels.
 export const FONT_SIZES = {
   XS: 10,
   SM: 12,
@@ -14,7 +16,7 @@ export const FONT_SIZES = {
   MASSIVE: 32,
 } as const;
 
-// Font Weights
+// String weight values compatible with React Native's fontWeight prop.
 export const FONT_WEIGHTS = {
   LIGHT: '300',
   REGULAR: '400',
@@ -24,7 +26,8 @@ export const FONT_WEIGHTS = {
   EXTRABOLD: '800',
 } as const;
 
-// Line Heights
+// Unitless line-height multipliers. Apply by multiplying against the font size
+// when an absolute lineHeight value is needed.
 export const LINE_HEIGHTS = {
   TIGHT: 1.2,
   NORMAL: 1.5,
@@ -32,10 +35,11 @@ export const LINE_HEIGHTS = {
   LOOSE: 2,
 } as const;
 
-// Typography Presets
-// Use these with spread operator: ...TYPOGRAPHY.H1
+// Pre-composed style presets covering headings, body text, UI controls,
+// labels, captions, and input fields.
 export const TYPOGRAPHY = {
-  // Headings
+  // ── Headings ──────────────────────────────────────────────────────────────
+
   H1: {
     fontSize: FONT_SIZES.HUGE, // 28
     fontWeight: FONT_WEIGHTS.BOLD, // 700
@@ -57,7 +61,8 @@ export const TYPOGRAPHY = {
     lineHeight: 24,
   },
 
-  // Body Text
+  // ── Body Text ─────────────────────────────────────────────────────────────
+
   BODY_LARGE: {
     fontSize: FONT_SIZES.LG, // 16
     fontWeight: FONT_WEIGHTS.REGULAR, // 400
@@ -74,7 +79,8 @@ export const TYPOGRAPHY = {
     lineHeight: 18,
   },
 
-  // UI Elements
+  // ── Button Labels ─────────────────────────────────────────────────────────
+
   BUTTON_LARGE: {
     fontSize: FONT_SIZES.XL, // 18
     fontWeight: FONT_WEIGHTS.SEMIBOLD, // 600
@@ -91,28 +97,26 @@ export const TYPOGRAPHY = {
     lineHeight: 20,
   },
 
-  // Labels & Captions
+  // ── Labels & Captions ─────────────────────────────────────────────────────
+
+  // Form field labels and secondary headings.
   LABEL: {
     fontSize: FONT_SIZES.MD, // 14
     fontWeight: FONT_WEIGHTS.MEDIUM, // 500
     lineHeight: 20,
   },
+  // Supporting text, timestamps, and footnotes.
   CAPTION: {
     fontSize: FONT_SIZES.SM, // 12
     fontWeight: FONT_WEIGHTS.REGULAR, // 400
     lineHeight: 16,
   },
 
-  // Input Text
+  // ── Input Fields ──────────────────────────────────────────────────────────
+
   INPUT: {
     fontSize: FONT_SIZES.LG, // 16
     fontWeight: FONT_WEIGHTS.REGULAR, // 400
     lineHeight: 22,
   },
 } as const;
-
-// Example usage in styles:
-// title: {
-//   ...TYPOGRAPHY.H1,
-//   color: COLORS.TEXT_PRIMARY,
-// }

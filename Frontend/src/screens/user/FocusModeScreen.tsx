@@ -1,5 +1,6 @@
-// src/screens/user/FocusModeScreen.tsx
-// ✅ Dark theme aware
+// 25-minute Pomodoro-style focus timer. A large circular countdown is the
+// primary control. Two side cards show what the robot does during the session,
+// and three instruction cards explain how to trigger focus mode.
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -17,15 +18,19 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
+
+// Timer circle occupies 62% of the screen width for visual prominence.
 const CIRCLE_SIZE = width * 0.62;
 
 const FocusModeScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
+  // Standard 25-minute Pomodoro session.
   const TOTAL = 25 * 60;
   const [timeLeft, setTimeLeft] = useState(TOTAL);
   const [isRunning, setIsRunning] = useState(false);
 
+  // Starts or pauses the countdown; stops automatically when it reaches zero.
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isRunning && timeLeft > 0) {
@@ -36,6 +41,7 @@ const FocusModeScreen = ({ navigation }: any) => {
     return () => clearInterval(interval);
   }, [isRunning, timeLeft]);
 
+  // Formats a total number of seconds into MM:SS display.
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
     const sec = s % 60;
@@ -76,7 +82,7 @@ const FocusModeScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Timer Circle */}
+        {/* Circular timer ring — border highlights with primary colour */}
         <View
           style={[
             styles.timerRing,
@@ -88,6 +94,7 @@ const FocusModeScreen = ({ navigation }: any) => {
               {formatTime(timeLeft)}
             </Text>
 
+            {/* Play/Pause button — turns green when the session is running */}
             <TouchableOpacity
               style={[
                 styles.playBtn,
@@ -100,6 +107,7 @@ const FocusModeScreen = ({ navigation }: any) => {
               onPress={() => setIsRunning(prev => !prev)}
             >
               {isRunning ? (
+                // Two white bars form the pause icon.
                 <View style={styles.pauseIconWrap}>
                   <View style={styles.pauseBar} />
                   <View style={styles.pauseBar} />
@@ -115,7 +123,7 @@ const FocusModeScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Reset */}
+        {/* Reset button; only visible when paused mid-session */}
         {!isRunning && timeLeft !== TOTAL && (
           <TouchableOpacity
             style={[styles.resetBtn, { borderColor: colors.BORDER }]}
@@ -130,13 +138,12 @@ const FocusModeScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         )}
 
-        {/* Subtitle */}
         <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
-          Boost your productivity. While in Focus Mode,{'\n'}
-          your robot helps you stay in the zone.
+          Boost your productivity. While in Focus Mode,{'\n'}your robot helps
+          you stay in the zone.
         </Text>
 
-        {/* During the Focus Mode */}
+        {/* What the robot does during focus mode */}
         <Text style={[styles.sectionGreen, { color: colors.PRIMARY_DARK }]}>
           During the Focus Mode...
         </Text>
@@ -183,12 +190,12 @@ const FocusModeScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* How to start */}
+        {/* Three ways to start the session */}
         <Text style={[styles.sectionGreen, { color: colors.PRIMARY_DARK }]}>
           How to start
         </Text>
 
-        {/* Voice Command */}
+        {/* Voice command */}
         <View style={[styles.howCard, { backgroundColor: colors.SURFACE }]}>
           <View
             style={[
@@ -212,7 +219,7 @@ const FocusModeScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Physical Interaction */}
+        {/* Physical interaction with the robot hardware */}
         <View style={[styles.howCard, { backgroundColor: colors.SURFACE }]}>
           <View
             style={[
@@ -237,7 +244,7 @@ const FocusModeScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Manual Trigger */}
+        {/* In-app play button — circle is always green to indicate it is active */}
         <View style={[styles.howCard, { backgroundColor: colors.SURFACE }]}>
           <View style={[styles.howIconCircle, styles.howIconCircleGreen]}>
             <Image
@@ -280,6 +287,8 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
+
+  // Circular countdown ring
   timerRing: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
@@ -292,6 +301,8 @@ const styles = StyleSheet.create({
   },
   timerInner: { alignItems: 'center', gap: SPACING.LG },
   timerText: { fontSize: 52, fontWeight: '700' as const, letterSpacing: 2 },
+
+  // Play/Pause button inside the ring
   playBtn: {
     width: 56,
     height: 56,
@@ -301,10 +312,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     elevation: 4,
   },
-  pauseBtn: {
-    backgroundColor: '#22C55E',
-    borderColor: '#16A34A',
-  },
+  pauseBtn: { backgroundColor: '#22C55E', borderColor: '#16A34A' },
   playBtnIcon: { width: 28, height: 28, tintColor: '#FFFFFF' },
   pauseIconWrap: {
     flexDirection: 'row',
@@ -318,6 +326,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: '#FFFFFF',
   },
+
   resetBtn: {
     marginBottom: SPACING.LG,
     paddingHorizontal: SPACING.XL,
@@ -332,12 +341,14 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: SPACING.XL,
   },
+
   sectionGreen: {
     alignSelf: 'flex-start',
     fontSize: 15,
     fontWeight: '700' as const,
     marginBottom: SPACING.MD,
   },
+
   duringRow: {
     flexDirection: 'row',
     gap: SPACING.MD,
@@ -359,6 +370,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   duringCardSub: { ...TYPOGRAPHY.CAPTION, textAlign: 'center', lineHeight: 16 },
+
   howCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',

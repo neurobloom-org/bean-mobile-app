@@ -1,5 +1,7 @@
-// src/screens/user/ChatScreen.tsx
-// ✅ Dark theme aware + white bean icon in dark mode
+// Real-time chat interface between the user and Bean AI.
+// Messages alternate between user and Bean bubbles. A simulated typing
+// indicator appears while the bot response is "loading". Quick-reply chips
+// let the user send common responses without typing.
 
 import React, { useState, useRef } from 'react';
 import {
@@ -26,7 +28,7 @@ interface Message {
 }
 
 const ChatScreen = ({ navigation }: any) => {
-  const { colors, isDark } = useTheme(); // ✅ added isDark
+  const { colors, isDark } = useTheme();
   const scrollRef = useRef<ScrollView>(null);
 
   const [message, setMessage] = useState('');
@@ -35,6 +37,8 @@ const ChatScreen = ({ navigation }: any) => {
 
   const quickReplies = ['Yes, please', 'Maybe later', 'Tell me a joke'];
 
+  // Appends the user message, then simulates a Bean response after 1.5 s.
+  // TODO: replace the setTimeout stub with a real AI / WebSocket call.
   const handleSend = () => {
     if (!message.trim()) return;
     const now = new Date().toLocaleTimeString('en-US', {
@@ -50,6 +54,7 @@ const ChatScreen = ({ navigation }: any) => {
     setMessages(prev => [...prev, userMsg]);
     setMessage('');
     setIsTyping(true);
+
     setTimeout(() => {
       const beanMsg: Message = {
         id: Date.now() + 1,
@@ -64,9 +69,11 @@ const ChatScreen = ({ navigation }: any) => {
       setIsTyping(false);
       scrollRef.current?.scrollToEnd({ animated: true });
     }, 1500);
+
     scrollRef.current?.scrollToEnd({ animated: true });
   };
 
+  // Populates the text input with the tapped quick-reply text.
   const handleQuickReply = (reply: string) => setMessage(reply);
 
   return (
@@ -97,7 +104,7 @@ const ChatScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            {/* ✅ White bean icon in dark mode only */}
+            {/* Bean icon tinted white in dark mode for contrast against dark surfaces */}
             <Image
               source={require('../../../assets/images/login-page.png')}
               style={[
@@ -113,7 +120,7 @@ const ChatScreen = ({ navigation }: any) => {
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Messages */}
+        {/* Message list — scrolls to the bottom whenever content changes */}
         <ScrollView
           ref={scrollRef}
           style={[styles.msgList, { backgroundColor: colors.SURFACE }]}
@@ -135,6 +142,7 @@ const ChatScreen = ({ navigation }: any) => {
                 msg.sender === 'user' ? styles.rowUser : styles.rowBean,
               ]}
             >
+              {/* Bean avatar shown only on bot messages */}
               {msg.sender === 'bean' && (
                 <Image
                   source={require('../../../assets/images/login-page.png')}
@@ -170,6 +178,7 @@ const ChatScreen = ({ navigation }: any) => {
                 </Text>
               </View>
 
+              {/* User avatar shown only on user messages */}
               {msg.sender === 'user' && (
                 <View style={styles.userAvatar}>
                   <Text style={styles.userAvatarText}>A</Text>
@@ -178,7 +187,7 @@ const ChatScreen = ({ navigation }: any) => {
             </View>
           ))}
 
-          {/* Typing indicator */}
+          {/* Animated "…" bubble shown while Bean is composing a response */}
           {isTyping && (
             <View style={[styles.row, styles.rowBean]}>
               <Image
@@ -195,7 +204,7 @@ const ChatScreen = ({ navigation }: any) => {
           )}
         </ScrollView>
 
-        {/* Quick Replies */}
+        {/* Horizontal quick-reply chips */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -221,7 +230,7 @@ const ChatScreen = ({ navigation }: any) => {
           ))}
         </ScrollView>
 
-        {/* Input Bar */}
+        {/* Input bar: text field, attachment button, microphone, send */}
         <View
           style={[
             styles.inputBar,
@@ -262,6 +271,7 @@ const ChatScreen = ({ navigation }: any) => {
             />
           </TouchableOpacity>
 
+          {/* Send button is greyed out until the input contains non-whitespace text */}
           <TouchableOpacity
             onPress={handleSend}
             style={styles.sendBtn}
@@ -297,6 +307,7 @@ const styles = StyleSheet.create({
   headerCenter: { alignItems: 'center', gap: 2 },
   headerBeanIcon: { width: 32, height: 32, borderRadius: 16 },
   headerTitle: { fontSize: 16, fontWeight: '700' as const },
+
   msgList: { flex: 1 },
   msgContent: {
     paddingHorizontal: SPACING.LG,
@@ -304,6 +315,7 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.LG,
   },
   dateLabel: { fontSize: 11, textAlign: 'center', marginBottom: SPACING.LG },
+
   row: {
     flexDirection: 'row',
     marginBottom: SPACING.MD,
@@ -312,6 +324,7 @@ const styles = StyleSheet.create({
   },
   rowBean: { justifyContent: 'flex-start' },
   rowUser: { justifyContent: 'flex-end' },
+
   beanAvatar: { width: 28, height: 28, borderRadius: 14, flexShrink: 0 },
   userAvatar: {
     width: 28,
@@ -327,6 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     color: '#FFFFFF',
   },
+
   bubble: {
     maxWidth: '72%',
     borderRadius: BORDER_RADIUS.XL,
@@ -338,6 +352,7 @@ const styles = StyleSheet.create({
   bubbleText: { fontSize: 14, lineHeight: 20 },
   typingBubble: { paddingVertical: SPACING.SM },
   typingDots: { fontSize: 16, color: '#FFFFFF', letterSpacing: 2 },
+
   quickRow: {
     flexGrow: 0,
     flexShrink: 0,
@@ -358,6 +373,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quickBtnText: { fontSize: 13, fontWeight: '500' as const },
+
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',

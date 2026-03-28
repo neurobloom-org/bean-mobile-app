@@ -1,5 +1,6 @@
-// src/screens/auth/CreateNewPasswordScreen.tsx
-// ✅ Dark theme aware
+// Final step of the forgot-password flow. The user enters and confirms a new
+// password that must satisfy all four security rules before submission.
+// Each rule is evaluated live and displayed with a pass/fail indicator.
 
 import React, { useState } from 'react';
 import {
@@ -18,9 +19,11 @@ import { useTheme } from '../../context/ThemeContext';
 
 interface Rule {
   label: string;
+  // Returns true when the password satisfies this requirement.
   check: (pw: string, confirm: string) => boolean;
 }
 
+// Validation rules evaluated in real time as the user types.
 const rules: Rule[] = [
   { label: 'At least 8 characters', check: pw => pw.length >= 8 },
   { label: 'Includes a number', check: pw => /\d/.test(pw) },
@@ -32,11 +35,15 @@ const rules: Rule[] = [
 ];
 
 const CreateNewPasswordScreen = ({ navigation, route }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
+  // userType is forwarded to the success screen so it can route correctly.
   const { userType } = route.params || { userType: 'user' };
+
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
 
+  // True only when every rule passes; gates the submit button logic.
   const allPassed = rules.every(r => r.check(password, confirm));
 
   const handleReset = () => {
@@ -55,7 +62,7 @@ const CreateNewPasswordScreen = ({ navigation, route }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Icon */}
+        {/* Screen illustration */}
         <View style={styles.iconContainer}>
           <Image
             source={require('../../../assets/images/create-new-password-top-icon.png')}
@@ -96,7 +103,7 @@ const CreateNewPasswordScreen = ({ navigation, route }: any) => {
           autoCapitalize="none"
         />
 
-        {/* Security requirements */}
+        {/* Live security checklist; each row turns green when its rule passes */}
         <View
           style={[
             styles.requirementsCard,
@@ -111,10 +118,12 @@ const CreateNewPasswordScreen = ({ navigation, route }: any) => {
           >
             Security Requirements
           </Text>
+
           {rules.map((rule, i) => {
             const passed = rule.check(password, confirm);
             return (
               <View key={i} style={styles.ruleRow}>
+                {/* Circle indicator: grey when pending, green when passed */}
                 <View
                   style={[
                     styles.ruleIcon,

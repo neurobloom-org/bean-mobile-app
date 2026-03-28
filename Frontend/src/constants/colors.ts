@@ -1,4 +1,6 @@
-// src/constants/colors.ts
+// Defines the full colour token set for both light and dark themes.
+// All screens consume colours via useTheme() rather than importing directly,
+// which allows the theme to switch at runtime without a restart.
 
 export type ColorTheme = {
   PRIMARY: string;
@@ -45,6 +47,8 @@ export type ColorTheme = {
   TRANSPARENT: string;
 };
 
+// Light theme palette.
+// Used as the default when the user has not selected dark mode.
 export const LIGHT_COLORS: ColorTheme = {
   PRIMARY: '#4ECCA3',
   PRIMARY_DARK: '#3DA88A',
@@ -90,12 +94,15 @@ export const LIGHT_COLORS: ColorTheme = {
   TRANSPARENT: 'transparent',
 };
 
+// Dark theme palette.
+// Grey scale follows the Tailwind CSS slate ramp so that elevation levels
+// remain visually consistent (darker = lower, lighter = higher surface).
 export const DARK_COLORS: ColorTheme = {
   PRIMARY: '#4ECCA3',
   PRIMARY_DARK: '#3DA88A',
   PRIMARY_LIGHT: '#7FE4C4',
   SECONDARY: '#4CAF50',
-  SECONDARY_LIGHT: '#162520', // ✅ dark green tint for badges
+  SECONDARY_LIGHT: '#162520', // Dark green tint used for badge backgrounds
   SECONDARY_DARK: '#2E7D32',
   SUCCESS: '#4ECCA3',
   SUCCESS_LIGHT: '#162520',
@@ -105,39 +112,41 @@ export const DARK_COLORS: ColorTheme = {
   WARNING_LIGHT: '#3A2E00',
   INFO: '#60A5FA',
   INFO_LIGHT: '#1A2A3A',
-  WHITE: '#F8FAFC', // ✅ near white for text
+  WHITE: '#F8FAFC', // Near-white used for text on dark surfaces
   BLACK: '#FFFFFF',
-  GRAY_50: '#0F172A', // ✅ Tailwind slate-900
-  GRAY_100: '#1E293B', // ✅ Tailwind slate-800
-  GRAY_200: '#334155', // ✅ Tailwind slate-700
-  GRAY_300: '#475569', // ✅ Tailwind slate-600
-  GRAY_400: '#64748B', // ✅ Tailwind slate-500
-  GRAY_500: '#94A3B8', // ✅ Tailwind slate-400
-  GRAY_600: '#CBD5E1', // ✅ Tailwind slate-300
-  GRAY_700: '#E2E8F0', // ✅ Tailwind slate-200
-  GRAY_800: '#F1F5F9', // ✅ Tailwind slate-100
-  GRAY_900: '#F8FAFC', // ✅ Tailwind slate-50
-  TEXT_PRIMARY: '#F1F5F9', // ✅ slate-100 — bright white
-  TEXT_SECONDARY: '#94A3B8', // ✅ slate-400 — muted
-  TEXT_TERTIARY: '#64748B', // ✅ slate-500
-  TEXT_DISABLED: '#334155', // ✅ slate-700
+  GRAY_50: '#0F172A', // Tailwind slate-900
+  GRAY_100: '#1E293B', // Tailwind slate-800
+  GRAY_200: '#334155', // Tailwind slate-700
+  GRAY_300: '#475569', // Tailwind slate-600
+  GRAY_400: '#64748B', // Tailwind slate-500
+  GRAY_500: '#94A3B8', // Tailwind slate-400
+  GRAY_600: '#CBD5E1', // Tailwind slate-300
+  GRAY_700: '#E2E8F0', // Tailwind slate-200
+  GRAY_800: '#F1F5F9', // Tailwind slate-100
+  GRAY_900: '#F8FAFC', // Tailwind slate-50
+  TEXT_PRIMARY: '#F1F5F9', // slate-100 — primary readable text
+  TEXT_SECONDARY: '#94A3B8', // slate-400 — supporting text
+  TEXT_TERTIARY: '#64748B', // slate-500 — placeholder and hint text
+  TEXT_DISABLED: '#334155', // slate-700 — non-interactive text
   TEXT_INVERSE: '#0F172A',
-  BACKGROUND: '#0F172A', // ✅ Tailwind slate-900 — exact Figma bg
-  BACKGROUND_LIGHT: '#0F172A', // ✅ same slate-900
-  BACKGROUND_DARK: '#020617', // ✅ Tailwind slate-950
-  SURFACE: '#1E293B', // ✅ Tailwind slate-800 — exact Figma card/tile
-  BORDER: '#334155', // ✅ Tailwind slate-700
-  BORDER_LIGHT: '#1E293B', // ✅ Tailwind slate-800
-  BORDER_DARK: '#475569', // ✅ Tailwind slate-600
+  BACKGROUND: '#0F172A', // slate-900 — base screen background
+  BACKGROUND_LIGHT: '#0F172A', // matches BACKGROUND; kept separate for semantic clarity
+  BACKGROUND_DARK: '#020617', // slate-950 — deepest background layer
+  SURFACE: '#1E293B', // slate-800 — card and modal surface
+  BORDER: '#334155', // slate-700
+  BORDER_LIGHT: '#1E293B', // slate-800 — subtle dividers on surface
+  BORDER_DARK: '#475569', // slate-600 — stronger borders
   LINK: '#7EB8FF',
   LINK_VISITED: '#B09FFF',
   SHADOW: '#000000',
   TRANSPARENT: 'transparent',
 };
 
-// ✅ Default COLORS still works for screens not yet migrated to useTheme()
+// Convenience alias pointing to LIGHT_COLORS.
+// Used by legacy screens that import COLORS directly instead of using useTheme().
 export const COLORS = LIGHT_COLORS;
 
+// Converts a hex colour string to an rgba value with the given opacity (0–1).
 export const withOpacity = (color: string, opacity: number): string => {
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);
