@@ -1,5 +1,7 @@
 // src/screens/auth/LoginGuardianScreen.tsx
 // ✅ Dark theme aware
+// ✅ AuthGuard: social logins + Sign In now validate auth before navigating
+//    If auth fails → stays on screen + shows "Login Failed" toast
 
 import React, { useState } from 'react';
 import {
@@ -12,15 +14,89 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  ToastAndroid,
+  Alert,
 } from 'react-native';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
+// ─── Auth Guard Helper ────────────────────────────────────────────────────────
+const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.showWithGravity(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+    );
+  } else {
+    Alert.alert('Login Failed', message);
+  }
+};
+
+// ─── Mock Auth — replace with real backend call ───────────────────────────────
+// TODO: replace with actual auth from feature/backend-fix branch
+// Expected: { success: boolean; user_id?: string; auth_token?: string }
+const authenticateGuardian = async (
+  provider: 'email' | 'google' | 'apple' | 'facebook',
+  credentials?: { email: string; password: string },
+): Promise<{ success: boolean; user_id?: string }> => {
+  // TODO: wire up to real Supabase guardian auth
+  // Example:
+  //   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  //   if (error || !data.user) return { success: false }
+  //   const guardianRecord = await supabase.from('guardians').select().eq('user_id', data.user.id)
+  //   if (!guardianRecord.data?.length) return { success: false }
+  //   return { success: true, user_id: data.user.id }
+
+  return { success: true, user_id: 'stub-guardian-id' };
+};
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 const LoginGuardianScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // ── Centralized Auth Handler ──────────────────────────────────────────────
+  const handleAuth = async (
+    provider: 'email' | 'google' | 'apple' | 'facebook',
+  ) => {
+    setLoading(true);
+    try {
+      const result = await authenticateGuardian(
+        provider,
+        provider === 'email' ? { email: emailGuardian, password } : undefined,
+      );
+
+      // ✅ AuthGuard: only navigate if valid user_id returned
+      if (result.success && result.user_id) {
+        navigation.navigate('CaregiverApp', { screen: 'CaregiverDashboard' });
+      } else {
+        // ✅ Stay on screen + show toast
+        showLoginFailedToast(
+          provider === 'email'
+            ? 'Invalid email or password.'
+            : `${provider} login failed. Please try again.`,
+        );
+      }
+    } catch {
+      showLoginFailedToast();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const socialProviders: Array<{
+    src: any;
+    provider: 'google' | 'apple' | 'facebook';
+  }> = [
+    { src: require('../../../assets/images/fb.png'), provider: 'facebook' },
+    { src: require('../../../assets/images/apple.png'), provider: 'apple' },
+    { src: require('../../../assets/images/google.png'), provider: 'google' },
+  ];
 
   return (
     <SafeAreaView
@@ -78,15 +154,11 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* Social */}
+          {/* ── Social Login Buttons ── */}
           <View style={styles.socialContainer}>
-            {[
-              require('../../../assets/images/fb.png'),
-              require('../../../assets/images/apple.png'),
-              require('../../../assets/images/google.png'),
-            ].map((src, i) => (
+            {socialProviders.map(({ src, provider }) => (
               <TouchableOpacity
-                key={i}
+                key={provider}
                 style={[
                   styles.socialButton,
                   {
@@ -94,11 +166,9 @@ const LoginGuardianScreen = ({ navigation }: any) => {
                     borderColor: colors.BORDER,
                   },
                 ]}
-                onPress={() =>
-                  navigation.navigate('CaregiverApp', {
-                    screen: 'CaregiverDashboard',
-                  })
-                }
+                onPress={() => handleAuth(provider)}
+                disabled={loading}
+                activeOpacity={0.75}
               >
                 <Image
                   source={src}
@@ -109,16 +179,23 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             ))}
           </View>
 
+          {/* ── Loading indicator ── */}
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              color={colors.PRIMARY}
+              style={styles.loader}
+            />
+          )}
+
+          {/* ── Email Sign In Button ── */}
           <PrimaryButton
-            title="Sign In"
-            onPress={() =>
-              navigation.navigate('CaregiverApp', {
-                screen: 'CaregiverDashboard',
-              })
-            }
+            title={loading ? 'Signing In...' : 'Sign In'}
+            onPress={() => handleAuth('email')}
             variant="primary"
             size="large"
             fullWidth
+            disabled={loading}
           />
 
           <View style={styles.signUpContainer}>
@@ -167,7 +244,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: SPACING.XL,
-    marginBottom: SPACING.XXL,
+    marginBottom: SPACING.LG,
   },
   socialButton: {
     width: 60,
@@ -178,6 +255,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   socialIcon: { width: 30, height: 30 },
+  loader: { marginBottom: SPACING.MD },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

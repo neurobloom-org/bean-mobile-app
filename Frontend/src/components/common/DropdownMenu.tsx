@@ -1,6 +1,7 @@
 // src/components/common/DropdownMenu.tsx
 // ✅ Updated icons + tintColor white in dark mode, black in light mode
 // ✅ Routes correct + 320ms delay fix
+// ✅ "Robot Connectivity" → "Connect Your Bean" → BluetoothConnectivity
 
 import React from 'react';
 import {
@@ -27,7 +28,6 @@ interface MenuItem {
   label: string;
   iconSource: any;
   route: string;
-  // whether to apply tintColor (false for display icon which may be colored)
   tintable: boolean;
 }
 
@@ -35,43 +35,48 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'account',
     label: 'Account Info',
-    iconSource: require('../../../assets/images/person.png'), // ✅ new
+    iconSource: require('../../../assets/images/person.png'),
     route: 'AccountInfo',
     tintable: true,
   },
   {
     id: 'notifications',
     label: 'Notifications',
-    iconSource: require('../../../assets/images/notifications.png'), // ✅ new
+    iconSource: require('../../../assets/images/notifications.png'),
     route: 'NotificationPreferences',
     tintable: true,
   },
   {
     id: 'privacy',
     label: 'Privacy',
-    iconSource: require('../../../assets/images/Frame 2121452668.png'), // ✅ new lock icon
+    iconSource: require('../../../assets/images/Frame 2121452668.png'),
     route: 'PrivacySettings',
     tintable: true,
   },
   {
     id: 'help',
     label: 'Help',
-    iconSource: require('../../../assets/images/help_center.png'), // ✅ new
+    iconSource: require('../../../assets/images/help_center.png'),
     route: 'HelpCenter',
     tintable: true,
   },
   {
     id: 'display',
     label: 'Display & Brightness',
-    iconSource: require('../../../assets/images/emergency-contact-top-icon.png'), // unchanged
+    iconSource: require('../../../assets/images/emergency-contact-top-icon.png'),
     route: 'Display',
-    tintable: true, // also tinted so it stays consistent in dark mode
+    tintable: true,
   },
   {
-    id: 'robotConnectivity',
-    label: 'Robot Connectivity',
-    iconSource: require('../../../assets/images/login-page.png'), // unchanged
-    route: 'RobotConnectivity',
+    // ✅ ONLY THESE 3 LINES CHANGED from original:
+    // id:    'robotConnectivity' → 'connectBean'
+    // label: 'Robot Connectivity' → 'Connect Your Bean'
+    // route: 'RobotConnectivity' → 'BluetoothConnectivity'
+    // iconSource: login-page.png → unchanged ✅
+    id: 'connectBean',
+    label: 'Connect Your Bean',
+    iconSource: require('../../../assets/images/login-page.png'),
+    route: 'BluetoothConnectivity',
     tintable: true,
   },
 ];
@@ -94,7 +99,6 @@ const DropdownMenu = ({
   // ✅ Resolved hex strings from colors.ts:
   //    LIGHT: TEXT_PRIMARY = '#000000'
   //    DARK:  TEXT_PRIMARY = '#F1F5F9'
-  // Pre-resolved so Android tinting never silently fails.
   const iconTint = isDark ? '#F1F5F9' : '#000000';
 
   const handleMenuPress = (route: string) => {
@@ -161,13 +165,6 @@ const DropdownMenu = ({
                   { backgroundColor: colors.SECONDARY_LIGHT },
                 ]}
               >
-                {/*
-                 * ✅ tintColor = iconTint (resolved hex string).
-                 * Light mode → '#000000' (black icons)
-                 * Dark mode  → '#F1F5F9' (white icons)
-                 * Using pre-resolved hex instead of colors.TEXT_PRIMARY token
-                 * to guarantee Android renders the tint correctly.
-                 */}
                 <Image
                   source={item.iconSource}
                   style={[

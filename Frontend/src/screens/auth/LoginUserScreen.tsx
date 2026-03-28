@@ -1,5 +1,7 @@
 // src/screens/auth/LoginUserScreen.tsx
 // ✅ Dark theme aware
+// ✅ AuthGuard: social logins + Sign In now validate auth before navigating
+//    If auth fails → stays on screen + shows "Login Failed" toast
 
 import React, { useState } from 'react';
 import {
@@ -12,15 +14,93 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  ToastAndroid,
+  Alert,
 } from 'react-native';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
+// ─── Auth Guard Helper ────────────────────────────────────────────────────────
+// Shows a platform-appropriate "Login Failed" message
+const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.showWithGravity(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+    );
+  } else {
+    // iOS fallback — Alert (swap for a custom toast if you have one)
+    Alert.alert('Login Failed', message);
+  }
+};
+
+// ─── Mock Auth — replace with real Supabase/backend call ─────────────────────
+// TODO: replace this stub with your actual auth call from feature/backend-fix
+// Expected return: { success: boolean; user_id?: string; auth_token?: string }
+const authenticateUser = async (
+  provider: 'email' | 'google' | 'apple' | 'facebook',
+  credentials?: { email: string; password: string },
+): Promise<{ success: boolean; user_id?: string }> => {
+  // TODO: wire up to real backend
+  // Example Supabase call:
+  //   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  //   if (error || !data.user) return { success: false }
+  //   return { success: true, user_id: data.user.id }
+  //
+  // For social: use supabase.auth.signInWithOAuth({ provider }) + listen for session
+
+  // ── Temporary stub: always succeeds so existing flow is not broken ──
+  // Change to `return { success: false }` to test the failed path
+  return { success: true, user_id: 'stub-user-id' };
+};
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 const LoginUserScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // ── Centralized Auth Handler ──────────────────────────────────────────────
+  const handleAuth = async (
+    provider: 'email' | 'google' | 'apple' | 'facebook',
+  ) => {
+    setLoading(true);
+    try {
+      const result = await authenticateUser(
+        provider,
+        provider === 'email' ? { email, password } : undefined,
+      );
+
+      // ✅ AuthGuard: only navigate if auth_token / user_id is valid
+      if (result.success && result.user_id) {
+        navigation.navigate('UserApp');
+      } else {
+        // ✅ Stay on screen + show "Login Failed" toast
+        showLoginFailedToast(
+          provider === 'email'
+            ? 'Invalid email or password.'
+            : `${provider} login failed. Please try again.`,
+        );
+      }
+    } catch {
+      showLoginFailedToast();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const socialProviders: Array<{
+    src: any;
+    provider: 'google' | 'apple' | 'facebook';
+  }> = [
+    { src: require('../../../assets/images/fb.png'), provider: 'facebook' },
+    { src: require('../../../assets/images/apple.png'), provider: 'apple' },
+    { src: require('../../../assets/images/google.png'), provider: 'google' },
+  ];
 
   return (
     <SafeAreaView
@@ -77,15 +157,11 @@ const LoginUserScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* Social */}
+          {/* ── Social Login Buttons ── */}
           <View style={styles.socialContainer}>
-            {[
-              require('../../../assets/images/fb.png'),
-              require('../../../assets/images/apple.png'),
-              require('../../../assets/images/google.png'),
-            ].map((src, i) => (
+            {socialProviders.map(({ src, provider }) => (
               <TouchableOpacity
-                key={i}
+                key={provider}
                 style={[
                   styles.socialButton,
                   {
@@ -93,7 +169,9 @@ const LoginUserScreen = ({ navigation }: any) => {
                     borderColor: colors.BORDER,
                   },
                 ]}
-                onPress={() => navigation.navigate('UserApp')}
+                onPress={() => handleAuth(provider)}
+                disabled={loading}
+                activeOpacity={0.75}
               >
                 <Image
                   source={src}
@@ -104,12 +182,23 @@ const LoginUserScreen = ({ navigation }: any) => {
             ))}
           </View>
 
+          {/* ── Loading indicator ── */}
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              color={colors.PRIMARY}
+              style={styles.loader}
+            />
+          )}
+
+          {/* ── Email Sign In Button ── */}
           <PrimaryButton
-            title="Sign In"
-            onPress={() => navigation.navigate('UserApp')}
+            title={loading ? 'Signing In...' : 'Sign In'}
+            onPress={() => handleAuth('email')}
             variant="primary"
             size="large"
             fullWidth
+            disabled={loading}
           />
 
           <View style={styles.signUpContainer}>
@@ -158,7 +247,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: SPACING.XL,
-    marginBottom: SPACING.XXL,
+    marginBottom: SPACING.LG,
   },
   socialButton: {
     width: 60,
@@ -169,6 +258,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   socialIcon: { width: 30, height: 30 },
+  loader: { marginBottom: SPACING.MD },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
