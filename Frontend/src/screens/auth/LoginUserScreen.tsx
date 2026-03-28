@@ -1,4 +1,5 @@
 // src/screens/auth/LoginUserScreen.tsx
+// ✅ Dark theme aware
 
 import React, { useState } from 'react';
 import {
@@ -14,10 +15,12 @@ import {
 } from 'react-native';
 import { supabase } from '../../lib/supabase'; //Supabase import
 import { BackButton, PrimaryButton, Input } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY, COLORS } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LoginUserScreen = ({ navigation }: any) => {
+  const { colors } = useTheme(); // ✅
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -105,9 +108,10 @@ const LoginUserScreen = ({ navigation }: any) => {
     // navigation.navigate('ForgotPassword', { userType: 'user' });
     Alert.alert('Coming Soon', 'Forgot Password flow will be implemented here.');
   };
-
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -116,25 +120,23 @@ const LoginUserScreen = ({ navigation }: any) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Back Button */}
           <BackButton />
 
-          {/* Robot Icon */}
           <View style={styles.iconContainer}>
             <Image
-              source={require('../../../assets/images/robot-first-page.png')}
+              source={require('../../../assets/images/login-page.png')}
               style={styles.robotIcon}
               resizeMode="contain"
             />
           </View>
 
-          {/* Title */}
-          <Text style={styles.title}>Welcome back!</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+            Welcome back!
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             Sign in to continue as a <Text style={styles.boldText}>User</Text>
           </Text>
 
-          {/* Email Input */}
           <Input
             placeholder="Email"
             value={email}
@@ -143,7 +145,6 @@ const LoginUserScreen = ({ navigation }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Password Input */}
           <Input
             placeholder="Password"
             value={password}
@@ -152,16 +153,21 @@ const LoginUserScreen = ({ navigation }: any) => {
             showPasswordToggle
           />
 
-          {/* Forgot Password */}
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPassword}>Forgot password?</Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('ForgotPassword', { userType: 'user' })
+            }
+          >
+            <Text style={[styles.forgotPassword, { color: colors.PRIMARY }]}>
+              Forgot password?
+            </Text>
           </TouchableOpacity>
 
           {/* Sign In Button (Updated with Loading state) */}
           <PrimaryButton
             title={loading ? "Signing In..." : "Sign In"}
             onPress={handleSignIn}
-            disabled={loading} // Prevent double clicks
+            disabled={loading}
             variant="primary"
             size="large"
             fullWidth
@@ -169,45 +175,44 @@ const LoginUserScreen = ({ navigation }: any) => {
 
           {/* Social Login Buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Google')}
-            >
-              <Image
-                source={require('../../../assets/images/google.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Facebook')}
-            >
-              <Image
-                source={require('../../../assets/images/fb.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Apple')}
-            >
-              <Image
-                source={require('../../../assets/images/apple.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+            {[
+              require('../../../assets/images/fb.png'),
+              require('../../../assets/images/apple.png'),
+              require('../../../assets/images/google.png'),
+            ].map((src, i) => (
+              <TouchableOpacity
+                key={i}
+                style={[
+                  styles.socialButton,
+                  {
+                    backgroundColor: colors.BACKGROUND_LIGHT,
+                    borderColor: colors.BORDER,
+                  },
+                ]}
+                onPress={() => navigation.navigate('UserApp')}
+              >
+                <Image
+                  source={src}
+                  style={styles.socialIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            ))}
           </View>
 
           {/* Sign Up Link */}
           <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={handleSignUp}>
-              <Text style={styles.signUpLink}>Sign Up</Text>
+            <Text style={[styles.signUpText, { color: colors.TEXT_SECONDARY }]}>
+              Don't have an account?{' '}
+            </Text>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('CreateAccount', { userType: 'user' })
+              }
+            >
+              <Text style={[styles.signUpLink, { color: colors.LINK }]}>
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -217,43 +222,24 @@ const LoginUserScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.XXL,
   },
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: SPACING.XL,
-  },
-  robotIcon: {
-    width: 100,
-    height: 100,
-  },
-  title: {
-    ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: SPACING.MD,
-  },
+  iconContainer: { alignItems: 'center', marginBottom: SPACING.XL },
+  robotIcon: { width: 100, height: 100 },
+  title: { ...TYPOGRAPHY.H1, textAlign: 'center', marginBottom: SPACING.MD },
   subtitle: {
     ...TYPOGRAPHY.BODY_LARGE,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     marginBottom: SPACING.XXL,
   },
-  boldText: {
-    fontWeight: 'bold',
-    color: COLORS.TEXT_PRIMARY,
-  },
+  boldText: { fontWeight: 'bold', color: '#07882C' },
   forgotPassword: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.PRIMARY,
     marginBottom: SPACING.XL,
     fontWeight: '600',
     textAlign: 'right', // Added alignment to make it look better
@@ -270,31 +256,19 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.GRAY_50,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: COLORS.BORDER,
   },
-  socialIcon: {
-    width: 30,
-    height: 30,
-  },
+  socialIcon: { width: 30, height: 30 },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: SPACING.LG,
   },
-  signUpText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  signUpLink: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.LINK,
-    fontWeight: '600',
-  },
+  signUpText: { ...TYPOGRAPHY.BODY },
+  signUpLink: { ...TYPOGRAPHY.BODY, fontWeight: '600' },
 });
 
 export default LoginUserScreen;

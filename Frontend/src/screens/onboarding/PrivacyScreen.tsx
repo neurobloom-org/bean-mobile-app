@@ -1,5 +1,5 @@
 // src/screens/onboarding/PrivacyScreen.tsx
-// ✅ REFACTORED VERSION
+// ✅ Dark theme aware
 
 import React from 'react';
 import {
@@ -9,68 +9,146 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  TouchableOpacity,
+  Linking,
 } from 'react-native';
-import { BackButton, PrimaryButton, PaginationDots } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { PrimaryButton, PaginationDots } from '../../components';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
+
+const POLICIES = [
+  {
+    id: '1',
+    iconSource: require('../../../assets/images/privacy-first.png'),
+    title: 'Privacy First',
+    description:
+      'At our platform, your mental well-being is our priority. This includes the safety and confidentiality of your data. We design our systems to protect your sensitive information from the ground up.',
+  },
+  {
+    id: '2',
+    iconSource: require('../../../assets/images/data-collection.png'),
+    title: 'Data Collection',
+    description:
+      'We collect information you provide directly to us, such as when you create an account, fill out a mood check-in, or communicate with our support team.',
+  },
+  {
+    id: '3',
+    iconSource: require('../../../assets/images/your-rights.png'),
+    title: 'Your Rights',
+    description:
+      'You have the right to access, update, or delete your personal information at any time. We ensure your data remains under your absolute control within our ecosystem.',
+  },
+  {
+    id: '4',
+    iconSource: require('../../../assets/images/data-usage.png'),
+    title: 'Data Usage',
+    description:
+      'Your data is used solely to provide and improve our services. We never sell your personal information. All health data is encrypted at rest and in transit.',
+  },
+];
+
+interface PolicyCardProps {
+  iconSource: any;
+  title: string;
+  description: string;
+  colors: any;
+}
+
+const PolicyCard = ({
+  iconSource,
+  title,
+  description,
+  colors,
+}: PolicyCardProps) => (
+  <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>
+    <Image source={iconSource} style={styles.cardIcon} resizeMode="contain" />
+    <View style={styles.cardContent}>
+      <Text style={[styles.cardTitle, { color: colors.TEXT_PRIMARY }]}>
+        {title}
+      </Text>
+      <Text style={[styles.cardDescription, { color: colors.TEXT_SECONDARY }]}>
+        {description}
+      </Text>
+    </View>
+  </View>
+);
 
 const PrivacyScreen = ({ navigation }: any) => {
-  const handleContinue = () => {
-    navigation.navigate('RoleSelection');
-  };
+  const { colors } = useTheme(); // ✅
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
+      {/* Header */}
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={[styles.backArrow, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Privacy Policy
+        </Text>
+        <View style={styles.backButton} />
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        bounces
       >
-        {/* Back Button */}
-        <BackButton />
+        {/* Last updated */}
+        <Text style={[styles.lastUpdated, { color: colors.TEXT_TERTIARY }]}>
+          LAST UPDATED: OCTOBER 2025
+        </Text>
 
-        {/* Privacy Icon */}
-        <View style={styles.iconContainer}>
-          <Image
-            source={require('../../../assets/images/privacy-page-image.png')}
-            style={styles.privacyIcon}
-            resizeMode="contain"
+        {/* Policy Cards */}
+        {POLICIES.map(policy => (
+          <PolicyCard
+            key={policy.id}
+            iconSource={policy.iconSource}
+            title={policy.title}
+            description={policy.description}
+            colors={colors}
+          />
+        ))}
+
+        {/* Contact link */}
+        <Text style={[styles.contactText, { color: colors.TEXT_TERTIARY }]}>
+          Questions?{' '}
+          <Text
+            style={[styles.contactLink, { color: colors.PRIMARY }]}
+            onPress={() => Linking.openURL('https://www.neurobloom.pro/')}
+          >
+            Contact us at Neurobloom.pro
+          </Text>
+        </Text>
+
+        {/* I Understand Button */}
+        <View style={styles.buttonWrapper}>
+          <PrimaryButton
+            title="I Understand"
+            onPress={() => navigation.navigate('RoleSelection')}
+            variant="primary"
+            size="large"
+            fullWidth
           />
         </View>
 
-        {/* Title */}
-        <Text style={styles.title}>Your Privacy Really Matters for US !</Text>
-
-        {/* Terms Box */}
-        <View style={styles.termsBox}>
-          <Text style={styles.termsText}>
-            By continuing to access or use the Bean Robot, its software, and
-            related services, you expressly acknowledge that you have read,
-            understood, and agree to be legally bound by these Terms and
-            Conditions and the Privacy Policy, which together form a binding
-            agreement between you and the service provider. You consent to the
-            collection, use, storage, and processing of your personal data in
-            accordance with the Privacy Policy and applicable laws. Your
-            continued use of the service constitutes your full, informed, and
-            voluntary acceptance of all terms, obligations, limitations, and
-            disclaimers set forth herein.
-          </Text>
-
-          {/* Bottom Text */}
-          <Text style={styles.bottomText}>
-            By <Text style={styles.linkText}>continuing</Text>, you agree to our
-            Terms & Privacy Policy
-          </Text>
-        </View>
-
-        {/* Continue Button */}
-        <PrimaryButton
-          title="Continue"
-          onPress={handleContinue}
-          variant="primary"
-          size="large"
-          fullWidth
-        />
-
-        {/* Pagination Dots */}
         <PaginationDots currentStep={2} totalSteps={3} />
       </ScrollView>
     </SafeAreaView>
@@ -78,54 +156,55 @@ const PrivacyScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: SPACING.XL,
-    paddingTop: SPACING.XL,
-    paddingBottom: SPACING.XXL,
-  },
-  iconContainer: {
+  container: { flex: 1 },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.XL,
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
+    borderBottomWidth: 1,
   },
-  privacyIcon: {
-    width: 80,
-    height: 80,
+  backButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  title: {
-    ...TYPOGRAPHY.H2,
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: SPACING.XL,
-    paddingHorizontal: SPACING.MD,
+  backArrow: { fontSize: 28, lineHeight: 32, marginTop: -2 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
+  scrollContent: {
+    paddingHorizontal: SPACING.LG,
+    paddingTop: SPACING.LG,
+    paddingBottom: SPACING.XXXL,
   },
-  termsBox: {
-    backgroundColor: COLORS.SECONDARY_LIGHT,
-    borderRadius: SPACING.XL,
-    padding: SPACING.XL,
-    marginBottom: SPACING.XL,
-  },
-  termsText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-    lineHeight: 22,
-    textAlign: 'justify',
-    marginBottom: SPACING.XL,
-  },
-  bottomText: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
-    marginTop: SPACING.XS,
-  },
-  linkText: {
-    color: COLORS.ERROR,
+  lastUpdated: {
+    fontSize: 11,
     fontWeight: '600',
+    textAlign: 'center',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.LG,
   },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.LG,
+    marginBottom: SPACING.MD,
+    elevation: 3,
+  },
+  cardIcon: { width: 52, height: 52, marginRight: SPACING.MD, flexShrink: 0 },
+  cardContent: { flex: 1 },
+  cardTitle: { fontSize: 16, fontWeight: '700', marginBottom: SPACING.XS },
+  cardDescription: { ...TYPOGRAPHY.BODY, lineHeight: 21 },
+  contactText: {
+    ...TYPOGRAPHY.CAPTION,
+    textAlign: 'center',
+    marginTop: SPACING.SM,
+    marginBottom: SPACING.XL,
+  },
+  contactLink: { fontWeight: '600', textDecorationLine: 'underline' },
+  buttonWrapper: { marginBottom: SPACING.MD },
 });
 
 export default PrivacyScreen;

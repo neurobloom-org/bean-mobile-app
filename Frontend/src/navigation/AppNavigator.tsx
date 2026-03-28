@@ -1,13 +1,17 @@
 // src/navigation/AppNavigator.tsx
-// ✅ UPDATED - Added BeanConnectedScreen
+// ✅ Uses UserNavigator + CaregiverNavigator + full forgot password flow
 
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// Onboarding
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import FeaturesScreen from '../screens/onboarding/FeaturesScreen';
 import PrivacyScreen from '../screens/onboarding/PrivacyScreen';
+
+// Auth
 import RoleSelectionScreen from '../screens/auth/RoleSelectionScreen';
 import CreateAccountScreen from '../screens/auth/CreateAccountScreen';
 import ConnectBeanScreen from '../screens/auth/ConnectBeanScreen';
@@ -16,6 +20,16 @@ import LoginUserScreen from '../screens/auth/LoginUserScreen';
 import LoginGuardianScreen from '../screens/auth/LoginGuardianScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import VerifyCodeScreen from '../screens/auth/VerifyCodeScreen';
+// ✅ Forgot password flow
+import OTPVerificationScreen from '../screens/auth/OTPVerificationScreen';
+import CreateNewPasswordScreen from '../screens/auth/CreateNewPasswordScreen';
+import PasswordResetSuccessScreen from '../screens/auth/PasswordResetSuccessScreen';
+
+// Navigators
+import UserNavigator from './UserNavigator';
+import CaregiverNavigator from './CaregiverNavigator';
+
+// Feature branch screens
 import HomeScreen from '../screens/user/HomeScreen';
 import ChatScreen from '../screens/user/ChatScreen';
 import FocusModeScreen from '../screens/user/FocusModeScreen';
@@ -30,14 +44,15 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Splash"
-        screenOptions={{
-          headerShown: false,
-        }}
+        screenOptions={{ headerShown: false }}
       >
+        {/* ── Onboarding ── */}
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Features" component={FeaturesScreen} />
         <Stack.Screen name="Privacy" component={PrivacyScreen} />
+
+        {/* ── Auth ── */}
         <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
         <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
         <Stack.Screen name="ConnectBean" component={ConnectBeanScreen} />
@@ -46,15 +61,30 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginGuardian" component={LoginGuardianScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyCode" component={VerifyCodeScreen} />
+        {/* ✅ Forgot password flow */}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="FocusMode" component={FocusModeScreen} />
         <Stack.Screen name="Tasks" component={TasksScreen} />
         <Stack.Screen name="PairingScreen" component={PairingScreen} />
         <Stack.Screen
-          name="CaregiverDashboard"
-          component={CaregiverDashboard}
+          name="OTPVerification"
+          component={OTPVerificationScreen}
         />
+        <Stack.Screen
+          name="CreateNewPassword"
+          component={CreateNewPasswordScreen}
+        />
+        <Stack.Screen
+          name="PasswordResetSuccess"
+          component={PasswordResetSuccessScreen}
+        />
+
+        {/* ✅ User screens — handled by UserNavigator */}
+        <Stack.Screen name="UserApp" component={UserNavigator} />
+
+        {/* ✅ Caregiver screens — handled by CaregiverNavigator */}
+        <Stack.Screen name="CaregiverApp" component={CaregiverNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

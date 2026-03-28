@@ -1,409 +1,345 @@
 // src/screens/caregiver/CaregiverDashboard.tsx
-// ✅ REFACTORED VERSION
+// ✅ Dark theme aware
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
+  Image,
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Dimensions,
   Alert,
 } from 'react-native';
-import { BackButton, PrimaryButton } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
+import MoodTrendChart from '../../components/cards/MoodTrendChart';
 
-const { width } = Dimensions.get('window');
+interface AlertItemProps {
+  icon: any;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+  colors: any;
+}
+
+const AlertItem = ({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  colors,
+}: AlertItemProps) => (
+  <TouchableOpacity
+    style={[styles.alertItem, { backgroundColor: colors.SURFACE }]}
+    onPress={onPress}
+    activeOpacity={0.8}
+  >
+    <Image source={icon} style={styles.alertIcon} resizeMode="contain" />
+    <View style={styles.alertItemText}>
+      <Text style={[styles.alertItemTitle, { color: colors.TEXT_PRIMARY }]}>
+        {title}
+      </Text>
+      <Text style={[styles.alertItemSub, { color: colors.TEXT_SECONDARY }]}>
+        {subtitle}
+      </Text>
+    </View>
+    <Text style={[styles.alertChevron, { color: colors.TEXT_TERTIARY }]}>
+      ›
+    </Text>
+  </TouchableOpacity>
+);
 
 const CaregiverDashboard = ({ navigation }: any) => {
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    'week' | 'month' | 'year'
-  >('week');
-
-  const moodData = [
-    { day: 'Mon', mood: 'happy', score: 8 },
-    { day: 'Tue', mood: 'calm', score: 7 },
-    { day: 'Wed', mood: 'anxious', score: 4 },
-    { day: 'Thu', mood: 'calm', score: 7 },
-    { day: 'Fri', mood: 'happy', score: 9 },
-    { day: 'Sat', mood: 'happy', score: 8 },
-    { day: 'Sun', mood: 'calm', score: 7 },
-  ];
-
-  const activities = [
-    { activity: 'Meditation', count: 12, time: '60 min', icon: '🧘' },
-    { activity: 'Chat Sessions', count: 8, time: '40 min', icon: '💬' },
-    { activity: 'Focus Time', count: 5, time: '125 min', icon: '⏰' },
-    { activity: 'Tasks Completed', count: 18, time: '—', icon: '✅' },
-  ];
-
-  const recentEntries = [
-    { date: 'Jan 28', mood: 'happy', note: 'Had a great day at work!' },
-    {
-      date: 'Jan 27',
-      mood: 'anxious',
-      note: 'Feeling stressed about deadlines',
-    },
-    { date: 'Jan 26', mood: 'calm', note: 'Peaceful morning meditation' },
-  ];
-
-  const getMoodEmoji = (mood: string) => {
-    const moodMap: { [key: string]: string } = {
-      happy: '😊',
-      calm: '😌',
-      anxious: '😰',
-      sad: '😢',
-      angry: '😠',
-    };
-    return moodMap[mood] || '😐';
-  };
-
-  const getMoodColor = (mood: string) => {
-    const colorMap: { [key: string]: string } = {
-      happy: COLORS.SUCCESS,
-      calm: COLORS.INFO,
-      anxious: COLORS.WARNING,
-      sad: COLORS.ERROR,
-      angry: COLORS.ERROR,
-    };
-    return colorMap[mood] || COLORS.GRAY_400;
-  };
+  const { colors } = useTheme(); // ✅
 
   const handleExportReport = () => {
-    Alert.alert('Export Report', 'Clinical report will be exported as PDF', [
+    Alert.alert('Export Report', 'Clinical report will be exported as PDF.', [
       { text: 'OK' },
     ]);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
+    >
+      {/* Header */}
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
+          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
+            ‹
+          </Text>
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
+          Caregiver Dashboard
+        </Text>
+        <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <BackButton />
+        {/* Page title */}
+        <Text style={[styles.pageTitle, { color: colors.TEXT_PRIMARY }]}>
+          Caregiver/Therapist Dashboard
+        </Text>
+        <Text style={[styles.pageSubtitle, { color: colors.TEXT_SECONDARY }]}>
+          Monitoring: Alex Johnson
+        </Text>
 
-        <Text style={styles.title}>Caregiver Dashboard</Text>
-        <Text style={styles.subtitle}>Monitoring User's Wellness Journey</Text>
-
-        {/* Overview Cards */}
-        <View style={styles.overviewContainer}>
-          <View style={styles.overviewCard}>
-            <Text style={styles.overviewNumber}>7.5</Text>
-            <Text style={styles.overviewLabel}>Avg Mood</Text>
-            <Text style={styles.overviewTrend}>↑ +0.5</Text>
-          </View>
-
-          <View style={styles.overviewCard}>
-            <Text style={styles.overviewNumber}>43</Text>
-            <Text style={styles.overviewLabel}>Activities</Text>
-            <Text style={styles.overviewTrend}>This Week</Text>
-          </View>
-
-          <View style={styles.overviewCard}>
-            <Text style={styles.overviewNumber}>85%</Text>
-            <Text style={styles.overviewLabel}>Task Rate</Text>
-            <Text style={styles.overviewTrend}>↑ +5%</Text>
-          </View>
-        </View>
-
-        {/* Mood Trends */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Mood Trends</Text>
-            <View style={styles.periodSelector}>
-              {(['week', 'month', 'year'] as const).map(period => (
-                <TouchableOpacity
-                  key={period}
-                  style={[
-                    styles.periodButton,
-                    selectedPeriod === period && styles.periodButtonActive,
-                  ]}
-                  onPress={() => setSelectedPeriod(period)}
-                >
-                  <Text
-                    style={[
-                      styles.periodText,
-                      selectedPeriod === period && styles.periodTextActive,
-                    ]}
-                  >
-                    {period}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.moodChart}>
-            {moodData.map((data, index) => (
-              <View key={index} style={styles.moodBar}>
-                <View
-                  style={[
-                    styles.moodBarFill,
-                    {
-                      height: `${data.score * 10}%`,
-                      backgroundColor: getMoodColor(data.mood),
-                    },
-                  ]}
-                />
-                <Text style={styles.moodBarLabel}>{data.day}</Text>
-                <Text style={styles.moodBarEmoji}>
-                  {getMoodEmoji(data.mood)}
-                </Text>
-              </View>
-            ))}
-          </View>
+        {/* Mood Trends card */}
+        <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>
+          <Text style={[styles.cardTitle, { color: colors.TEXT_PRIMARY }]}>
+            Mood Trends
+          </Text>
+          <Text style={[styles.cardSubtitle, { color: colors.TEXT_SECONDARY }]}>
+            Mental wellness overview from the past 7 days
+          </Text>
+          <MoodTrendChart scores={[0, 0, 0, 0, 0, 0, 0]} />
         </View>
 
         {/* Activity Overview */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Activity Overview</Text>
-          <View style={styles.activitiesGrid}>
-            {activities.map((item, index) => (
-              <View key={index} style={styles.activityCard}>
-                <Text style={styles.activityIcon}>{item.icon}</Text>
-                <Text style={styles.activityCount}>{item.count}</Text>
-                <Text style={styles.activityName}>{item.activity}</Text>
-                <Text style={styles.activityTime}>{item.time}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Recent Entries */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Journal Entries</Text>
-          {recentEntries.map((entry, index) => (
-            <View key={index} style={styles.entryCard}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryDate}>{entry.date}</Text>
-                <Text style={styles.entryMood}>{getMoodEmoji(entry.mood)}</Text>
-              </View>
-              <Text style={styles.entryNote}>{entry.note}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
+          Activity Overview
+        </Text>
+        <View style={styles.activityRow}>
+          {/* Tasks card */}
+          <View
+            style={[styles.activityCard, { backgroundColor: colors.SURFACE }]}
+          >
+            <View style={styles.activityHeader}>
+              <Image
+                source={require('../../../assets/images/guardian-task.png')}
+                style={styles.activityIcon}
+                resizeMode="contain"
+              />
+              <Text
+                style={[styles.activityLabel, { color: colors.TEXT_SECONDARY }]}
+              >
+                Tasks
+              </Text>
             </View>
-          ))}
-        </View>
+            <Text
+              style={[styles.activityValue, { color: colors.TEXT_PRIMARY }]}
+            >
+              0%
+            </Text>
+            <Text
+              style={[styles.activityTrend, { color: colors.TEXT_TERTIARY }]}
+            >
+              — no data yet
+            </Text>
+          </View>
 
-        {/* Export Report Button */}
-        <PrimaryButton
-          title="Export Clinical Report"
-          onPress={handleExportReport}
-          variant="primary"
-          size="large"
-          fullWidth
-        />
-
-        {/* Emergency Alert */}
-        <View style={styles.alertCard}>
-          <Text style={styles.alertIcon}>🆘</Text>
-          <View style={styles.alertContent}>
-            <Text style={styles.alertTitle}>Emergency Contact</Text>
-            <Text style={styles.alertText}>
-              User can reach you anytime via SOS feature
+          {/* Focus card */}
+          <View
+            style={[styles.activityCard, { backgroundColor: colors.SURFACE }]}
+          >
+            <View style={styles.activityHeader}>
+              <Image
+                source={require('../../../assets/images/guardian-time-focus.png')}
+                style={styles.activityIcon}
+                resizeMode="contain"
+              />
+              <Text
+                style={[styles.activityLabel, { color: colors.TEXT_SECONDARY }]}
+              >
+                Focus
+              </Text>
+            </View>
+            <Text
+              style={[styles.activityValue, { color: colors.TEXT_PRIMARY }]}
+            >
+              0h 0m
+            </Text>
+            <Text
+              style={[styles.activityTrend, { color: colors.TEXT_TERTIARY }]}
+            >
+              — no data yet
             </Text>
           </View>
         </View>
+
+        {/* Bean User History */}
+        <View style={styles.historyHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
+            Bean User History
+          </Text>
+          <TouchableOpacity onPress={() => {}}>
+            <Text style={[styles.viewAll, { color: colors.PRIMARY }]}>
+              View All
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Empty history state */}
+        <View
+          style={[styles.historyEmpty, { backgroundColor: colors.SURFACE }]}
+        >
+          <Text
+            style={[styles.historyEmptyText, { color: colors.TEXT_PRIMARY }]}
+          >
+            No alerts recorded yet.
+          </Text>
+          <Text
+            style={[styles.historyEmptySub, { color: colors.TEXT_SECONDARY }]}
+          >
+            Events like SOS triggers and mood alerts will appear here.
+          </Text>
+        </View>
+
+        {/* Export Clinical Report */}
+        <TouchableOpacity
+          style={[styles.exportBtn, { backgroundColor: colors.PRIMARY }]}
+          onPress={handleExportReport}
+          activeOpacity={0.85}
+        >
+          <Image
+            source={require('../../../assets/images/clinical-report.png')}
+            style={[styles.exportIcon, { tintColor: colors.WHITE }]}
+            resizeMode="contain"
+          />
+          <Text style={[styles.exportText, { color: colors.WHITE }]}>
+            Export Clinical Report
+          </Text>
+        </TouchableOpacity>
+
+        {/* Footer */}
+        <Text style={[styles.footer, { color: colors.TEXT_TERTIARY }]}>
+          Bean AI · Caregiver/Therapist Portal v2.4.1
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: SPACING.XL,
-    paddingTop: SPACING.XL,
-    paddingBottom: SPACING.XXL,
-  },
-  title: {
-    ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
-    marginTop: SPACING.XL,
-  },
-  subtitle: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: SPACING.XXL,
-  },
-  overviewContainer: {
+  container: { flex: 1 },
+  header: {
     flexDirection: 'row',
-    gap: SPACING.MD,
-    marginBottom: SPACING.XL,
-  },
-  overviewCard: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
     alignItems: 'center',
-  },
-  overviewNumber: {
-    ...TYPOGRAPHY.H2,
-    color: COLORS.PRIMARY,
-    marginBottom: SPACING.XS,
-  },
-  overviewLabel: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: SPACING.XXS,
-  },
-  overviewTrend: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.SUCCESS,
-    fontWeight: '600',
-  },
-  section: {
-    marginBottom: SPACING.XL,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.LG,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
+    borderBottomWidth: 1,
   },
-  sectionTitle: {
-    ...TYPOGRAPHY.H3,
-    color: COLORS.TEXT_PRIMARY,
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backIcon: { fontSize: 28, lineHeight: 32 },
+  headerTitle: { ...TYPOGRAPHY.H4 },
+  scroll: {
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.LG,
+    paddingBottom: SPACING.MASSIVE,
   },
-  periodSelector: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.GRAY_100,
-    borderRadius: SPACING.SM,
-    padding: SPACING.XXS,
-  },
-  periodButton: {
-    paddingHorizontal: SPACING.MD,
-    paddingVertical: SPACING.XS,
-    borderRadius: SPACING.XS,
-  },
-  periodButtonActive: {
-    backgroundColor: COLORS.WHITE,
-  },
-  periodText: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_TERTIARY,
-    textTransform: 'capitalize',
-  },
-  periodTextActive: {
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: '600',
-  },
-  moodChart: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
-    height: 200,
-    alignItems: 'flex-end',
-    gap: SPACING.SM,
-  },
-  moodBar: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  moodBarFill: {
-    width: '100%',
-    borderRadius: SPACING.XS,
+  pageTitle: {
+    fontSize: 18,
+    fontWeight: '700' as const,
     marginBottom: SPACING.XS,
   },
-  moodBarLabel: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    fontSize: 10,
-    marginTop: SPACING.XS,
+  pageSubtitle: { ...TYPOGRAPHY.BODY_SMALL, marginBottom: SPACING.XL },
+  card: {
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.LG,
+    marginBottom: SPACING.XL,
+    elevation: 3,
   },
-  moodBarEmoji: {
+  cardTitle: {
     fontSize: 16,
-    marginTop: SPACING.XXS,
+    fontWeight: '700' as const,
+    marginBottom: SPACING.XS,
   },
-  activitiesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.MD,
-  },
-  activityCard: {
-    width: (width - SPACING.XL * 2 - SPACING.MD) / 2,
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
-    alignItems: 'center',
-  },
-  activityIcon: {
-    fontSize: 32,
-    marginBottom: SPACING.SM,
-  },
-  activityCount: {
-    ...TYPOGRAPHY.H2,
-    color: COLORS.PRIMARY,
-    marginBottom: SPACING.XXS,
-  },
-  activityName: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: '600',
-    marginBottom: SPACING.XXS,
-  },
-  activityTime: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    fontSize: 10,
-  },
-  entryCard: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
+  cardSubtitle: { ...TYPOGRAPHY.CAPTION, marginBottom: SPACING.LG },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
     marginBottom: SPACING.MD,
   },
-  entryHeader: {
+  activityRow: {
+    flexDirection: 'row',
+    gap: SPACING.MD,
+    marginBottom: SPACING.XL,
+  },
+  activityCard: {
+    flex: 1,
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.LG,
+    elevation: 2,
+  },
+  activityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.XS,
+    marginBottom: SPACING.SM,
+  },
+  activityIcon: { width: 22, height: 22 },
+  activityLabel: { fontSize: 12, fontWeight: '600' as const },
+  activityValue: { fontSize: 26, fontWeight: '800' as const, marginBottom: 2 },
+  activityTrend: { fontSize: 11 },
+  historyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.SM,
+    marginBottom: SPACING.MD,
   },
-  entryDate: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    fontWeight: '600',
-  },
-  entryMood: {
-    fontSize: 20,
-  },
-  entryNote: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  alertCard: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.ERROR_LIGHT,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
-    marginTop: SPACING.XL,
-    gap: SPACING.LG,
+  viewAll: { fontSize: 13, fontWeight: '600' as const },
+  historyEmpty: {
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.XL,
     alignItems: 'center',
+    marginBottom: SPACING.XL,
+    elevation: 2,
   },
-  alertIcon: {
-    fontSize: 32,
+  historyEmptyText: {
+    fontSize: 15,
+    fontWeight: '600' as const,
+    marginBottom: SPACING.XS,
   },
-  alertContent: {
-    flex: 1,
-  },
-  alertTitle: {
-    ...TYPOGRAPHY.H4,
-    color: COLORS.ERROR,
-    marginBottom: SPACING.XXS,
-  },
-  alertText: {
+  historyEmptySub: {
     ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    lineHeight: 17,
   },
+  alertItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: BORDER_RADIUS.LG,
+    padding: SPACING.MD,
+    marginBottom: SPACING.SM,
+    gap: SPACING.MD,
+    elevation: 1,
+  },
+  alertIcon: { width: 40, height: 40 },
+  alertItemText: { flex: 1 },
+  alertItemTitle: { fontSize: 14, fontWeight: '700' as const },
+  alertItemSub: { ...TYPOGRAPHY.CAPTION, marginTop: 2 },
+  alertChevron: { fontSize: 20 },
+  exportBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: BORDER_RADIUS.ROUND,
+    paddingVertical: SPACING.LG,
+    gap: SPACING.SM,
+    marginBottom: SPACING.LG,
+    elevation: 5,
+  },
+  exportIcon: { width: 22, height: 22 },
+  exportText: { fontSize: 16, fontWeight: '700' as const, letterSpacing: 0.3 },
+  footer: { ...TYPOGRAPHY.CAPTION, textAlign: 'center' },
 });
 
 export default CaregiverDashboard;
