@@ -1,7 +1,8 @@
-// src/screens/user/HomeScreen.tsx
-// ✅ EXACT FIGMA DESIGN - Combined cards, white therapeutic, big bean image
+// Main dashboard for the authenticated user. Shows a greeting, mood balance
+// donut chart, daily progress, and a feature tile grid. The hamburger menu
+// opens the slide-in DropdownMenu. The bottom tab bar provides global navigation.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,623 +11,397 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Modal,
+  Dimensions,
 } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { useAuth } from '../../context/AuthContext';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { BORDER_RADIUS } from '../../constants/spacing';
+import { useTheme } from '../../context/ThemeContext';
+import DropdownMenu from '../../components/common/DropdownMenu';
+import BottomTabBar from '../../components/navigation/BottomTabBar';
+
+const { width } = Dimensions.get('window');
+const TILE_GAP = SPACING.MD;
+const TILE_SIZE = (width - SPACING.XL * 2 - TILE_GAP) / 2;
+
+const DonutChart = ({ colors }: { colors: any }) => {
+  const SIZE = 120,
+    THICKNESS = 16,
+    INNER = SIZE - THICKNESS * 2;
+  return (
+    <View style={donut.wrapper}>
+      <View
+        style={[
+          donut.ring,
+          {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: SIZE / 2,
+            borderWidth: THICKNESS,
+            borderColor: colors.PRIMARY,
+          },
+        ]}
+      >
+        <View
+          style={[
+            donut.hole,
+            {
+              width: INNER,
+              height: INNER,
+              borderRadius: INNER / 2,
+              backgroundColor: colors.SURFACE,
+            },
+          ]}
+        />
+      </View>
+      <View style={donut.legend}>
+        {[
+          { label: 'Calm', color: colors.PRIMARY_LIGHT },
+          { label: 'Joy', color: colors.PRIMARY },
+          { label: 'Active', color: colors.PRIMARY_DARK },
+        ].map(item => (
+          <View key={item.label} style={donut.row}>
+            <View style={[donut.dot, { backgroundColor: item.color }]} />
+            <Text style={[donut.label, { color: colors.TEXT_SECONDARY }]}>
+              {item.label}
+            </Text>
+            <Text style={[donut.value, { color: colors.TEXT_PRIMARY }]}>
+              0%
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+const donut = StyleSheet.create({
+  wrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.XL,
+    marginBottom: SPACING.LG,
+  },
+  ring: { justifyContent: 'center', alignItems: 'center' },
+  hole: {},
+  legend: { gap: SPACING.SM },
+  row: { flexDirection: 'row', alignItems: 'center', gap: SPACING.XS },
+  dot: { width: 9, height: 9, borderRadius: 5 },
+  label: { fontSize: 13, width: 48 },
+  value: { fontSize: 13, fontWeight: '700' as const },
+});
+
+interface TileProps {
+  iconSource: any;
+  label: string;
+  fullWidth?: boolean;
+  onPress: () => void;
+  tileBg: string;
+  textColor: string;
+}
+
+const FeatureTile = ({
+  iconSource,
+  label,
+  fullWidth,
+  onPress,
+  tileBg,
+  textColor,
+}: TileProps) => (
+  <TouchableOpacity
+    style={[
+      styles.tile,
+      fullWidth && styles.tileFullWidth,
+      { backgroundColor: tileBg },
+    ]}
+    onPress={onPress}
+    activeOpacity={0.8}
+  >
+    <Image source={iconSource} style={styles.tileIcon} resizeMode="contain" />
+    <Text
+      style={[
+        styles.tileLabel,
+        fullWidth && styles.tileLabelFull,
+        { color: textColor },
+      ]}
+    >
+      {label}
+    </Text>
+  </TouchableOpacity>
+);
 
 const HomeScreen = ({ navigation }: any) => {
+  const { colors, isDark } = useTheme();
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('Home Dashboard');
 
-  const dropdownOptions = [
-    'Home Dashboard',
-    'Focus Mode Dashboard',
-    'Wellness Tracker',
-    'Progress Overview',
-    'Therapy Sessions',
-  ];
+  const { userName } = useAuth();
 
-  const handleDropdownSelect = (option: string) => {
-    setSelectedOption(option);
-    setDropdownVisible(false);
+  const TILE_BG = isDark ? '#1E293B' : '#F1F5F9';
+
+  const goTo = (screen: string) => {
+    try {
+      navigation.navigate(screen);
+    } catch {}
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.BACKGROUND }]}
+    >
+      <View
+        style={[
+          styles.topBar,
+          {
+            backgroundColor: colors.SURFACE,
+            borderBottomColor: colors.BORDER_LIGHT,
+          },
+        ]}
+      >
+        <View style={styles.topBarLeft}>
+          <Image
+            source={require('../../../assets/images/login-page.png')}
+            style={[styles.topBarIcon, isDark && { tintColor: '#FFFFFF' }]}
+            resizeMode="contain"
+          />
+          <Text style={[styles.topBarName, { color: colors.TEXT_PRIMARY }]}>
+            Bean
+          </Text>
+        </View>
+        <TouchableOpacity onPress={() => setDropdownVisible(true)}>
+          <Text style={[styles.hamburger, { color: colors.TEXT_PRIMARY }]}>
+            ≡
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header with Bean Logo and Dropdown */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
+        {/* Greeting uses the name from AsyncStorage, not a hardcoded value */}
+        <Text style={[styles.greeting, { color: colors.TEXT_PRIMARY }]}>
+          Hey {userName}!
+        </Text>
+        <Text style={[styles.focusLabel, { color: colors.TEXT_SECONDARY }]}>
+          Today's Focus
+        </Text>
+
+        <View
+          style={[styles.combinedCard, { backgroundColor: colors.SURFACE }]}
+        >
+          <Text style={[styles.cardTitle, { color: colors.TEXT_PRIMARY }]}>
+            Mood Balance
+          </Text>
+          <DonutChart colors={colors} />
+          <View
+            style={[
+              styles.inCardDivider,
+              { backgroundColor: colors.BORDER_LIGHT },
+            ]}
+          />
+          <Text
+            style={[
+              styles.cardTitle,
+              { color: colors.TEXT_PRIMARY, marginTop: SPACING.LG },
+            ]}
+          >
+            Daily Progress
+          </Text>
+          <Text style={[styles.progressSub, { color: colors.TEXT_SECONDARY }]}>
+            0/5 Tasks Done • 0m Focus Time
+          </Text>
+          <View style={styles.progressRow}>
+            <View
+              style={[
+                styles.streakBadge,
+                { backgroundColor: colors.SECONDARY_LIGHT },
+              ]}
+            >
+              <Text style={[styles.streakText, { color: colors.PRIMARY_DARK }]}>
+                🔥 0 Day Streak
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.calendarBtn, { backgroundColor: colors.PRIMARY }]}
+              onPress={() => goTo('MoodCalendar')}
+            >
+              <Text style={styles.calendarText}>Mood Calendar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
+          Features
+        </Text>
+
+        <View style={styles.grid}>
+          <FeatureTile
+            iconSource={require('../../../assets/images/talk-to-bean.png')}
+            label="Talk to Bean"
+            tileBg={TILE_BG}
+            textColor={colors.TEXT_PRIMARY}
+            onPress={() => goTo('CasualConvo')}
+          />
+          <FeatureTile
+            iconSource={require('../../../assets/images/timer-icon.png')}
+            label="Start Focus Mode"
+            tileBg={TILE_BG}
+            textColor={colors.TEXT_PRIMARY}
+            onPress={() => goTo('FocusMode')}
+          />
+          <FeatureTile
+            iconSource={require('../../../assets/images/games.png')}
+            label="Games"
+            tileBg={TILE_BG}
+            textColor={colors.TEXT_PRIMARY}
+            onPress={() => goTo('PlayGames')}
+          />
+          <FeatureTile
+            iconSource={require('../../../assets/images/play-calm-music.png')}
+            label="Play calm music"
+            tileBg={TILE_BG}
+            textColor={colors.TEXT_PRIMARY}
+            onPress={() => goTo('PlayCalmMusic')}
+          />
+          <FeatureTile
+            iconSource={require('../../../assets/images/detecting-SOS.png')}
+            label="Detecting SOS"
+            tileBg={TILE_BG}
+            textColor={colors.TEXT_PRIMARY}
+            onPress={() => goTo('SOSDetection')}
+          />
+
+          <TouchableOpacity
+            style={[styles.tile, { backgroundColor: TILE_BG }]}
+            activeOpacity={0.8}
+            onPress={() => goTo('CalmingExercises')}
+          >
             <Image
-              source={require('../../../assets/images/select-user.png')}
-              style={styles.logoImage}
+              source={require('../../../assets/images/calming-exercises.png')}
+              style={styles.tileIcon}
               resizeMode="contain"
             />
-            <Text style={styles.logoText}>Bean</Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.dropdownButton}
-            onPress={() => setDropdownVisible(true)}
-          >
-            <Text style={styles.dropdownIcon}>▼</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Dropdown Modal */}
-        <Modal
-          visible={dropdownVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setDropdownVisible(false)}
-        >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setDropdownVisible(false)}
-          >
-            <View style={styles.dropdownMenu}>
-              {dropdownOptions.map((option, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.dropdownItem}
-                  onPress={() => handleDropdownSelect(option)}
-                >
-                  <Text
-                    style={[
-                      styles.dropdownItemText,
-                      selectedOption === option &&
-                      styles.dropdownItemTextActive,
-                    ]}
-                  >
-                    {option}
-                  </Text>
-                  {selectedOption === option && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </TouchableOpacity>
-        </Modal>
-
-        {/* Greeting */}
-        <View style={styles.greetingSection}>
-          <Text style={styles.greeting}>
-            Hey <Text style={styles.greetingName}>Alex!</Text>
-          </Text>
-        </View>
-
-        {/* Today's Focus */}
-        <View style={styles.focusSection}>
-          <Text style={styles.sectionTitle}>Today's Focus</Text>
-        </View>
-
-        {/* COMBINED Mood Balance + Daily Progress Card */}
-        <View style={styles.combinedCard}>
-          {/* Mood Balance Section */}
-          <Text style={styles.cardTitle}>Mood Balance</Text>
-
-          <View style={styles.chartContainer}>
-            {/* Placeholder for backend chart */}
-            <View style={styles.chartPlaceholder}>
-              <View style={styles.circleOuter}>
-                <View style={styles.circleInner}>
-                  <Text style={styles.chartPercentage}>65%</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Legend */}
-            <View style={styles.legend}>
-              <View style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: COLORS.PRIMARY },
-                  ]}
-                />
-                <Text style={styles.legendText}>Calm</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: COLORS.GRAY_300 },
-                  ]}
-                />
-                <Text style={styles.legendText}>Joy</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: COLORS.GRAY_300 },
-                  ]}
-                />
-                <Text style={styles.legendText}>Active</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Divider */}
-          <View style={styles.divider} />
-
-          {/* Daily Progress Section */}
-          <Text style={styles.cardTitle}>Daily Progress</Text>
-          <Text style={styles.progressStats}>
-            15 Tasks Done • 45m Focus Time
-          </Text>
-
-          <View style={styles.progressRow}>
-            <View style={styles.streakContainer}>
-              <Text style={styles.streakIcon}>🔥</Text>
-              <Text style={styles.streakText}>7 Day Streak</Text>
-            </View>
-
-            <TouchableOpacity style={styles.detailsButton}>
-              <Text style={styles.detailsButtonText}>View Details</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Features Section */}
-        <View style={styles.featuresSection}>
-          <Text style={styles.sectionTitle}>Features</Text>
-
-          <View style={styles.featuresGrid}>
-            {/* Talk to Bean */}
+            <Text style={[styles.tileLabel, { color: colors.TEXT_PRIMARY }]}>
+              Calming Exercises
+            </Text>
             <TouchableOpacity
-              style={styles.featureCard}
+              style={styles.beanHitArea}
               onPress={() => navigation.navigate('Chat')}
+              activeOpacity={0.8}
             >
-              <View style={styles.featureIconContainer}>
-                <Image
-                  source={require('../../../assets/images/talk -to-bean.png')}
-                  style={styles.featureImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.featureTitle}>Talk to Bean</Text>
-            </TouchableOpacity>
-
-            {/* Start Focus Mode */}
-            <TouchableOpacity
-              style={styles.featureCard}
-              onPress={() => navigation.navigate('FocusMode')}
-            >
-              <View style={styles.featureIconContainer}>
-                <Image
-                  source={require('../../../assets/images/start-focus-mode.png')}
-                  style={styles.featureImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.featureTitle}>Start Focus Mode</Text>
-            </TouchableOpacity>
-
-            {/* Games */}
-            <TouchableOpacity style={styles.featureCard}>
-              <View style={styles.featureIconContainer}>
-                <Image
-                  source={require('../../../assets/images/games-user-dashboard.png')}
-                  style={styles.featureImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.featureTitle}>Games</Text>
-            </TouchableOpacity>
-
-            {/* Play calm music */}
-            <TouchableOpacity style={styles.featureCard}>
-              <View style={styles.featureIconContainer}>
-                <Image
-                  source={require('../../../assets/images/play-calm-music.png')}
-                  style={styles.featureImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.featureTitle}>Play calm music</Text>
-            </TouchableOpacity>
-
-            {/* Detecting SOS */}
-            <TouchableOpacity style={styles.featureCard}>
-              <View style={styles.featureIconContainer}>
-                <Image
-                  source={require('../../../assets/images/detect-sos.png')}
-                  style={styles.featureImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.featureTitle}>Detecting SOS</Text>
-            </TouchableOpacity>
-
-            {/* Calming Exercises */}
-            <TouchableOpacity style={styles.featureCard}>
-              <View style={styles.featureIconContainer}>
-                <Image
-                  source={require('../../../assets/images/calming-exercises.png')}
-                  style={styles.featureImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.featureTitle}>Calming Exercises</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Therapeutic Conversations - WHITE CARD like others */}
-        <View style={styles.therapySection}>
-          <TouchableOpacity
-            style={styles.therapyCard}
-            onPress={() => navigation.navigate('Chat')}
-          >
-            <View style={styles.therapyIconContainer}>
               <Image
-                source={require('../../../assets/images/therapeutic-convo.png')}
-                style={styles.therapyIconImage}
+                source={require('../../../assets/images/user-dashboard-bean-thinking.png')}
+                style={styles.beanOnTile}
                 resizeMode="contain"
               />
-            </View>
-            <Text style={styles.therapyText}>Therapeutic Conversations</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
-        </View>
 
-        {/* Extra spacing for Bean character */}
-        <View style={{ height: 120 }} />
+          <FeatureTile
+            iconSource={require('../../../assets/images/therapeutic-conversation.png')}
+            label="Therapeutic Conversations"
+            fullWidth
+            tileBg={TILE_BG}
+            textColor={colors.TEXT_PRIMARY}
+            onPress={() => goTo('TherapeuticConversations')}
+          />
+        </View>
       </ScrollView>
 
-      {/* Big Bean Character - FIXED POSITION, stays visible */}
-      <View style={styles.beanCharacterFixed}>
-        <Image
-          source={require('../../../assets/images/user-dashboard-bean-thinking.png')}
-          style={styles.beanImageLarge}
-          resizeMode="contain"
-        />
-      </View>
-
-      {/* Bottom Navigation - Using actual image icons */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../../assets/images/home.png')}
-            style={styles.navIconImage}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../../assets/images/check-circle.png')}
-            style={styles.navIconImage}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../../assets/images/person.png')}
-            style={styles.navIconImage}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
+      <BottomTabBar navigation={navigation} activeTab="Home" />
+      <DropdownMenu
+        visible={dropdownVisible}
+        onClose={() => setDropdownVisible(false)}
+        navigation={navigation}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
+  container: { flex: 1 },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.XL,
+    paddingVertical: SPACING.MD,
+    borderBottomWidth: 1,
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 80,
-  },
-  header: {
+  topBarLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.SM },
+  topBarIcon: { width: 32, height: 32, borderRadius: 16 },
+  topBarName: { ...TYPOGRAPHY.H4 },
+  hamburger: { fontSize: 26, lineHeight: 28 },
+  scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.LG,
-    paddingBottom: SPACING.MD,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  logoImage: {
-    width: 30,
-    height: 30,
-    marginRight: SPACING.XS,
-  },
-  logoText: {
-    ...TYPOGRAPHY.H3,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: 'bold',
-  },
-  dropdownButton: {
-    padding: SPACING.SM,
-  },
-  dropdownIcon: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-start',
-    paddingTop: 60,
-    paddingHorizontal: SPACING.XL,
-  },
-  dropdownMenu: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.MD,
-    paddingVertical: SPACING.SM,
-    shadowColor: COLORS.BLACK,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: SPACING.MD,
-    paddingHorizontal: SPACING.LG,
-  },
-  dropdownItemText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  dropdownItemTextActive: {
-    color: COLORS.PRIMARY,
-    fontWeight: '600',
-  },
-  checkmark: {
-    color: COLORS.PRIMARY,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  greetingSection: {
-    paddingHorizontal: SPACING.XL,
-    paddingVertical: SPACING.XL,
+    paddingBottom: SPACING.MASSIVE,
   },
   greeting: {
-    ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
-    fontSize: 32,
+    fontSize: 30,
+    fontWeight: '800' as const,
+    marginBottom: SPACING.XS,
   },
-  greetingName: {
-    color: COLORS.PRIMARY,
-  },
-  focusSection: {
-    paddingHorizontal: SPACING.XL,
-    marginBottom: SPACING.LG,
-  },
-  sectionTitle: {
-    ...TYPOGRAPHY.H3,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: 'bold',
-    marginBottom: SPACING.MD,
-  },
-  // COMBINED CARD - Mood Balance + Daily Progress
+  focusLabel: { ...TYPOGRAPHY.BODY, marginBottom: SPACING.LG },
   combinedCard: {
-    backgroundColor: COLORS.WHITE,
-    marginHorizontal: SPACING.XL,
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.LG,
     marginBottom: SPACING.XL,
-    padding: SPACING.XL,
-    borderRadius: SPACING.LG,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
+    elevation: 3,
   },
   cardTitle: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700' as const,
     marginBottom: SPACING.LG,
   },
-  chartContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.LG,
-  },
-  chartPlaceholder: {
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  circleOuter: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 8,
-    borderColor: COLORS.GRAY_200,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  circleInner: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  chartPercentage: {
-    ...TYPOGRAPHY.H2,
-    color: COLORS.PRIMARY,
-    fontWeight: 'bold',
-  },
-  legend: {
-    flex: 1,
-    marginLeft: SPACING.XL,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.SM,
-  },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: SPACING.SM,
-  },
-  legendText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.BORDER,
-    marginVertical: SPACING.LG,
-  },
-  progressStats: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: SPACING.LG,
-  },
+  inCardDivider: { height: 1 },
+  progressSub: { ...TYPOGRAPHY.BODY_SMALL, marginBottom: SPACING.MD },
   progressRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  streakContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  streakBadge: {
+    borderRadius: BORDER_RADIUS.ROUND,
+    paddingHorizontal: SPACING.MD,
+    paddingVertical: SPACING.XS,
   },
-  streakIcon: {
-    fontSize: 20,
-    marginRight: SPACING.XS,
-  },
-  streakText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: '600',
-  },
-  detailsButton: {
-    backgroundColor: COLORS.PRIMARY,
+  streakText: { fontSize: 12, fontWeight: '600' as const },
+  calendarBtn: {
+    borderRadius: BORDER_RADIUS.ROUND,
     paddingHorizontal: SPACING.LG,
-    paddingVertical: SPACING.SM,
-    borderRadius: SPACING.MD,
+    paddingVertical: SPACING.XS,
   },
-  detailsButtonText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.WHITE,
-    fontWeight: '600',
+  calendarText: { fontSize: 12, fontWeight: '700' as const, color: '#000000' },
+  sectionTitle: { ...TYPOGRAPHY.H3, marginBottom: SPACING.MD },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
+  tile: {
+    width: TILE_SIZE,
+    minHeight: TILE_SIZE,
+    borderRadius: BORDER_RADIUS.XL,
+    padding: SPACING.LG,
+    justifyContent: 'flex-start',
+    overflow: 'visible',
+    elevation: 1,
   },
-  featuresSection: {
-    paddingHorizontal: SPACING.XL,
-    marginBottom: SPACING.XL,
-  },
-  featuresGrid: {
+  tileFullWidth: {
+    width: '100%',
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
+    minHeight: 80,
     gap: SPACING.MD,
   },
-  featureCard: {
-    width: '48%',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.LG,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    alignItems: 'center',
-  },
-  featureIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#E8F5F1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.SM,
-  },
-  featureImage: {
-    width: 36,
-    height: 36,
-  },
-  featureTitle: {
-    ...TYPOGRAPHY.CAPTION,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  // Therapeutic Conversations - WHITE CARD
-  therapySection: {
-    paddingHorizontal: SPACING.XL,
-    marginBottom: SPACING.XL,
-  },
-  therapyCard: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: SPACING.LG,
-    padding: SPACING.XL,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  therapyIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#E8F5F1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: SPACING.MD,
-  },
-  therapyIconImage: {
-    width: 30,
-    height: 30,
-  },
-  therapyText: {
-    ...TYPOGRAPHY.BODY_LARGE,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: '600',
-    flex: 1,
-  },
-  // Big Bean Character - FIXED at bottom right
-  beanCharacterFixed: {
+  tileIcon: { width: 52, height: 52, marginBottom: SPACING.MD },
+  tileLabel: { fontSize: 13, fontWeight: '600' as const, lineHeight: 18 },
+  tileLabelFull: { marginBottom: 0, fontSize: 14 },
+  beanHitArea: {
     position: 'absolute',
-    bottom: 80, // Above bottom nav
-    right: 0,
-    zIndex: 999,
+    bottom: -22,
+    right: -22,
+    width: 105,
+    height: 105,
   },
-  beanImageLarge: {
-    width: 120,
-    height: 120,
-  },
-  // Bottom Navigation
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    backgroundColor: COLORS.WHITE,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.BORDER,
-    paddingVertical: SPACING.MD,
-    paddingHorizontal: SPACING.XL,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.SM,
-  },
-  navIconImage: {
-    width: 24,
-    height: 24,
-  },
+  beanOnTile: { width: 105, height: 105 },
 });
 
 export default HomeScreen;

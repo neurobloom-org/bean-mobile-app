@@ -1,5 +1,5 @@
-// src/screens/onboarding/WelcomeScreen.tsx
-// ✅ REFACTORED VERSION - Uses components and constants!
+// Onboarding step 1 of 3. Introduces Bean with a large robot illustration,
+// a greeting, a short descriptor, and a "Get Started" button.
 
 import React from 'react';
 import {
@@ -11,19 +11,20 @@ import {
   Dimensions,
 } from 'react-native';
 import { PrimaryButton, PaginationDots } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
 const WelcomeScreen = ({ navigation }: any) => {
-  const handleGetStarted = () => {
-    navigation.navigate('Features');
-  };
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <View style={styles.content}>
-        {/* Robot Image */}
+        {/* Robot illustration — sized relative to the screen so it adapts across devices */}
         <View style={styles.imageContainer}>
           <Image
             source={require('../../../assets/images/robot-first-page.png')}
@@ -32,25 +33,23 @@ const WelcomeScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Title */}
-        <Text style={styles.title}>Hello, I'm Bean</Text>
-
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Hello, I'm Bean
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Your friendly companion for a calmer, focused mind. Let's take a
           breath and start our journey together.
         </Text>
 
-        {/* Get Started Button */}
+        {/* Advances to the features overview screen */}
         <PrimaryButton
           title="Get Started"
-          onPress={handleGetStarted}
+          onPress={() => navigation.navigate('Features')}
           variant="primary"
           size="large"
           fullWidth
         />
 
-        {/* Pagination Dots */}
         <PaginationDots currentStep={0} totalSteps={3} />
       </View>
     </SafeAreaView>
@@ -58,16 +57,16 @@ const WelcomeScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1 },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: SPACING.XL,
   },
+
+  // Image container fills 90% of screen width and 55% of screen height
+  // so the robot scales proportionally on all device sizes.
   imageContainer: {
     marginBottom: SPACING.XL,
     width: width * 0.9,
@@ -75,19 +74,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  robotImage: {
-    width: '100%',
-    height: '100%',
-  },
+  robotImage: { width: '100%', height: '100%' },
+
   title: {
     ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.MD,
     textAlign: 'center',
   },
   subtitle: {
     ...TYPOGRAPHY.BODY_LARGE,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: SPACING.XXL,

@@ -1,8 +1,12 @@
+// Animated brand introduction shown on every cold launch.
+// Three elements appear in sequence — Bean logo, rotating face icon,
+// Neurobloom logo — before the screen replaces itself with Welcome.
+
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Easing, Image } from 'react-native';
 
 const SplashScreen = ({ navigation }: any) => {
-  // Animation values
+  // ── Animation value declarations ──────────────────────────────────────────
   const beanLogoOpacity = useRef(new Animated.Value(0)).current;
   const beanLogoScale = useRef(new Animated.Value(0.5)).current;
   const iconScale = useRef(new Animated.Value(0.3)).current;
@@ -15,7 +19,7 @@ const SplashScreen = ({ navigation }: any) => {
   }, []);
 
   const startAnimations = () => {
-    // 1. Fade in and scale up "Bean" logo image (0-0.8 seconds)
+    // Step 1 (0 – 0.8 s): Bean logo fades in and springs up to full scale.
     Animated.parallel([
       Animated.timing(beanLogoOpacity, {
         toValue: 1,
@@ -31,7 +35,7 @@ const SplashScreen = ({ navigation }: any) => {
       }),
     ]).start();
 
-    // 2. Scale up and rotate face icon after 0.5 seconds (0.5-2 seconds)
+    // Step 2 (0.5 – 2 s): Face icon scales in while completing a full rotation.
     setTimeout(() => {
       Animated.parallel([
         Animated.spring(iconScale, {
@@ -49,7 +53,7 @@ const SplashScreen = ({ navigation }: any) => {
       ]).start();
     }, 500);
 
-    // 3. Slide in "Neurobloom" logo from left after 2 seconds
+    // Step 3 (2 s): Neurobloom logo slides in from the left and fades to full opacity.
     setTimeout(() => {
       Animated.parallel([
         Animated.spring(neurobloomSlide, {
@@ -67,13 +71,13 @@ const SplashScreen = ({ navigation }: any) => {
       ]).start();
     }, 2000);
 
-    // 4. Navigate to Welcome screen after 3.5 seconds
+    // Step 4 (3.5 s): Replace this screen with Welcome so it is removed from the stack.
     setTimeout(() => {
       navigation.replace('Welcome');
     }, 3500);
   };
 
-  // Interpolate rotation
+  // Maps the 0 → 1 animation progress to 0° → 360° for the icon rotation.
   const rotation = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
@@ -81,14 +85,11 @@ const SplashScreen = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* Bean Logo Image - Appears first at top */}
+      {/* Bean wordmark — first element to appear */}
       <Animated.View
         style={[
           styles.beanLogoContainer,
-          {
-            opacity: beanLogoOpacity,
-            transform: [{ scale: beanLogoScale }],
-          },
+          { opacity: beanLogoOpacity, transform: [{ scale: beanLogoScale }] },
         ]}
       >
         <Image
@@ -98,13 +99,11 @@ const SplashScreen = ({ navigation }: any) => {
         />
       </Animated.View>
 
-      {/* Rotating Face Icon - Appears second in middle */}
+      {/* Face icon — scales in and spins once before settling */}
       <Animated.View
         style={[
           styles.iconContainer,
-          {
-            transform: [{ scale: iconScale }, { rotate: rotation }],
-          },
+          { transform: [{ scale: iconScale }, { rotate: rotation }] },
         ]}
       >
         <Image
@@ -114,7 +113,7 @@ const SplashScreen = ({ navigation }: any) => {
         />
       </Animated.View>
 
-      {/* Neurobloom Logo - Slides from left at bottom */}
+      {/* Neurobloom logo — slides in from the left edge */}
       <Animated.View
         style={[
           styles.neurobloomContainer,
@@ -135,33 +134,19 @@ const SplashScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
+  // White background matches the Bean logo and keeps the splash screen brand-consistent.
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  beanLogoContainer: {
-    marginBottom: 20,
-  },
-  beanLogoImage: {
-    width: 150,
-    height: 60,
-  },
-  iconContainer: {
-    marginBottom: 30,
-  },
-  faceIcon: {
-    width: 100,
-    height: 100,
-  },
-  neurobloomContainer: {
-    marginTop: 10,
-  },
-  neurobloomLogo: {
-    width: 200,
-    height: 50,
-  },
+  beanLogoContainer: { marginBottom: 20 },
+  beanLogoImage: { width: 150, height: 60 },
+  iconContainer: { marginBottom: 30 },
+  faceIcon: { width: 100, height: 100 },
+  neurobloomContainer: { marginTop: 10 },
+  neurobloomLogo: { width: 200, height: 50 },
 });
 
 export default SplashScreen;

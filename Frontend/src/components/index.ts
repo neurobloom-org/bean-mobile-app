@@ -6,6 +6,7 @@ export { BackButton } from './common/BackButton';
 export { PrimaryButton } from './common/PrimaryButton';
 export { Input } from './common/Input';
 export { PaginationDots } from './common/PaginationDots';
+export { default as DropdownMenu } from './common/DropdownMenu';
 
 // Navigation Components (if you created BottomTabBar)
 // export { BottomTabBar } from './navigation/BottomTabBar';

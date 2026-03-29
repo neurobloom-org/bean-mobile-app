@@ -1,10 +1,12 @@
-// src/screens/auth/ConnectBeanScreen.tsx
-// ✅ UPDATED - No validation, navigates to BeanConnected
+// Guides the user through pairing their Bean robot via a 6-digit code.
+// Displays a four-step instruction list, a segmented OTP-style code input,
+// and a help link that explains where to find the pairing code.
 
 import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
+  Image,
   TextInput,
   StyleSheet,
   SafeAreaView,
@@ -13,45 +15,39 @@ import {
   Alert,
 } from 'react-native';
 import { PrimaryButton } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 const ConnectBeanScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+
+  // Six individual digit values forming the pairing code.
   const [code, setCode] = useState(['', '', '', '', '', '']);
+
+  // Refs used to programmatically move focus between digit inputs.
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
+  // Updates the digit at the given index and advances focus to the next field.
   const handleCodeChange = (text: string, index: number) => {
-    // Only allow single digit
-    if (text.length > 1) {
-      text = text.charAt(0);
-    }
-
-    // Update code array
+    if (text.length > 1) text = text.charAt(0);
     const newCode = [...code];
     newCode[index] = text;
     setCode(newCode);
-
-    // Auto-focus next input
-    if (text && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
+    if (text && index < 5) inputRefs.current[index + 1]?.focus();
   };
 
+  // Moves focus back to the previous field when Backspace is pressed on an empty cell.
   const handleKeyPress = (key: string, index: number) => {
-    // Handle backspace
     if (key === 'Backspace' && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleConfirm = () => {
-    // NO VALIDATION - Just navigate to BeanConnected screen
-    const fullCode = code.join('');
-    console.log('Robot code entered:', fullCode);
-
-    // Navigate to Bean Connected success screen
     navigation.navigate('BeanConnected');
   };
 
+  // Informs the user where to locate the 6-digit code in the product packaging.
   const handleCheckPaperWorks = () => {
     Alert.alert(
       'Find Your Code',
@@ -61,58 +57,59 @@ const ConnectBeanScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Bluetooth Icon */}
+        {/* Pairing illustration */}
         <View style={styles.iconContainer}>
-          <Text style={styles.bluetoothIcon}>📶</Text>
+          <Image
+            source={require('../../../assets/images/connect-bean-final.png')}
+            style={styles.connectIcon}
+            resizeMode="contain"
+          />
         </View>
 
-        {/* Title */}
-        <Text style={styles.title}>Connect Bean</Text>
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Connect Bean
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
+          How to Connect to the Robot:
+        </Text>
 
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>How to Connect to the Robot:</Text>
-
-        {/* Steps */}
+        {/* Numbered instruction cards */}
         <View style={styles.stepsContainer}>
-          {/* Step 1 */}
-          <View style={styles.stepCard}>
-            <View style={styles.stepNumber}>
-              <Text style={styles.stepNumberText}>01</Text>
+          {[
+            'Turn on your robot',
+            "Turn on your device's Bluetooth",
+            'Pair the Bean',
+            'Enter the robot code',
+          ].map((step, i) => (
+            <View
+              key={i}
+              style={[
+                styles.stepCard,
+                { backgroundColor: colors.SECONDARY_LIGHT },
+              ]}
+            >
+              <View
+                style={[styles.stepNumber, { backgroundColor: colors.PRIMARY }]}
+              >
+                <Text style={styles.stepNumberText}>
+                  {String(i + 1).padStart(2, '0')}
+                </Text>
+              </View>
+              <Text style={[styles.stepText, { color: colors.TEXT_PRIMARY }]}>
+                {step}
+              </Text>
             </View>
-            <Text style={styles.stepText}>Turn on your robot</Text>
-          </View>
-
-          {/* Step 2 */}
-          <View style={styles.stepCard}>
-            <View style={styles.stepNumber}>
-              <Text style={styles.stepNumberText}>02</Text>
-            </View>
-            <Text style={styles.stepText}>Turn on your device's Bluetooth</Text>
-          </View>
-
-          {/* Step 3 */}
-          <View style={styles.stepCard}>
-            <View style={styles.stepNumber}>
-              <Text style={styles.stepNumberText}>03</Text>
-            </View>
-            <Text style={styles.stepText}>Pair the Bean</Text>
-          </View>
-
-          {/* Step 4 */}
-          <View style={styles.stepCard}>
-            <View style={styles.stepNumber}>
-              <Text style={styles.stepNumberText}>04</Text>
-            </View>
-            <Text style={styles.stepText}>Enter the robot code</Text>
-          </View>
+          ))}
         </View>
 
-        {/* Code Input */}
+        {/* Segmented digit input: each cell accepts one numeric character */}
         <View style={styles.codeContainer}>
           {code.map((digit, index) => (
             <TextInput
@@ -120,7 +117,14 @@ const ConnectBeanScreen = ({ navigation }: any) => {
               ref={ref => {
                 inputRefs.current[index] = ref;
               }}
-              style={styles.codeInput}
+              style={[
+                styles.codeInput,
+                {
+                  backgroundColor: colors.BACKGROUND_LIGHT,
+                  borderColor: colors.BORDER,
+                  color: colors.TEXT_PRIMARY,
+                },
+              ]}
               value={digit}
               onChangeText={text => handleCodeChange(text, index)}
               onKeyPress={({ nativeEvent }) =>
@@ -133,7 +137,6 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Confirm Button - No validation! */}
         <PrimaryButton
           title="Confirm"
           onPress={handleConfirm}
@@ -142,11 +145,15 @@ const ConnectBeanScreen = ({ navigation }: any) => {
           fullWidth
         />
 
-        {/* Help Link */}
+        {/* Help row directing the user to the physical pairing code */}
         <View style={styles.helpContainer}>
-          <Text style={styles.helpText}>Where is the code? </Text>
+          <Text style={[styles.helpText, { color: colors.TEXT_SECONDARY }]}>
+            Where is the code?{' '}
+          </Text>
           <TouchableOpacity onPress={handleCheckPaperWorks}>
-            <Text style={styles.helpLink}>Check the Paper Works</Text>
+            <Text style={[styles.helpLink, { color: colors.LINK }]}>
+              Check the Paper Works
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -155,44 +162,30 @@ const ConnectBeanScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XXL,
     paddingBottom: SPACING.XXL,
   },
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: SPACING.LG,
-  },
-  bluetoothIcon: {
-    fontSize: 48,
-  },
+  iconContainer: { alignItems: 'center', marginBottom: SPACING.LG },
+  connectIcon: { width: 80, height: 80 },
   title: {
     ...TYPOGRAPHY.H2,
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.SM,
     fontWeight: 'bold',
   },
   subtitle: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     marginBottom: SPACING.XL,
   },
-  stepsContainer: {
-    gap: SPACING.SM,
-    marginBottom: SPACING.XXL,
-  },
+  stepsContainer: { gap: SPACING.SM, marginBottom: SPACING.XXL },
   stepCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.SECONDARY_LIGHT,
     borderRadius: SPACING.MD,
     paddingVertical: SPACING.LG,
     paddingHorizontal: SPACING.LG,
@@ -201,21 +194,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.PRIMARY,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.MD,
   },
-  stepNumberText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
-  stepText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-    flex: 1,
-  },
+  stepNumberText: { ...TYPOGRAPHY.BODY, color: '#FFFFFF', fontWeight: 'bold' },
+  stepText: { ...TYPOGRAPHY.BODY, flex: 1, fontWeight: 'bold' },
+
+  // Six equal-width cells laid out in a row.
   codeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -225,30 +211,21 @@ const styles = StyleSheet.create({
   codeInput: {
     flex: 1,
     height: 56,
-    backgroundColor: COLORS.GRAY_50,
     borderWidth: 2,
-    borderColor: COLORS.BORDER,
     borderRadius: SPACING.MD,
     ...TYPOGRAPHY.H2,
     textAlign: 'center',
-    color: COLORS.TEXT_PRIMARY,
     fontWeight: 'bold',
   },
+
   helpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: SPACING.LG,
   },
-  helpText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  helpLink: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.LINK,
-    fontWeight: '600',
-  },
+  helpText: { ...TYPOGRAPHY.BODY },
+  helpLink: { ...TYPOGRAPHY.BODY, fontWeight: '600' },
 });
 
 export default ConnectBeanScreen;

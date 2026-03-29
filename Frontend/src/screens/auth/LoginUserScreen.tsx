@@ -1,4 +1,8 @@
 // src/screens/auth/LoginUserScreen.tsx
+// Sign-in screen for the standard user role.
+// All authentication paths (email and social) pass through a centralised
+// handler that validates the response before navigating. If authentication
+// fails, the user stays on this screen and receives a toast notification.
 
 import React, { useState } from 'react';
 import {
@@ -10,18 +14,48 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  ToastAndroid,
   Alert,
 } from 'react-native';
-import { supabase } from '../../lib/supabase'; //Supabase import
+import { supabase } from '../../lib/supabase';
 import { BackButton, PrimaryButton, Input } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY, COLORS } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+// Displays a bottom toast on Android and an Alert on iOS when login fails.
+const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.showWithGravity(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+    );
+  } else {
+    Alert.alert('Login Failed', message);
+  }
+};
+
 const LoginUserScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const socialProviders: Array<{
+    src: any;
+    provider: 'google' | 'apple' | 'facebook';
+  }> = [
+    { src: require('../../../assets/images/fb.png'), provider: 'facebook' },
+    { src: require('../../../assets/images/apple.png'), provider: 'apple' },
+    { src: require('../../../assets/images/google.png'), provider: 'google' },
+  ];
+
+  // Real Supabase email sign-in with role verification
   const handleSignIn = async () => {
     // 1. Basic Validation
     if (!email.trim() || !password.trim()) {
@@ -61,31 +95,28 @@ const LoginUserScreen = ({ navigation }: any) => {
         return;
       }
 
-      // 4. SMART CHECK: Does this user have a robot paired?
-      const { data: robot, error: robotError } = await supabase
-        .from('robots')
-        .select('id')
-        .eq('owner_id', data.user.id)
-        .maybeSingle(); // Returns null if no robot found (doesn't crash)
-
       setLoading(false);
 
-      // 5. Navigate based on status
-      if (robot) {
-        // Robot found -> Go straight to Dashboard
-        console.log('Robot found, going to Home');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      } else {
-        // ❌ No robot -> Must pair first
-        console.log('No robot found, going to Pairing');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'PairingScreen' }],
-        });
-      }
+      // Extract full name from user_metadata (set during registration)
+      const fullName = data.user.user_metadata?.full_name || 'User';
+
+      // Save session globally via AuthContext
+      await login(
+        {
+          id: data.user.id,
+          email: email.trim(),
+          role: 'user',
+          fullName,
+        },
+        data.session?.access_token || '',
+      );
+
+      // 5. Navigate directly to User Dashboard
+      console.log('Login successful, going to Dashboard');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'UserApp' }],
+      });
 
     } catch (error: any) {
       Alert.alert('System Error', error.message);
@@ -93,6 +124,7 @@ const LoginUserScreen = ({ navigation }: any) => {
     }
   };
 
+  // Handler for social login providers (placeholder for now)
   const handleSocialLogin = (provider: string) => {
     Alert.alert('Coming Soon', `${provider} login is not set up yet.`);
   };
@@ -102,12 +134,13 @@ const LoginUserScreen = ({ navigation }: any) => {
   };
 
   const handleForgotPassword = () => {
-    // navigation.navigate('ForgotPassword', { userType: 'user' });
-    Alert.alert('Coming Soon', 'Forgot Password flow will be implemented here.');
+    navigation.navigate('ForgotPassword', { userType: 'user' });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -116,25 +149,23 @@ const LoginUserScreen = ({ navigation }: any) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Back Button */}
           <BackButton />
 
-          {/* Robot Icon */}
           <View style={styles.iconContainer}>
             <Image
-              source={require('../../../assets/images/robot-first-page.png')}
+              source={require('../../../assets/images/login-page.png')}
               style={styles.robotIcon}
               resizeMode="contain"
             />
           </View>
 
-          {/* Title */}
-          <Text style={styles.title}>Welcome back!</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+            Welcome back!
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             Sign in to continue as a <Text style={styles.boldText}>User</Text>
           </Text>
 
-          {/* Email Input */}
           <Input
             placeholder="Email"
             value={email}
@@ -143,7 +174,6 @@ const LoginUserScreen = ({ navigation }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Password Input */}
           <Input
             placeholder="Password"
             value={password}
@@ -152,62 +182,73 @@ const LoginUserScreen = ({ navigation }: any) => {
             showPasswordToggle
           />
 
-          {/* Forgot Password */}
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPassword}>Forgot password?</Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('ForgotPassword', { userType: 'user' })
+            }
+          >
+            <Text style={[styles.forgotPassword, { color: colors.PRIMARY }]}>
+              Forgot password?
+            </Text>
           </TouchableOpacity>
 
-          {/* Sign In Button (Updated with Loading state) */}
+          {/* Sign In Button with Loading state */}
           <PrimaryButton
             title={loading ? "Signing In..." : "Sign In"}
             onPress={handleSignIn}
-            disabled={loading} // Prevent double clicks
+            disabled={loading}
             variant="primary"
             size="large"
             fullWidth
           />
 
-          {/* Social Login Buttons */}
+          {/* Shown while an auth request is in flight */}
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              color={colors.PRIMARY}
+              style={styles.loader}
+            />
+          )}
+
+          {/* Social login buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Google')}
-            >
-              <Image
-                source={require('../../../assets/images/google.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Facebook')}
-            >
-              <Image
-                source={require('../../../assets/images/fb.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Apple')}
-            >
-              <Image
-                source={require('../../../assets/images/apple.png')}
-                style={styles.socialIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+            {socialProviders.map(({ src, provider }) => (
+              <TouchableOpacity
+                key={provider}
+                style={[
+                  styles.socialButton,
+                  {
+                    backgroundColor: colors.BACKGROUND_LIGHT,
+                    borderColor: colors.BORDER,
+                  },
+                ]}
+                onPress={() => handleSocialLogin(provider)}
+                disabled={loading}
+                activeOpacity={0.75}
+              >
+                <Image
+                  source={src}
+                  style={styles.socialIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            ))}
           </View>
 
           {/* Sign Up Link */}
           <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={handleSignUp}>
-              <Text style={styles.signUpLink}>Sign Up</Text>
+            <Text style={[styles.signUpText, { color: colors.TEXT_SECONDARY }]}>
+              Don't have an account?{' '}
+            </Text>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('CreateAccount', { userType: 'user' })
+              }
+            >
+              <Text style={[styles.signUpLink, { color: colors.LINK }]}>
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -217,84 +258,54 @@ const LoginUserScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
     paddingBottom: SPACING.XXL,
   },
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: SPACING.XL,
-  },
-  robotIcon: {
-    width: 100,
-    height: 100,
-  },
-  title: {
-    ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: SPACING.MD,
-  },
+  iconContainer: { alignItems: 'center', marginBottom: SPACING.XL },
+  robotIcon: { width: 100, height: 100 },
+  title: { ...TYPOGRAPHY.H1, textAlign: 'center', marginBottom: SPACING.MD },
   subtitle: {
     ...TYPOGRAPHY.BODY_LARGE,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     marginBottom: SPACING.XXL,
   },
-  boldText: {
-    fontWeight: 'bold',
-    color: COLORS.TEXT_PRIMARY,
-  },
+  boldText: { fontWeight: 'bold', color: '#07882C' },
   forgotPassword: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.PRIMARY,
     marginBottom: SPACING.XL,
     fontWeight: '600',
-    textAlign: 'right', // Added alignment to make it look better
+    textAlign: 'right',
     marginTop: SPACING.SM,
   },
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: SPACING.XL,
-    marginBottom: SPACING.XXL,
-    marginTop: SPACING.LG, // Added some top margin for spacing
+    marginBottom: SPACING.LG,
+    marginTop: SPACING.LG,
   },
   socialButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.GRAY_50,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: COLORS.BORDER,
   },
-  socialIcon: {
-    width: 30,
-    height: 30,
-  },
+  socialIcon: { width: 30, height: 30 },
+  loader: { marginBottom: SPACING.MD },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: SPACING.LG,
   },
-  signUpText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  signUpLink: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.LINK,
-    fontWeight: '600',
-  },
+  signUpText: { ...TYPOGRAPHY.BODY },
+  signUpLink: { ...TYPOGRAPHY.BODY, fontWeight: '600' },
 });
 
 export default LoginUserScreen;

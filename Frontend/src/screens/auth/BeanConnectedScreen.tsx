@@ -1,71 +1,128 @@
-// src/screens/auth/BeanConnectedScreen.tsx
-// ✅ Bean Connected Success Screen
+// Confirmation screen displayed after a successful Bean robot pairing.
+// Shows a layered success icon, connection status, battery level,
+// and a button that navigates the user into the main app.
 
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
 import { PrimaryButton } from '../../components';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { useTheme } from '../../context/ThemeContext';
 
 const BeanConnectedScreen = ({ navigation }: any) => {
-  const handleNext = () => {
-    // Navigate to Home screen
-    navigation.navigate('Home');
-  };
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.SURFACE }]}
+    >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Success Icon - Green Checkmark in Circles */}
+        {/* Three concentric circles forming a success checkmark indicator */}
         <View style={styles.iconContainer}>
-          <View style={styles.outerCircle}>
+          <View
+            style={[
+              styles.outerCircle,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
             <View style={styles.middleCircle}>
-              <View style={styles.innerCircle}>
+              <View
+                style={[
+                  styles.innerCircle,
+                  { backgroundColor: colors.PRIMARY },
+                ]}
+              >
                 <Text style={styles.checkmark}>✓</Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Title */}
-        <Text style={styles.title}>Bean Connected!</Text>
-
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
+          Bean Connected!
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Your robot is now synced and ready to go.
         </Text>
 
-        {/* Status Cards */}
+        {/* Status cards showing connection security and battery level */}
         <View style={styles.statusContainer}>
-          {/* Connection Status Card */}
-          <View style={styles.statusCard}>
-            <View style={styles.statusIconContainer}>
-              <Text style={styles.statusIcon}>📶</Text>
+          {/* Connection status card */}
+          <View
+            style={[
+              styles.statusCard,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
+            <View
+              style={[
+                styles.statusIconContainer,
+                { backgroundColor: colors.PRIMARY },
+              ]}
+            >
+              <Image
+                source={require('../../../assets/images/connection-status.png')}
+                style={styles.statusIconImage}
+                resizeMode="contain"
+              />
             </View>
-            <Text style={styles.statusLabel}>Connection Status</Text>
-            <View style={styles.statusBadge}>
-              <Text style={styles.statusBadgeText}>Secured</Text>
+            <Text style={[styles.statusLabel, { color: colors.TEXT_PRIMARY }]}>
+              Connection Status
+            </Text>
+            <View
+              style={[styles.statusBadge, { backgroundColor: colors.PRIMARY }]}
+            >
+              <Text style={[styles.statusBadgeText, { color: colors.WHITE }]}>
+                Secured
+              </Text>
             </View>
           </View>
 
-          {/* Battery Level Card */}
-          <View style={styles.statusCard}>
-            <View style={styles.statusIconContainer}>
-              <Text style={styles.statusIcon}>🔋</Text>
+          {/* Battery level card */}
+          <View
+            style={[
+              styles.statusCard,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
+            <View
+              style={[
+                styles.statusIconContainer,
+                { backgroundColor: colors.PRIMARY },
+              ]}
+            >
+              <Image
+                source={require('../../../assets/images/battery-level.png')}
+                style={styles.statusIconImage}
+                resizeMode="contain"
+              />
             </View>
-            <Text style={styles.statusLabel}>Battery Level</Text>
-            <View style={styles.statusBadge}>
-              <Text style={styles.statusBadgeText}>0%</Text>
+            <Text style={[styles.statusLabel, { color: colors.TEXT_PRIMARY }]}>
+              Battery Level
+            </Text>
+            <View
+              style={[styles.statusBadge, { backgroundColor: colors.PRIMARY }]}
+            >
+              <Text style={[styles.statusBadgeText, { color: colors.WHITE }]}>
+                0%
+              </Text>
             </View>
           </View>
         </View>
 
-        {/* Next Button */}
+        {/* Proceeds to the main user app shell */}
         <PrimaryButton
           title="Next"
-          onPress={handleNext}
+          onPress={() => navigation.navigate('UserApp')}
           variant="primary"
           size="large"
           fullWidth
@@ -76,10 +133,7 @@ const BeanConnectedScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-  },
+  container: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: SPACING.XL,
@@ -87,14 +141,13 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.XXL,
     alignItems: 'center',
   },
-  iconContainer: {
-    marginBottom: SPACING.XXL,
-  },
+  iconContainer: { marginBottom: SPACING.XXL },
+
+  // Layered circles: outer (light tint) → middle (fixed mid-green) → inner (primary)
   outerCircle: {
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: '#E0F7F1', // Very light green
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -102,7 +155,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#7FE4C4', // Light green
+    backgroundColor: '#7FE4C4',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -110,39 +163,35 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: COLORS.PRIMARY, // Main green
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkmark: {
-    fontSize: 40,
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
+  checkmark: { fontSize: 40, color: '#FFFFFF', fontWeight: 'bold' },
+
   title: {
     ...TYPOGRAPHY.H1,
-    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: SPACING.SM,
     fontWeight: 'bold',
   },
   subtitle: {
     ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     marginBottom: SPACING.HUGE,
     lineHeight: 20,
     paddingHorizontal: SPACING.LG,
   },
+
   statusContainer: {
     width: '100%',
     gap: SPACING.MD,
     marginBottom: SPACING.XXL,
   },
+
+  // Each row holds an icon, a label, and a coloured badge on the right.
   statusCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.SECONDARY_LIGHT,
     borderRadius: SPACING.LG,
     paddingVertical: SPACING.LG,
     paddingHorizontal: SPACING.LG,
@@ -151,31 +200,19 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.PRIMARY,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.MD,
+    overflow: 'hidden',
   },
-  statusIcon: {
-    fontSize: 20,
-  },
-  statusLabel: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.TEXT_PRIMARY,
-    flex: 1,
-    fontWeight: '500',
-  },
+  statusIconImage: { width: 28, height: 28 },
+  statusLabel: { ...TYPOGRAPHY.BODY, flex: 1, fontWeight: '500' },
   statusBadge: {
-    backgroundColor: COLORS.PRIMARY,
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.XS,
     borderRadius: SPACING.MD,
   },
-  statusBadgeText: {
-    ...TYPOGRAPHY.BODY,
-    color: COLORS.WHITE,
-    fontWeight: '600',
-  },
+  statusBadgeText: { ...TYPOGRAPHY.BODY, fontWeight: '600' },
 });
 
 export default BeanConnectedScreen;
