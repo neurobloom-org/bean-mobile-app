@@ -17,7 +17,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../context/AuthContext';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
@@ -35,6 +35,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
   // Validates all fields before calling Supabase Auth to register the user.
   // Users proceed to the login flow after successful registration.
@@ -73,10 +74,10 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
 
       if (error) throw error;
 
-      // Persist the entered name so every screen can show it instead of a placeholder.
-      const storageKey =
-        userType === 'guardian' ? GUARDIAN_NAME_KEY : USER_NAME_KEY;
-      await AsyncStorage.setItem(storageKey, fullName.trim());
+      // Instead of AsyncStorage, place it safely in the global context
+      if (data?.user) {
+         login(data.user.id, fullName.trim());
+      }
 
       // Success Feedback
       Alert.alert(

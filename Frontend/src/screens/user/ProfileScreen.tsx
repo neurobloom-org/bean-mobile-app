@@ -14,7 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../context/AuthContext';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
@@ -43,14 +43,7 @@ const ProfileScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
-  // Reads the name saved at signup instead of showing a hardcoded placeholder.
-  const [userName, setUserName] = useState('User');
-
-  useEffect(() => {
-    AsyncStorage.getItem('bean_user_name').then(name => {
-      if (name) setUserName(name);
-    });
-  }, []);
+  const { userName } = useAuth();
 
   const handlePickPhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();

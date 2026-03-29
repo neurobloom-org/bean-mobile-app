@@ -16,7 +16,7 @@ import {
   Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
@@ -121,9 +121,10 @@ const fieldStyle = StyleSheet.create({
 const CaregiverAccountScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
   const iconTint = isDark ? '#F1F5F9' : '#000000';
+  const { userName } = useAuth();
 
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [fullName, setFullName] = useState('');
+  const [fullName, setFullName] = useState(userName !== 'there' ? userName : '');
   const [email] = useState('');
   const [phone, setPhone] = useState('');
   const [organisation, setOrganisation] = useState('');
@@ -135,14 +136,6 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
   const [editingPhone, setEditingPhone] = useState(false);
   const [editingOrg, setEditingOrg] = useState(false);
   const [editingSpec, setEditingSpec] = useState(false);
-
-  // Load the guardian's name saved at signup so the profile shows a real name,
-  // not a hardcoded placeholder. Other fields come from the backend when connected.
-  useEffect(() => {
-    AsyncStorage.getItem('bean_guardian_name').then(name => {
-      if (name) setFullName(name);
-    });
-  }, []);
 
   const handlePickPhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();

@@ -21,6 +21,7 @@ import {
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING, TYPOGRAPHY, COLORS } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Displays a bottom toast on Android and an Alert on iOS when login fails.
@@ -38,6 +39,7 @@ const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
 
 const LoginGuardianScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
+  const { login } = useAuth();
 
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
@@ -68,6 +70,12 @@ const LoginGuardianScreen = ({ navigation }: any) => {
       });
 
       if (error) throw error;
+
+      // Extract full name from user_metadata (set during registration)
+      const fullName = data.user.user_metadata?.full_name || 'Guardian';
+
+      // Save session globally
+      login(data.user.id, fullName);
 
       // Success - Navigate to Dashboard
       console.log('Login successful');

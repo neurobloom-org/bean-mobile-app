@@ -13,7 +13,7 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../context/AuthContext';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
@@ -134,14 +134,7 @@ const HomeScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  // Reads the name saved at signup; falls back to 'there' until data loads.
-  const [userName, setUserName] = useState('there');
-
-  useEffect(() => {
-    AsyncStorage.getItem('bean_user_name').then(name => {
-      if (name) setUserName(name);
-    });
-  }, []);
+  const { userName } = useAuth();
 
   const TILE_BG = isDark ? '#1E293B' : '#F1F5F9';
 

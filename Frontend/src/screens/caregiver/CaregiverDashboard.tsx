@@ -17,7 +17,7 @@ import {
   Switch,
   Dimensions,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../context/AuthContext';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
@@ -168,14 +168,7 @@ const CaregiverDashboard = ({ navigation }: any) => {
   const { colors, isDark, toggleTheme } = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
 
-  // Reads the guardian's name saved at signup.
-  const [guardianName, setGuardianName] = useState('Guardian');
-
-  useEffect(() => {
-    AsyncStorage.getItem('bean_guardian_name').then(name => {
-      if (name) setGuardianName(name);
-    });
-  }, []);
+  const { userName } = useAuth();
 
   const handleExportReport = () => {
     Alert.alert('Export Report', 'Clinical report will be exported as PDF.', [
@@ -232,9 +225,8 @@ const CaregiverDashboard = ({ navigation }: any) => {
           Caregiver/Therapist Dashboard
         </Text>
 
-        {/* Shows the guardian's name from AsyncStorage instead of a hardcoded placeholder */}
         <Text style={[styles.pageSubtitle, { color: colors.TEXT_SECONDARY }]}>
-          Signed in as: {guardianName}
+          Signed in as: {userName || 'Guardian'}
         </Text>
 
         <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>

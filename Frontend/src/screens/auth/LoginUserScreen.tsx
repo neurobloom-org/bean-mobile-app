@@ -22,6 +22,7 @@ import { supabase } from '../../lib/supabase';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING, TYPOGRAPHY, COLORS } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Displays a bottom toast on Android and an Alert on iOS when login fails.
@@ -39,6 +40,7 @@ const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
 
 const LoginUserScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -95,7 +97,13 @@ const LoginUserScreen = ({ navigation }: any) => {
 
       setLoading(false);
 
-      // 4. Navigate directly to User Dashboard
+      // Extract full name from user_metadata (set during registration)
+      const fullName = data.user.user_metadata?.full_name || 'User';
+
+      // 4. Save session globally
+      login(data.user.id, fullName);
+
+      // 5. Navigate directly to User Dashboard
       console.log('Login successful, going to Dashboard');
       navigation.reset({
         index: 0,
