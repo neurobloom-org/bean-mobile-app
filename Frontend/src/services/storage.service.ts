@@ -1,4 +1,3 @@
-// src/services/storage.service.ts
 // Typed AsyncStorage wrappers. Use these instead of calling AsyncStorage
 // directly so key names stay consistent across the whole app.
 
