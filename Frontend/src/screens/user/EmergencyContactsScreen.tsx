@@ -1,5 +1,6 @@
-// src/screens/user/EmergencyContactsScreen.tsx
-// ✅ Dark theme aware + white top icon in dark mode
+// Lists the user's trusted emergency contacts. An empty state is shown until
+// contacts are added. Each contact can be deleted with a confirmation prompt.
+// The "Add New Contact" button navigates to the AddNewContactScreen form.
 
 import React, { useState } from 'react';
 import {
@@ -23,9 +24,10 @@ interface Contact {
 }
 
 const EmergencyContactsScreen = ({ navigation }: any) => {
-  const { colors, isDark } = useTheme(); // ✅ added isDark
+  const { colors, isDark } = useTheme();
   const [contacts, setContacts] = useState<Contact[]>([]);
 
+  // Prompts for confirmation before removing the contact from the list.
   const handleDelete = (id: string) => {
     Alert.alert(
       'Remove Contact',
@@ -74,31 +76,27 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top icon — ✅ white in dark mode */}
+        {/* Top illustration; tinted white in dark mode for contrast */}
         <View style={styles.topIconWrap}>
           <Image
             source={require('../../../assets/images/emergency-contact-top-icon.png')}
-            style={[
-              styles.topIcon,
-              isDark && { tintColor: '#FFFFFF' }, // ✅ pure white in dark mode
-            ]}
+            style={[styles.topIcon, isDark && { tintColor: '#FFFFFF' }]}
             resizeMode="contain"
           />
         </View>
 
-        {/* Subtitle */}
         <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Your Bean will reach out to these trusted people if you ever need
           immediate support.
         </Text>
 
-        {/* Your Trusted Circle */}
         <Text style={[styles.sectionGreen, { color: colors.PRIMARY_DARK }]}>
           Your Trusted Circle
         </Text>
 
         <View style={styles.contactsList}>
           {contacts.length === 0 ? (
+            // Empty state shown until at least one contact is saved.
             <View
               style={[styles.emptyState, { backgroundColor: colors.SURFACE }]}
             >
@@ -164,7 +162,7 @@ const EmergencyContactsScreen = ({ navigation }: any) => {
           )}
         </View>
 
-        {/* Add New Contact button */}
+        {/* Dashed add button navigates to the manual entry form */}
         <TouchableOpacity
           style={[
             styles.addBtn,
@@ -206,6 +204,7 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
+
   topIconWrap: { marginBottom: SPACING.LG },
   topIcon: { width: 100, height: 100 },
   subtitle: {
@@ -221,7 +220,10 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     marginBottom: SPACING.MD,
   },
+
   contactsList: { width: '100%', gap: SPACING.MD, marginBottom: SPACING.XL },
+
+  // Empty state card
   emptyState: {
     width: '100%',
     alignItems: 'center',
@@ -237,6 +239,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.XL,
     lineHeight: 18,
   },
+
+  // Contact row
   contactCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -265,6 +269,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   deleteIcon: { width: 32, height: 32 },
+
+  // Dashed add button
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',

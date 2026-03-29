@@ -1,6 +1,6 @@
-// src/screens/user/NotificationPreferencesScreen.tsx
-// ✅ Real image assets + full dark/light theme via useTheme
-// ✅ iconTint uses exact hex from colors.ts (light=#000000, dark=#F1F5F9)
+// Notification Preferences screen — lets the user toggle push notifications,
+// email alerts, robot status updates, and marketing offers. Changes are saved
+// via an Alert confirmation. Fully dark/light theme aware via useTheme.
 
 import React, { useState } from 'react';
 import {
@@ -31,6 +31,7 @@ interface ToggleRowProps {
 
 // ─── Sub-component ────────────────────────────────────────────────────────────
 
+// Reusable row with an icon, label, subtitle, and a toggle switch
 const ToggleRow: React.FC<ToggleRowProps> = ({
   iconSource,
   title,
@@ -47,11 +48,8 @@ const ToggleRow: React.FC<ToggleRowProps> = ({
         { backgroundColor: colors.SECONDARY_LIGHT },
       ]}
     >
-      {/*
-       * ✅ Image asset with resolved hex tintColor string.
-       * Using iconTint (pre-resolved '#000000' / '#F1F5F9') — NOT a theme token
-       * reference — so Android tinting never silently fails.
-       */}
+      {/* iconTint is a pre-resolved hex string ('#000000' / '#F1F5F9') so
+          Android tinting never silently falls back to an unresolved token */}
       <Image
         source={iconSource}
         style={[styles.toggleIconImage, { tintColor: iconTint }]}
@@ -66,6 +64,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({
         {subtitle}
       </Text>
     </View>
+    {/* Green track when on; platform-aware thumb colour for Android */}
     <Switch
       value={value}
       onValueChange={onValueChange}
@@ -82,16 +81,17 @@ const NotificationPreferencesScreen: React.FC = () => {
   const navigation = useNavigation();
   const { colors, isDark } = useTheme();
 
-  // ✅ Exact values from colors.ts:
-  //    LIGHT_COLORS.TEXT_PRIMARY = '#000000'
-  //    DARK_COLORS.TEXT_PRIMARY  = '#F1F5F9'
+  // Resolve tint to exact hex so Android image tinting works reliably:
+  // LIGHT_COLORS.TEXT_PRIMARY = '#000000' | DARK_COLORS.TEXT_PRIMARY = '#F1F5F9'
   const iconTint = isDark ? '#F1F5F9' : '#000000';
 
+  // Individual toggle states — all persist locally until Save is pressed
   const [pushNotifications, setPushNotifications] = useState<boolean>(true);
   const [emailAlerts, setEmailAlerts] = useState<boolean>(false);
   const [robotStatusUpdates, setRobotStatusUpdates] = useState<boolean>(true);
   const [marketingOffers, setMarketingOffers] = useState<boolean>(false);
 
+  // Shows a confirmation alert when the user taps Save Preferences
   const handleSave = () => {
     Alert.alert(
       'Preferences Saved',
@@ -104,6 +104,7 @@ const NotificationPreferencesScreen: React.FC = () => {
     <View style={[styles.container, { backgroundColor: colors.BACKGROUND }]}>
       {/* ── Header ── */}
       <View style={[styles.header, { backgroundColor: colors.BACKGROUND }]}>
+        {/* Back arrow — pops the screen from the navigation stack */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
@@ -116,6 +117,7 @@ const NotificationPreferencesScreen: React.FC = () => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Notification Preferences
         </Text>
+        {/* Spacer keeps the title centred against the back button */}
         <View style={styles.headerSpacer} />
       </View>
 
@@ -129,6 +131,7 @@ const NotificationPreferencesScreen: React.FC = () => {
           Alert Channels
         </Text>
 
+        {/* Card groups related toggles with a hairline divider between them */}
         <View
           style={[
             styles.card,
@@ -198,7 +201,7 @@ const NotificationPreferencesScreen: React.FC = () => {
           />
         </View>
 
-        {/* ── Disclaimer ── */}
+        {/* Fine-print note — security alerts are always sent regardless of toggles */}
         <Text style={[styles.disclaimer, { color: colors.TEXT_TERTIARY }]}>
           You can change these settings at any time. System-critical updates
           regarding your account security will always be sent regardless of
@@ -258,7 +261,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
 
-  // Section label
+  // Section label — ALL CAPS category heading above each card group
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
@@ -268,7 +271,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // Card
+  // Card — rounded container that groups related toggle rows
   card: {
     borderRadius: 16,
     overflow: 'hidden',
@@ -312,7 +315,7 @@ const styles = StyleSheet.create({
     lineHeight: 17,
   },
 
-  // Divider
+  // Hairline divider between rows inside a card
   divider: {
     height: 1,
     marginLeft: 70,
@@ -327,7 +330,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
 
-  // Footer
+  // Footer — sticks to the bottom, houses the Save button
   footer: {
     paddingHorizontal: 20,
     paddingBottom: 36,

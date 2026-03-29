@@ -8,6 +8,7 @@ import EnterWardEmailScreen from '../screens/caregiver/EnterWardEmailScreen';
 import VerifyPatientEmailScreen from '../screens/caregiver/VerifyPatientEmailScreen';
 import VerificationSuccessfulScreen from '../screens/caregiver/VerificationSuccessfulScreen';
 import CaregiverDashboard from '../screens/caregiver/CaregiverDashboard';
+import CaregiverAccountScreen from '../screens/caregiver/CaregiverAccountScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,9 @@ const CaregiverNavigator = () => {
 
       {/* ── Caregiver Dashboard ── */}
       <Stack.Screen name="CaregiverDashboard" component={CaregiverDashboard} />
+      
+      {/* ── Caregiver Account Settings ── */}
+      <Stack.Screen name="CaregiverAccount" component={CaregiverAccountScreen} />
     </Stack.Navigator>
   );
 };

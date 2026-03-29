@@ -1,6 +1,6 @@
-// src/components/common/DropdownMenu.tsx
-// ✅ Updated icons + tintColor white in dark mode, black in light mode
-// ✅ Routes correct + 320ms delay fix
+// Slide-in settings panel rendered as a right-side modal overlay.
+// Navigation calls are delayed by MODAL_CLOSE_DELAY to allow the slide-out
+// animation to complete before the new screen mounts.
 
 import React from 'react';
 import {
@@ -19,7 +19,12 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
+
+// Panel occupies 72% of screen width so the backdrop remains visible
 const PANEL_WIDTH = width * 0.72;
+
+// Delay in ms to let the modal slide-out animation finish before navigating.
+// Without this, navigation.navigate() is silently dropped while the modal unmounts.
 const MODAL_CLOSE_DELAY = 320;
 
 interface MenuItem {
@@ -27,51 +32,54 @@ interface MenuItem {
   label: string;
   iconSource: any;
   route: string;
-  // whether to apply tintColor (false for display icon which may be colored)
+  // When true, the icon tint is inverted per the active colour theme.
   tintable: boolean;
 }
 
+// Static menu item definitions. Route names must match UserNavigator screen names exactly.
 const MENU_ITEMS: MenuItem[] = [
   {
     id: 'account',
     label: 'Account Info',
-    iconSource: require('../../../assets/images/person.png'), // ✅ new
+    iconSource: require('../../../assets/images/person.png'),
     route: 'AccountInfo',
     tintable: true,
   },
   {
     id: 'notifications',
     label: 'Notifications',
-    iconSource: require('../../../assets/images/notifications.png'), // ✅ new
+    iconSource: require('../../../assets/images/notifications.png'),
     route: 'NotificationPreferences',
     tintable: true,
   },
   {
     id: 'privacy',
     label: 'Privacy',
-    iconSource: require('../../../assets/images/Frame 2121452668.png'), // ✅ new lock icon
+    iconSource: require('../../../assets/images/Frame 2121452668.png'),
     route: 'PrivacySettings',
     tintable: true,
   },
   {
     id: 'help',
     label: 'Help',
-    iconSource: require('../../../assets/images/help_center.png'), // ✅ new
+    iconSource: require('../../../assets/images/help_center.png'),
     route: 'HelpCenter',
     tintable: true,
   },
   {
     id: 'display',
     label: 'Display & Brightness',
-    iconSource: require('../../../assets/images/emergency-contact-top-icon.png'), // unchanged
+    iconSource: require('../../../assets/images/emergency-contact-top-icon.png'),
     route: 'Display',
-    tintable: true, // also tinted so it stays consistent in dark mode
+    tintable: true,
   },
   {
-    id: 'robotConnectivity',
-    label: 'Robot Connectivity',
-    iconSource: require('../../../assets/images/login-page.png'), // unchanged
-    route: 'RobotConnectivity',
+    // Navigates directly to the Bluetooth connection flow,
+    // bypassing the intermediate RobotConnectivity screen.
+    id: 'connectBean',
+    label: 'Connect Your Bean',
+    iconSource: require('../../../assets/images/login-page.png'),
+    route: 'BluetoothConnectivity',
     tintable: true,
   },
 ];
@@ -80,6 +88,7 @@ interface DropdownMenuProps {
   visible: boolean;
   onClose: () => void;
   navigation: any;
+  // Displayed at the bottom of the panel. Defaults to '2.4.8'.
   appVersion?: string;
 }
 
@@ -91,12 +100,11 @@ const DropdownMenu = ({
 }: DropdownMenuProps) => {
   const { colors, isDark } = useTheme();
 
-  // ✅ Resolved hex strings from colors.ts:
-  //    LIGHT: TEXT_PRIMARY = '#000000'
-  //    DARK:  TEXT_PRIMARY = '#F1F5F9'
-  // Pre-resolved so Android tinting never silently fails.
+  // Pre-resolved hex strings are used instead of theme token references
+  // because Android's native image tinting requires a concrete colour value.
   const iconTint = isDark ? '#F1F5F9' : '#000000';
 
+  // Close the modal first, then navigate after the animation completes.
   const handleMenuPress = (route: string) => {
     onClose();
     setTimeout(() => {
@@ -108,6 +116,7 @@ const DropdownMenu = ({
     }, MODAL_CLOSE_DELAY);
   };
 
+  // Confirm before clearing the session and returning to the Welcome screen.
   const handleLogOut = () => {
     onClose();
     setTimeout(() => {
@@ -129,14 +138,13 @@ const DropdownMenu = ({
       animationType="slide"
       onRequestClose={onClose}
     >
-      {/* Dimmed backdrop */}
+      {/* Tappable backdrop dismisses the panel */}
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
 
-      {/* Side panel */}
       <View style={[styles.panel, { backgroundColor: colors.SURFACE }]}>
-        {/* Close button */}
+        {/* Dismiss button in the top-right corner of the panel */}
         <TouchableOpacity
           style={[styles.closeButton, { backgroundColor: colors.GRAY_100 }]}
           onPress={onClose}
@@ -146,7 +154,7 @@ const DropdownMenu = ({
           </Text>
         </TouchableOpacity>
 
-        {/* Menu items */}
+        {/* Rendered menu items */}
         <View style={styles.menuList}>
           {MENU_ITEMS.map(item => (
             <TouchableOpacity
@@ -161,13 +169,6 @@ const DropdownMenu = ({
                   { backgroundColor: colors.SECONDARY_LIGHT },
                 ]}
               >
-                {/*
-                 * ✅ tintColor = iconTint (resolved hex string).
-                 * Light mode → '#000000' (black icons)
-                 * Dark mode  → '#F1F5F9' (white icons)
-                 * Using pre-resolved hex instead of colors.TEXT_PRIMARY token
-                 * to guarantee Android renders the tint correctly.
-                 */}
                 <Image
                   source={item.iconSource}
                   style={[
@@ -184,13 +185,13 @@ const DropdownMenu = ({
           ))}
         </View>
 
+        {/* Spacer pushes the log-out section to the bottom of the panel */}
         <View style={{ flex: 1 }} />
 
         <View
           style={[styles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
         />
 
-        {/* Log Out */}
         <TouchableOpacity
           style={styles.logOutButton}
           onPress={handleLogOut}
@@ -208,6 +209,7 @@ const DropdownMenu = ({
 };
 
 const styles = StyleSheet.create({
+  // Full-screen transparent layer that captures taps outside the panel
   overlay: {
     position: 'absolute',
     top: 0,
@@ -216,6 +218,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
+
+  // Right-anchored panel with rounded left corners
   panel: {
     position: 'absolute',
     top: 0,
@@ -233,6 +237,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 20,
   },
+
   closeButton: {
     position: 'absolute',
     top: 16,
@@ -243,13 +248,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeIcon: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  menuList: {
-    gap: SPACING.XS,
-  },
+  closeIcon: { fontSize: 14, fontWeight: '600' },
+  menuList: { gap: SPACING.XS },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -264,18 +264,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  menuIconImage: {
-    width: 26,
-    height: 26,
-  },
-  menuLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  divider: {
-    height: 1,
-    marginVertical: SPACING.LG,
-  },
+  menuIconImage: { width: 26, height: 26 },
+  menuLabel: { fontSize: 16, fontWeight: '500' },
+  divider: { height: 1, marginVertical: SPACING.LG },
   logOutButton: {
     backgroundColor: '#FF4D6D',
     borderRadius: BORDER_RADIUS.ROUND,
@@ -290,10 +281,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.3,
   },
-  versionText: {
-    ...TYPOGRAPHY.CAPTION,
-    textAlign: 'center',
-  },
+  versionText: { ...TYPOGRAPHY.CAPTION, textAlign: 'center' },
 });
 
 export default DropdownMenu;

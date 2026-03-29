@@ -5,6 +5,11 @@ import pytz
 import os
 from dotenv import load_dotenv
 from groq import Groq
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import secrets
 
 # Load the hidden variables from your .env file
 load_dotenv()
@@ -131,6 +136,144 @@ def app_chat():
 
     except Exception as e:
         return jsonify ({"status" : "error", "message" : f"AI/Database Error: {str(e)}"}), 500
+    
+    # --- EMAIL HELPER FUNCTION ---
+def send_verification_email(patient_email, token):
+    sender_email = os.getenv("EMAIL_ADDRESS")
+    sender_password = os.getenv("EMAIL_PASSWORD") 
+
+    # TODO: Replace YOUR_MAC_IP with your actual Wi-Fi IP while testing!
+    # When deployed, this will be your Render/Cloud URL.
+    verify_link = f"http://192.168.8.146:5001/api/guardian/verify/{token}"
+
+    msg = MIMEMultipart()
+    msg['From'] = f"NeuroBloom Security <{sender_email}>"
+    msg['To'] = patient_email
+    msg['Subject'] = "Action Required: Guardian Access Request"
+
+    # The Email Body
+    body = f"""
+    Hello,
+
+    A guardian has requested to connect with your NeuroBloom account to support your mental wellness journey with Bean.
+
+    To approve this request and securely link your accounts, please click the verification link below:
+    {verify_link}
+
+    If you did not expect this request, you can safely ignore this email.
+
+    Warmly,
+    The NeuroBloom Team
+    """
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Connect to Google's SMTP server securely and send the email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, patient_email, msg.as_string())
+
+
+# --- 4. The Guardian Request Endpoint ---
+@app.route('/api/guardian/request-link', methods=['POST'])
+def request_guardian_link():
+    data = request.json
+    # Read the data the way React Native sends it:
+    guardian_incoming_id = data.get('guardian_id') 
+    patient_email = data.get('patient_email')
+
+    if not guardian_incoming_id or not patient_email:
+        return jsonify({"error": "Missing guardian ID or patient email"}), 400
+
+    try:
+        patient_check = supabase.table('users').select('id').eq('email', patient_email).execute()
+        
+        if len(patient_check.data) == 0:
+            return jsonify({
+                "status": "error", 
+                "message": "No NeuroBloom user found with that email."
+            }), 404
+        
+        patient_user_id = patient_check.data[0]['id']
+        token = secrets.token_urlsafe(32)
+
+        # Save to the database using your exact column names
+        supabase.table('guardian_links').insert({
+            "guardian_user_id": guardian_incoming_id,
+            "patient_user_id": patient_user_id,
+            "status": "pending",
+            "verification_token": token
+        }).execute()
+
+        send_verification_email(patient_email, token)
+
+        return jsonify({
+            "status": "success", 
+            "message": "Verification email sent. Waiting for patient approval."
+        }), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Server Error: {str(e)}"}), 500
+        
+    
+    # --- 5. The Email Click Endpoint (Patient clicks this in their browser) ---
+@app.route('/api/guardian/verify/<token>', methods=['GET'])
+def verify_guardian(token):
+    try:
+        # 1. Look up the token in the database
+        link_check = supabase.table('guardian_links').select('*').eq('verification_token', token).single().execute()
+
+        if not link_check.data:
+            return "Invalid or expired verification link.", 400
+
+        # 2. If it's already verified, just tell them
+        if link_check.data['status'] == 'verified':
+            return "This account is already verified. You can close this window.", 200
+
+        # 3. Update the status to 'verified'
+        supabase.table('guardian_links').update({"status": "verified"}).eq('verification_token', token).execute()
+
+        # 4. Show a friendly success webpage
+        return """
+        <html>
+          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #F8FAFC;">
+            <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto;">
+                <h1 style="color: #22C55E;">Verification Successful! ✅</h1>
+                <p style="color: #334155; font-size: 16px;">You have successfully securely connected with your guardian.</p>
+                <p style="color: #64748B; font-size: 14px;">You can now close this window and return to your day.</p>
+            </div>
+          </body>
+        </html>
+        """, 200
+
+    except Exception as e:
+        return f"Server Error: {str(e)}", 500
+
+
+    # --- 6. The Status Check Endpoint (React Native app polls this) ---
+@app.route('/api/guardian/status/<guardian_user_id>', methods=['GET'])
+def check_guardian_status(guardian_user_id):
+    try:
+        # Fetch the most recent link request for this specific guardian
+        status_check = supabase.table('guardian_links') \
+            .select('status') \
+            .eq('guardian_user_id', guardian_user_id) \
+            .order('created_at', desc=True) \
+            .limit(1) \
+            .execute()
+
+        if not status_check.data:
+            return jsonify({"status": "error", "message": "No pending request found for this guardian."}), 404
+
+        current_status = status_check.data[0]['status'] # Will be 'pending' or 'verified'
+
+        return jsonify({
+            "status": "success", 
+            "verification_status": current_status
+        }), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Database Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5001)

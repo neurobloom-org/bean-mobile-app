@@ -1,5 +1,6 @@
-// src/screens/user/AddNewContactScreen.tsx
-// ✅ Dark theme aware
+// Form for adding a new emergency contact. The user can enter details manually
+// or import from the device address book via the sync option. A custom
+// dropdown handles relationship selection.
 
 import React, { useState } from 'react';
 import {
@@ -19,6 +20,7 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 
+// Predefined relationship options shown in the dropdown.
 const RELATIONSHIPS = [
   'Mother',
   'Father',
@@ -31,13 +33,14 @@ const RELATIONSHIPS = [
 ];
 
 const AddNewContactScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   const [fullName, setFullName] = useState('');
   const [relationship, setRelationship] = useState('');
   const [phone, setPhone] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Validates all three required fields before confirming and navigating back.
   const handleSave = () => {
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter a full name');
@@ -58,6 +61,8 @@ const AddNewContactScreen = ({ navigation }: any) => {
     );
   };
 
+  // Confirms intent before reading from the device contacts.
+  // TODO: wire up to react-native-contacts for actual sync.
   const handleSync = () => {
     Alert.alert(
       'Sync from Contacts',
@@ -107,7 +112,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Add icon */}
+          {/* Dashed circle icon acts as the contact photo placeholder */}
           <View
             style={[
               styles.addIconOuter,
@@ -124,13 +129,12 @@ const AddNewContactScreen = ({ navigation }: any) => {
             />
           </View>
 
-          {/* Subtitle */}
           <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             Add someone your companion robot can reach out to when you need
             extra support.
           </Text>
 
-          {/* Sync button */}
+          {/* Phone contacts sync shortcut */}
           <TouchableOpacity
             style={[
               styles.syncBtn,
@@ -150,7 +154,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
             <Text style={styles.syncBtnText}>Sync from Contacts</Text>
           </TouchableOpacity>
 
-          {/* Divider */}
+          {/* Separator between the sync option and manual entry form */}
           <View style={styles.dividerRow}>
             <View
               style={[
@@ -169,7 +173,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
             />
           </View>
 
-          {/* Full Name */}
+          {/* Full Name field */}
           <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
             Full Name
           </Text>
@@ -194,7 +198,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
             />
           </View>
 
-          {/* Relationship dropdown */}
+          {/* Relationship selector — toggling this row shows or hides the dropdown list */}
           <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
             Relationship
           </Text>
@@ -230,7 +234,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* Dropdown options */}
+          {/* Dropdown options rendered inline below the selector */}
           {showDropdown && (
             <View
               style={[
@@ -257,6 +261,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
                     style={[
                       styles.dropdownItemText,
                       { color: colors.TEXT_PRIMARY },
+                      // Highlight the currently selected option in the primary colour.
                       relationship === rel && {
                         color: colors.PRIMARY,
                         fontWeight: '700' as const,
@@ -270,7 +275,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
             </View>
           )}
 
-          {/* Phone Number */}
+          {/* Phone Number field */}
           <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
             Phone Number
           </Text>
@@ -295,7 +300,6 @@ const AddNewContactScreen = ({ navigation }: any) => {
             />
           </View>
 
-          {/* Save button */}
           <TouchableOpacity
             style={styles.saveBtn}
             onPress={handleSave}
@@ -304,7 +308,7 @@ const AddNewContactScreen = ({ navigation }: any) => {
             <Text style={styles.saveBtnText}>Save Contact</Text>
           </TouchableOpacity>
 
-          {/* Disclaimer */}
+          {/* Privacy reassurance shown below the save action */}
           <Text style={[styles.disclaimer, { color: colors.TEXT_TERTIARY }]}>
             Your contact information is encrypted and only used in cases of
             emergency or requested support.
@@ -334,6 +338,8 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.MASSIVE,
     alignItems: 'center',
   },
+
+  // Dashed circular border around the placeholder icon.
   addIconOuter: {
     width: 90,
     height: 90,
@@ -352,6 +358,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XL,
     paddingHorizontal: SPACING.MD,
   },
+
   syncBtn: {
     width: '100%',
     borderRadius: BORDER_RADIUS.ROUND,
@@ -365,6 +372,7 @@ const styles = StyleSheet.create({
   },
   syncBtnIcon: { width: 45, height: 45 },
   syncBtnText: { fontSize: 15, fontWeight: '600' as const, color: '#22C55E' },
+
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -374,6 +382,7 @@ const styles = StyleSheet.create({
   },
   dividerLine: { flex: 1, height: 1 },
   dividerText: { fontSize: 11, fontWeight: '600' as const, letterSpacing: 0.8 },
+
   fieldLabel: {
     alignSelf: 'flex-start',
     fontSize: 13,
@@ -390,9 +399,12 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG,
     gap: SPACING.SM,
   },
+  // Icon tint is hardcoded to a neutral slate so it works on any background colour.
   inputIcon: { width: 26, height: 26, flexShrink: 0, tintColor: '#94A3B8' },
   input: { flex: 1, fontSize: 15, paddingTop: 0, paddingBottom: 0 },
   dropdownArrow: { fontSize: 12 },
+
+  // Dropdown list positioned flush below the selector row.
   dropdown: {
     width: '100%',
     borderRadius: BORDER_RADIUS.LG,
@@ -407,6 +419,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   dropdownItemText: { fontSize: 14 },
+
   saveBtn: {
     width: '100%',
     backgroundColor: '#22C55E',

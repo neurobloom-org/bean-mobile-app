@@ -1,7 +1,8 @@
-// src/screens/caregiver/CaregiverDashboard.tsx
-// ✅ Dark theme aware
+// Main dashboard for the caregiver/therapist role. Displays mood trends,
+// activity overview, and patient history for the linked user. A slide-in
+// hamburger menu provides theme toggling, account settings, and logout.
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,11 +12,184 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
+  Modal,
+  TouchableWithoutFeedback,
+  Switch,
+  Dimensions,
 } from 'react-native';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 import MoodTrendChart from '../../components/cards/MoodTrendChart';
+
+const { width } = Dimensions.get('window');
+
+// Panel occupies 72% of screen width so the backdrop remains partially visible.
+const PANEL_WIDTH = width * 0.72;
+
+// Delay in ms to let the modal slide-out animation finish before navigating.
+const MODAL_CLOSE_DELAY = 320;
+
+// ─── Caregiver Hamburger Menu ─────────────────────────────────────────────────
+
+interface CaregiverMenuProps {
+  visible: boolean;
+  onClose: () => void;
+  navigation: any;
+  colors: any;
+  isDark: boolean;
+  // Signature matches ThemeContext: toggleTheme(dark: boolean) => void
+  toggleTheme: (dark: boolean) => void;
+}
+
+const CaregiverMenu = ({
+  visible,
+  onClose,
+  navigation,
+  colors,
+  isDark,
+  toggleTheme,
+}: CaregiverMenuProps) => {
+  // Pre-resolved hex so Android tinting works reliably.
+  const iconTint = isDark ? '#F1F5F9' : '#000000';
+
+  // Close the modal first, then show the confirmation dialog after the animation.
+  const handleLogOut = () => {
+    onClose();
+    setTimeout(() => {
+      Alert.alert('Log Out', 'Are you sure you want to log out?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: () => navigation.navigate('Welcome'),
+        },
+      ]);
+    }, MODAL_CLOSE_DELAY);
+  };
+
+  // Close the modal first, then navigate to the account screen.
+  const handleAccountSettings = () => {
+    onClose();
+    setTimeout(() => {
+      navigation.navigate('CaregiverAccount');
+    }, MODAL_CLOSE_DELAY);
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      {/* Tappable backdrop dismisses the panel */}
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={menuStyles.overlay} />
+      </TouchableWithoutFeedback>
+
+      <View style={[menuStyles.panel, { backgroundColor: colors.SURFACE }]}>
+        {/* Dismiss button in the top-right corner */}
+        <TouchableOpacity
+          style={[menuStyles.closeBtn, { backgroundColor: colors.GRAY_100 }]}
+          onPress={onClose}
+        >
+          <Text style={[menuStyles.closeIcon, { color: colors.TEXT_PRIMARY }]}>
+            ✕
+          </Text>
+        </TouchableOpacity>
+
+        {/* Branding row: Bean logo tinted with the primary colour */}
+        <View style={menuStyles.brandRow}>
+          <Image
+            source={require('../../../assets/images/login-page.png')}
+            style={[menuStyles.brandLogo, { tintColor: colors.PRIMARY }]}
+            resizeMode="contain"
+          />
+          <Text style={[menuStyles.brandName, { color: colors.TEXT_PRIMARY }]}>
+            Bean
+          </Text>
+        </View>
+        <Text style={[menuStyles.brandSub, { color: colors.TEXT_TERTIARY }]}>
+          Caregiver Portal
+        </Text>
+
+        <View
+          style={[menuStyles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
+        />
+
+        {/* Theme toggle: Switch passes its new boolean value directly to toggleTheme */}
+        <View style={menuStyles.menuItem}>
+          <View
+            style={[
+              menuStyles.iconBox,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
+            <Text style={menuStyles.menuItemEmoji}>{isDark ? '🌙' : '☀️'}</Text>
+          </View>
+          <Text style={[menuStyles.menuLabel, { color: colors.TEXT_PRIMARY }]}>
+            {isDark ? 'Dark Mode' : 'Light Mode'}
+          </Text>
+          <Switch
+            value={isDark}
+            onValueChange={toggleTheme}
+            trackColor={{ false: colors.BORDER_LIGHT, true: colors.PRIMARY }}
+            thumbColor={isDark ? '#F1F5F9' : '#FFFFFF'}
+          />
+        </View>
+
+        {/* Account settings row */}
+        <TouchableOpacity
+          style={menuStyles.menuItem}
+          onPress={handleAccountSettings}
+          activeOpacity={0.7}
+        >
+          <View
+            style={[
+              menuStyles.iconBox,
+              { backgroundColor: colors.SECONDARY_LIGHT },
+            ]}
+          >
+            <Image
+              source={require('../../../assets/images/account-info.png')}
+              style={[menuStyles.menuIcon, { tintColor: iconTint }]}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={[menuStyles.menuLabel, { color: colors.TEXT_PRIMARY }]}>
+            Account Settings
+          </Text>
+          <Text style={[menuStyles.chevron, { color: colors.TEXT_TERTIARY }]}>
+            ›
+          </Text>
+        </TouchableOpacity>
+
+        {/* Spacer pushes the log-out section to the bottom */}
+        <View style={{ flex: 1 }} />
+
+        <View
+          style={[menuStyles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
+        />
+
+        <TouchableOpacity
+          style={menuStyles.logOutButton}
+          onPress={handleLogOut}
+          activeOpacity={0.85}
+        >
+          <Text style={menuStyles.logOutText}>→ Log Out</Text>
+        </TouchableOpacity>
+
+        <Text style={[menuStyles.versionText, { color: colors.TEXT_TERTIARY }]}>
+          Bean v2.4.1 · Caregiver Portal
+        </Text>
+      </View>
+    </Modal>
+  );
+};
+
+// ─── Alert Item ───────────────────────────────────────────────────────────────
+// Reusable row used in the patient history list.
 
 interface AlertItemProps {
   icon: any;
@@ -52,8 +226,11 @@ const AlertItem = ({
   </TouchableOpacity>
 );
 
+// ─── Main Screen ─────────────────────────────────────────────────────────────
+
 const CaregiverDashboard = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors, isDark, toggleTheme } = useTheme();
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const handleExportReport = () => {
     Alert.alert('Export Report', 'Clinical report will be exported as PDF.', [
@@ -65,7 +242,7 @@ const CaregiverDashboard = ({ navigation }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Header: Bean logo on the left, title in the centre, hamburger on the right */}
       <View
         style={[
           styles.header,
@@ -75,25 +252,42 @@ const CaregiverDashboard = ({ navigation }: any) => {
           },
         ]}
       >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <Text style={[styles.backIcon, { color: colors.TEXT_PRIMARY }]}>
-            ‹
+        {/* Bean logo tinted white in dark mode for sufficient contrast */}
+        <View style={styles.headerLeft}>
+          <Image
+            source={require('../../../assets/images/login-page.png')}
+            style={[
+              styles.headerLogo,
+              { tintColor: isDark ? '#FFFFFF' : undefined },
+            ]}
+            resizeMode="contain"
+          />
+          <Text
+            style={[styles.headerBrandName, { color: colors.TEXT_PRIMARY }]}
+          >
+            Bean
           </Text>
-        </TouchableOpacity>
+        </View>
+
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Caregiver Dashboard
         </Text>
-        <View style={{ width: 40 }} />
+
+        {/* Opens the slide-in hamburger menu panel */}
+        <TouchableOpacity
+          onPress={() => setMenuVisible(true)}
+          style={styles.hamburgerBtn}
+        >
+          <Text style={[styles.hamburger, { color: colors.TEXT_PRIMARY }]}>
+            ≡
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Page title */}
         <Text style={[styles.pageTitle, { color: colors.TEXT_PRIMARY }]}>
           Caregiver/Therapist Dashboard
         </Text>
@@ -101,7 +295,7 @@ const CaregiverDashboard = ({ navigation }: any) => {
           Monitoring: Alex Johnson
         </Text>
 
-        {/* Mood Trends card */}
+        {/* Mood trend line chart for the past 7 days */}
         <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>
           <Text style={[styles.cardTitle, { color: colors.TEXT_PRIMARY }]}>
             Mood Trends
@@ -112,12 +306,11 @@ const CaregiverDashboard = ({ navigation }: any) => {
           <MoodTrendChart scores={[0, 0, 0, 0, 0, 0, 0]} />
         </View>
 
-        {/* Activity Overview */}
+        {/* Side-by-side activity summary cards */}
         <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
           Activity Overview
         </Text>
         <View style={styles.activityRow}>
-          {/* Tasks card */}
           <View
             style={[styles.activityCard, { backgroundColor: colors.SURFACE }]}
           >
@@ -145,7 +338,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
             </Text>
           </View>
 
-          {/* Focus card */}
           <View
             style={[styles.activityCard, { backgroundColor: colors.SURFACE }]}
           >
@@ -174,7 +366,7 @@ const CaregiverDashboard = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Bean User History */}
+        {/* Event history — shows SOS triggers and mood alerts when populated */}
         <View style={styles.historyHeader}>
           <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
             Bean User History
@@ -186,7 +378,7 @@ const CaregiverDashboard = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
 
-        {/* Empty history state */}
+        {/* Empty state shown until the backend provides event data */}
         <View
           style={[styles.historyEmpty, { backgroundColor: colors.SURFACE }]}
         >
@@ -202,7 +394,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
           </Text>
         </View>
 
-        {/* Export Clinical Report */}
         <TouchableOpacity
           style={[styles.exportBtn, { backgroundColor: colors.PRIMARY }]}
           onPress={handleExportReport}
@@ -218,15 +409,110 @@ const CaregiverDashboard = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Footer */}
         <Text style={[styles.footer, { color: colors.TEXT_TERTIARY }]}>
           Bean AI · Caregiver/Therapist Portal v2.4.1
         </Text>
       </ScrollView>
+
+      {/* Slide-in hamburger menu rendered as a transparent modal */}
+      <CaregiverMenu
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        navigation={navigation}
+        colors={colors}
+        isDark={isDark}
+        toggleTheme={toggleTheme}
+      />
     </SafeAreaView>
   );
 };
 
+// ─── Menu Styles ──────────────────────────────────────────────────────────────
+const menuStyles = StyleSheet.create({
+  // Full-screen transparent layer that captures taps outside the panel.
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  // Right-anchored panel with rounded left corners.
+  panel: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: PANEL_WIDTH,
+    borderTopLeftRadius: BORDER_RADIUS.XXL,
+    borderBottomLeftRadius: BORDER_RADIUS.XXL,
+    paddingTop: 56,
+    paddingHorizontal: SPACING.XL,
+    paddingBottom: SPACING.XXXL,
+    shadowColor: '#000000',
+    shadowOffset: { width: -4, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeIcon: { fontSize: 14, fontWeight: '600' },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.SM,
+    marginBottom: 4,
+  },
+  brandLogo: { width: 32, height: 32 },
+  brandName: { fontSize: 20, fontWeight: '800' as const },
+  brandSub: { fontSize: 12, marginBottom: SPACING.LG },
+  divider: { height: 1, marginVertical: SPACING.LG },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.MD,
+    gap: SPACING.LG,
+    borderRadius: BORDER_RADIUS.LG,
+  },
+  iconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuItemEmoji: { fontSize: 20 },
+  menuIcon: { width: 22, height: 22 },
+  menuLabel: { flex: 1, fontSize: 16, fontWeight: '500' as const },
+  chevron: { fontSize: 22 },
+  logOutButton: {
+    backgroundColor: '#FF4D6D',
+    borderRadius: BORDER_RADIUS.ROUND,
+    paddingVertical: SPACING.MD,
+    paddingHorizontal: SPACING.XL,
+    alignItems: 'center',
+    marginBottom: SPACING.MD,
+  },
+  logOutText: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+  versionText: { fontSize: 11, textAlign: 'center' },
+});
+
+// ─── Screen Styles ────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
@@ -237,9 +523,17 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.MD,
     borderBottomWidth: 1,
   },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  backIcon: { fontSize: 28, lineHeight: 32 },
-  headerTitle: { ...TYPOGRAPHY.H4 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.XS },
+  headerLogo: { width: 32, height: 32, borderRadius: 16 },
+  headerBrandName: { fontSize: 16, fontWeight: '700' as const },
+  headerTitle: { fontSize: 15, fontWeight: '700' as const },
+  hamburgerBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  hamburger: { fontSize: 26, lineHeight: 28 },
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.LG,

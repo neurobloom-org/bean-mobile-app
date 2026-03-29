@@ -1,5 +1,6 @@
-// src/screens/user/HelpCenterScreen.tsx
-// ✅ Real image assets + full dark/light theme support via useTheme
+// Searchable help screen with category rows, popular article links,
+// and a support banner. Category icon boxes use a fixed green background
+// to match the Figma design in both light and dark themes.
 
 import React, { useState } from 'react';
 import {
@@ -33,6 +34,8 @@ interface ArticleRowProps {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
+// Renders a tappable help category with a green icon box, title, subtitle,
+// and a chevron. The green box is intentionally not themed — it matches Figma.
 const CategoryRow: React.FC<CategoryRowProps> = ({
   iconSource,
   title,
@@ -45,7 +48,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
     onPress={onPress}
     activeOpacity={0.7}
   >
-    {/* ✅ Green icon box — matches Figma design exactly */}
+    {/* Fixed green icon box; icon is tinted white to contrast with the green */}
     <View style={styles.categoryIconWrap}>
       <Image
         source={iconSource}
@@ -65,6 +68,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
   </TouchableOpacity>
 );
 
+// Renders a tappable article link with an external-link icon.
 const ArticleRow: React.FC<ArticleRowProps> = ({ title, onPress, colors }) => (
   <TouchableOpacity
     style={[styles.articleRow, { backgroundColor: colors.SURFACE }]}
@@ -74,7 +78,7 @@ const ArticleRow: React.FC<ArticleRowProps> = ({ title, onPress, colors }) => (
     <Text style={[styles.articleTitle, { color: colors.TEXT_PRIMARY }]}>
       {title}
     </Text>
-    {/* ✅ open_in_new.png replaces ↗ emoji */}
+    {/* open_in_new.png tinted to the secondary text colour for a subtle look */}
     <Image
       source={require('../../../assets/images/open_in_new.png')}
       style={[styles.articleIconImage, { tintColor: colors.TEXT_SECONDARY }]}
@@ -100,7 +104,7 @@ const HelpCenterScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.BACKGROUND }]}>
-      {/* ── Header ── */}
+      {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.BACKGROUND }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -122,7 +126,7 @@ const HelpCenterScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Search Bar ── */}
+        {/* Search bar — uses help_outline.png as the leading icon */}
         <View
           style={[
             styles.searchBar,
@@ -132,7 +136,6 @@ const HelpCenterScreen: React.FC = () => {
             },
           ]}
         >
-          {/* Search icon — tinted to match theme */}
           <Image
             source={require('../../../assets/images/help_outline.png')}
             style={[
@@ -151,7 +154,7 @@ const HelpCenterScreen: React.FC = () => {
           />
         </View>
 
-        {/* ── Categories ── */}
+        {/* Categories */}
         <Text style={[styles.sectionLabel, { color: colors.TEXT_SECONDARY }]}>
           Categories
         </Text>
@@ -200,7 +203,7 @@ const HelpCenterScreen: React.FC = () => {
           />
         </View>
 
-        {/* ── Popular Articles ── */}
+        {/* Popular articles */}
         <Text style={[styles.sectionLabel, { color: colors.TEXT_SECONDARY }]}>
           Popular Articles
         </Text>
@@ -239,8 +242,7 @@ const HelpCenterScreen: React.FC = () => {
           />
         </View>
 
-        {/* ── Still Need Help Banner ── */}
-        {/* ✅ Dark mode: slightly lighter surface; light mode: gray bg */}
+        {/* Support banner — dark mode uses a slightly elevated surface; light uses grey */}
         <View
           style={[
             styles.supportBanner,
@@ -266,7 +268,7 @@ const HelpCenterScreen: React.FC = () => {
             onPress={handleChatWithSupport}
             activeOpacity={0.85}
           >
-            {/* ✅ signup-page.png replaces 🤖 emoji — tinted white */}
+            {/* signup-page.png tinted white to stand out on the green button */}
             <Image
               source={require('../../../assets/images/signup-page.png')}
               style={styles.chatButtonIconImage}
@@ -287,7 +289,6 @@ export default HelpCenterScreen;
 const styles = StyleSheet.create({
   container: { flex: 1 },
 
-  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -311,14 +312,10 @@ const styles = StyleSheet.create({
   },
   headerSpacer: { width: 36 },
 
-  // Scroll
   scroll: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
 
-  // Search bar
+  // Pill-shaped search field
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -331,19 +328,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  // ✅ help_outline.png as search icon
-  searchIconImage: {
-    width: 18,
-    height: 18,
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    padding: 0,
-  },
+  searchIconImage: { width: 18, height: 18, marginRight: 10 },
+  searchInput: { flex: 1, fontSize: 14, padding: 0 },
 
-  // Section label
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
@@ -353,7 +340,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // Card
   card: {
     borderRadius: 16,
     overflow: 'hidden',
@@ -370,7 +356,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
-  // ✅ Green background stays fixed — matches Figma in both themes
+  // Green background is intentionally fixed — matches the Figma design in both themes.
   categoryIconWrap: {
     width: 42,
     height: 42,
@@ -380,26 +366,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  // ✅ White tint so icons pop on green background
-  categoryIconImage: {
-    width: 22,
-    height: 22,
-    tintColor: '#FFFFFF',
-  },
+  categoryIconImage: { width: 22, height: 22, tintColor: '#FFFFFF' },
   categoryTextWrap: { flex: 1, marginRight: 10 },
-  categoryTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 3,
-  },
-  categorySubtitle: {
-    fontSize: 12,
-    lineHeight: 17,
-  },
-  chevron: {
-    fontSize: 22,
-    marginTop: -2,
-  },
+  categoryTitle: { fontSize: 15, fontWeight: '600', marginBottom: 3 },
+  categorySubtitle: { fontSize: 12, lineHeight: 17 },
+  chevron: { fontSize: 22, marginTop: -2 },
 
   // Article row
   articleRow: {
@@ -408,23 +379,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
-  articleTitle: {
-    flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
-    marginRight: 12,
-  },
-  // ✅ open_in_new.png replaces ↗
-  articleIconImage: {
-    width: 16,
-    height: 16,
-  },
+  articleTitle: { flex: 1, fontSize: 14, lineHeight: 20, marginRight: 12 },
+  articleIconImage: { width: 16, height: 16 },
 
-  // Divider
-  divider: {
-    height: 1,
-    marginLeft: 16,
-  },
+  divider: { height: 1, marginLeft: 16 },
 
   // Support banner
   supportBanner: {
@@ -434,17 +392,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: 'center',
   },
-  supportBannerTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
+  supportBannerTitle: { fontSize: 16, fontWeight: '700', marginBottom: 8 },
   supportBannerSubtitle: {
     fontSize: 13,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
   },
+
+  // Green CTA button
   chatButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -458,7 +414,6 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
   },
-  // ✅ signup-page.png — white tint to show on green button
   chatButtonIconImage: {
     width: 22,
     height: 22,

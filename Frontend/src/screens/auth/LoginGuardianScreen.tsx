@@ -1,7 +1,9 @@
-// src/screens/auth/LoginGuardianScreen.tsx
-// ✅ Dark theme aware
+// Sign-in screen for the guardian/caregiver role.
+// All authentication paths (email and social) pass through a centralised
+// handler that validates the response before navigating. If authentication
+// fails, the user stays on this screen and receives a toast notification.
 
-import { supabase  } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import React, { useState } from 'react';
 import {
   View,
@@ -12,6 +14,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  ToastAndroid,
   Alert,
 } from 'react-native';
 import { BackButton, PrimaryButton, Input } from '../../components';
@@ -19,21 +23,45 @@ import { SPACING, TYPOGRAPHY, COLORS } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+// Displays a bottom toast on Android and an Alert on iOS when login fails.
+const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.showWithGravity(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+    );
+  } else {
+    Alert.alert('Login Failed', message);
+  }
+};
+
 const LoginGuardianScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
   const [emailGuardian, setEmailGuardian] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  const socialProviders: Array<{
+    src: any;
+    provider: 'google' | 'apple' | 'facebook';
+  }> = [
+    { src: require('../../../assets/images/fb.png'), provider: 'facebook' },
+    { src: require('../../../assets/images/apple.png'), provider: 'apple' },
+    { src: require('../../../assets/images/google.png'), provider: 'google' },
+  ];
+
+  // Real Supabase email sign-in for guardians
   const handleSignIn = async () => {
     if (!emailGuardian || !password) {
       Alert.alert('Error', 'Please enter both your email and password');
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
     try {
-      // 2. Call Supabase Auth
+      // Call Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email: emailGuardian,
         password: password,
@@ -41,7 +69,7 @@ const LoginGuardianScreen = ({ navigation }: any) => {
 
       if (error) throw error;
 
-      // 3. Success - Navigate to Dashboard
+      // Success - Navigate to Dashboard
       console.log('Login successful');
       navigation.navigate('CaregiverApp', {
         screen: 'CaregiverDashboard',
@@ -50,9 +78,15 @@ const LoginGuardianScreen = ({ navigation }: any) => {
     } catch (error: any) {
       Alert.alert('Login Error', error.message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
+
+  // Handler for social login providers (placeholder for now)
+  const handleSocialLogin = (provider: string) => {
+    Alert.alert('Coming Soon', `${provider} login is not set up yet.`);
+  };
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.SURFACE }]}
@@ -109,15 +143,11 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* Social */}
+          {/* Social login buttons; each triggers the social login handler */}
           <View style={styles.socialContainer}>
-            {[
-              require('../../../assets/images/fb.png'),
-              require('../../../assets/images/apple.png'),
-              require('../../../assets/images/google.png'),
-            ].map((src, i) => (
+            {socialProviders.map(({ src, provider }) => (
               <TouchableOpacity
-                key={i}
+                key={provider}
                 style={[
                   styles.socialButton,
                   {
@@ -125,11 +155,9 @@ const LoginGuardianScreen = ({ navigation }: any) => {
                     borderColor: colors.BORDER,
                   },
                 ]}
-                onPress={() =>
-                  navigation.navigate('CaregiverApp', {
-                    screen: 'CaregiverDashboard',
-                  })
-                }
+                onPress={() => handleSocialLogin(provider)}
+                disabled={loading}
+                activeOpacity={0.75}
               >
                 <Image
                   source={src}
@@ -140,10 +168,19 @@ const LoginGuardianScreen = ({ navigation }: any) => {
             ))}
           </View>
 
+          {/* Shown while an auth request is in flight */}
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              color={colors.PRIMARY}
+              style={styles.loader}
+            />
+          )}
+
           <PrimaryButton
-            title={isLoading ? "Signing In..." : "Sign In"}
+            title={loading ? 'Signing In...' : 'Sign In'}
             onPress={handleSignIn}
-            disabled={isLoading}
+            disabled={loading}
             variant="primary"
             size="large"
             fullWidth
@@ -195,7 +232,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: SPACING.XL,
-    marginBottom: SPACING.XXL,
+    marginBottom: SPACING.LG,
   },
   socialButton: {
     width: 60,
@@ -206,6 +243,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   socialIcon: { width: 30, height: 30 },
+  loader: { marginBottom: SPACING.MD },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

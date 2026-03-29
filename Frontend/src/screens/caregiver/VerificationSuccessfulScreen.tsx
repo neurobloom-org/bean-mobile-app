@@ -1,5 +1,5 @@
-// src/screens/caregiver/VerificationSuccessfulScreen.tsx
-// ✅ Dark theme aware
+// Confirmation screen shown after the patient email link is successfully verified.
+// Displays a layered success icon and navigates to the caregiver dashboard.
 
 import React from 'react';
 import { View, Text, Image, StyleSheet, SafeAreaView } from 'react-native';
@@ -8,14 +8,14 @@ import { SPACING } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 const VerificationSuccessfulScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.SURFACE }]}
     >
       <View style={styles.content}>
-        {/* Glowing success icon */}
+        {/* Two concentric green-tinted circles form a soft glow around the icon */}
         <View style={styles.glowOuter}>
           <View style={styles.glowInner}>
             <Image
@@ -30,6 +30,7 @@ const VerificationSuccessfulScreen = ({ navigation }: any) => {
           Verification{'\n'}Successful!
         </Text>
 
+        {/* Patient name is bolded to confirm which profile was linked */}
         <Text style={[styles.body, { color: colors.TEXT_SECONDARY }]}>
           The patient profile for{' '}
           <Text style={[styles.nameHighlight, { color: colors.TEXT_PRIMARY }]}>
@@ -61,6 +62,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.XL,
     paddingBottom: SPACING.XL,
   },
+
+  // Outer halo ring at 7% green opacity
   glowOuter: {
     width: 160,
     height: 160,
@@ -70,6 +73,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.XL,
   },
+  // Inner halo ring at 12% green opacity
   glowInner: {
     width: 120,
     height: 120,

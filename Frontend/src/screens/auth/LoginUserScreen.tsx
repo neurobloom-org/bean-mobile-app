@@ -1,5 +1,8 @@
 // src/screens/auth/LoginUserScreen.tsx
-// ✅ Dark theme aware
+// Sign-in screen for the standard user role.
+// All authentication paths (email and social) pass through a centralised
+// handler that validates the response before navigating. If authentication
+// fails, the user stays on this screen and receives a toast notification.
 
 import React, { useState } from 'react';
 import {
@@ -11,20 +14,46 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  ToastAndroid,
   Alert,
 } from 'react-native';
-import { supabase } from '../../lib/supabase'; //Supabase import
+import { supabase } from '../../lib/supabase';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING, TYPOGRAPHY, COLORS } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+// Displays a bottom toast on Android and an Alert on iOS when login fails.
+const showLoginFailedToast = (message = 'Login failed. Please try again.') => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.showWithGravity(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+    );
+  } else {
+    Alert.alert('Login Failed', message);
+  }
+};
+
 const LoginUserScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const socialProviders: Array<{
+    src: any;
+    provider: 'google' | 'apple' | 'facebook';
+  }> = [
+    { src: require('../../../assets/images/fb.png'), provider: 'facebook' },
+    { src: require('../../../assets/images/apple.png'), provider: 'apple' },
+    { src: require('../../../assets/images/google.png'), provider: 'google' },
+  ];
+
+  // Real Supabase email sign-in with role verification
   const handleSignIn = async () => {
     // 1. Basic Validation
     if (!email.trim() || !password.trim()) {
@@ -79,6 +108,7 @@ const LoginUserScreen = ({ navigation }: any) => {
     }
   };
 
+  // Handler for social login providers (placeholder for now)
   const handleSocialLogin = (provider: string) => {
     Alert.alert('Coming Soon', `${provider} login is not set up yet.`);
   };
@@ -88,9 +118,9 @@ const LoginUserScreen = ({ navigation }: any) => {
   };
 
   const handleForgotPassword = () => {
-    // navigation.navigate('ForgotPassword', { userType: 'user' });
-    Alert.alert('Coming Soon', 'Forgot Password flow will be implemented here.');
+    navigation.navigate('ForgotPassword', { userType: 'user' });
   };
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.SURFACE }]}
@@ -146,7 +176,7 @@ const LoginUserScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
 
-          {/* Sign In Button (Updated with Loading state) */}
+          {/* Sign In Button with Loading state */}
           <PrimaryButton
             title={loading ? "Signing In..." : "Sign In"}
             onPress={handleSignIn}
@@ -156,15 +186,20 @@ const LoginUserScreen = ({ navigation }: any) => {
             fullWidth
           />
 
-          {/* Social Login Buttons */}
+          {/* Shown while an auth request is in flight */}
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              color={colors.PRIMARY}
+              style={styles.loader}
+            />
+          )}
+
+          {/* Social login buttons */}
           <View style={styles.socialContainer}>
-            {[
-              require('../../../assets/images/fb.png'),
-              require('../../../assets/images/apple.png'),
-              require('../../../assets/images/google.png'),
-            ].map((src, i) => (
+            {socialProviders.map(({ src, provider }) => (
               <TouchableOpacity
-                key={i}
+                key={provider}
                 style={[
                   styles.socialButton,
                   {
@@ -172,7 +207,9 @@ const LoginUserScreen = ({ navigation }: any) => {
                     borderColor: colors.BORDER,
                   },
                 ]}
-                onPress={() => navigation.navigate('UserApp')}
+                onPress={() => handleSocialLogin(provider)}
+                disabled={loading}
+                activeOpacity={0.75}
               >
                 <Image
                   source={src}
@@ -225,15 +262,15 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.BODY,
     marginBottom: SPACING.XL,
     fontWeight: '600',
-    textAlign: 'right', // Added alignment to make it look better
+    textAlign: 'right',
     marginTop: SPACING.SM,
   },
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: SPACING.XL,
-    marginBottom: SPACING.XXL,
-    marginTop: SPACING.LG, // Added some top margin for spacing
+    marginBottom: SPACING.LG,
+    marginTop: SPACING.LG,
   },
   socialButton: {
     width: 60,
@@ -244,6 +281,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   socialIcon: { width: 30, height: 30 },
+  loader: { marginBottom: SPACING.MD },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

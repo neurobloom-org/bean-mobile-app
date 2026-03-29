@@ -1,5 +1,6 @@
-// src/screens/user/PrivacySettingsScreen.tsx
-// ✅ Real image assets + full dark/light theme support via useTheme
+// Privacy Settings screen — lets the user toggle data analytics, manage
+// location and cloud permissions, control profile visibility, and permanently
+// delete all activity data. Fully dark/light theme aware via useTheme.
 
 import React, { useState } from 'react';
 import {
@@ -37,6 +38,7 @@ interface NavRowProps {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
+// Row with an icon, label, subtitle, and a toggle switch
 const ToggleRow: React.FC<ToggleRowProps> = ({
   iconSource,
   title,
@@ -49,6 +51,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({
     <View
       style={[styles.iconCircle, { backgroundColor: colors.SECONDARY_LIGHT }]}
     >
+      {/* Icon tinted with the primary brand colour */}
       <Image
         source={iconSource}
         style={[styles.rowIconImage, { tintColor: colors.PRIMARY }]}
@@ -63,6 +66,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({
         {subtitle}
       </Text>
     </View>
+    {/* Green track when on; white thumb on Android for platform consistency */}
     <Switch
       value={value}
       onValueChange={onValueChange}
@@ -73,6 +77,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({
   </View>
 );
 
+// Row that navigates to a sub-screen when tapped; shows a chevron on the right
 const NavRow: React.FC<NavRowProps> = ({
   iconSource,
   title,
@@ -111,8 +116,11 @@ const NavRow: React.FC<NavRowProps> = ({
 const PrivacySettingsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
+
+  // Controls the Data Analytics toggle — on by default
   const [dataAnalytics, setDataAnalytics] = useState<boolean>(true);
 
+  // Two-step confirmation Alert before permanently deleting activity data
   const handleDeleteData = () => {
     Alert.alert(
       'Delete All Activity Data',
@@ -134,6 +142,7 @@ const PrivacySettingsScreen: React.FC = () => {
     <View style={[styles.container, { backgroundColor: colors.BACKGROUND }]}>
       {/* ── Header ── */}
       <View style={[styles.header, { backgroundColor: colors.BACKGROUND }]}>
+        {/* Back arrow — pops the screen from the navigation stack */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
@@ -146,6 +155,7 @@ const PrivacySettingsScreen: React.FC = () => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Privacy Settings
         </Text>
+        {/* Spacer keeps the title centred against the back button */}
         <View style={styles.headerSpacer} />
       </View>
 
@@ -154,7 +164,7 @@ const PrivacySettingsScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Subtitle ── */}
+        {/* Intro subtitle — "Your privacy is our priority." highlighted in green */}
         <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
           Manage how your data is collected and used to improve your Bean Robot
           experience.{'\n'}
@@ -185,6 +195,7 @@ const PrivacySettingsScreen: React.FC = () => {
         <Text style={[styles.sectionLabel, { color: colors.TEXT_SECONDARY }]}>
           Permissions
         </Text>
+        {/* Card groups Location Services and Cloud Storage nav rows */}
         <View
           style={[
             styles.card,
@@ -221,6 +232,7 @@ const PrivacySettingsScreen: React.FC = () => {
         <Text style={[styles.sectionLabel, { color: colors.TEXT_SECONDARY }]}>
           Visibility
         </Text>
+        {/* Card groups Profile Visibility and Local Discovery nav rows */}
         <View
           style={[
             styles.card,
@@ -253,13 +265,13 @@ const PrivacySettingsScreen: React.FC = () => {
           />
         </View>
 
-        {/* ── Delete Button ── */}
+        {/* Danger action — triggers a two-step confirmation before deleting */}
         <TouchableOpacity
           style={[styles.deleteButton, { backgroundColor: colors.SURFACE }]}
           onPress={handleDeleteData}
           activeOpacity={0.85}
         >
-          {/* ✅ delete_forever.png — tinted red to match the danger action */}
+          {/* delete_forever.png tinted red — fixed colour, never inherits theme */}
           <Image
             source={require('../../../assets/images/delete_forever.png')}
             style={styles.deleteIconImage}
@@ -268,6 +280,7 @@ const PrivacySettingsScreen: React.FC = () => {
           <Text style={styles.deleteButtonText}>Delete All Activity Data</Text>
         </TouchableOpacity>
 
+        {/* Fine-print warning below the delete button */}
         <Text
           style={[styles.deleteDisclaimer, { color: colors.TEXT_TERTIARY }]}
         >
@@ -317,7 +330,7 @@ const styles = StyleSheet.create({
     paddingBottom: 36,
   },
 
-  // Subtitle
+  // Intro subtitle with inline bold green emphasis
   subtitle: {
     fontSize: 13,
     textAlign: 'center',
@@ -329,7 +342,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  // Section label
+  // ALL-CAPS section heading above each card group
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
@@ -339,7 +352,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // Card
+  // Rounded card that groups related rows
   card: {
     borderRadius: 16,
     overflow: 'hidden',
@@ -349,7 +362,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
-  // Row
+  // ── Row shared by ToggleRow and NavRow
   rowWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -364,7 +377,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  // ✅ Image asset replacing emoji Text
   rowIconImage: {
     width: 22,
     height: 22,
@@ -384,13 +396,13 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
 
-  // Divider
+  // Hairline divider between rows inside a card
   divider: {
     height: 1,
     marginLeft: 72,
   },
 
-  // Delete button
+  // Delete button — outlined in red to signal a destructive action
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -402,7 +414,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 24,
   },
-  // ✅ delete_forever.png — fixed red, not tinted (danger color always red)
+  // Fixed red tint — danger colour is always red regardless of theme
   deleteIconImage: {
     width: 20,
     height: 20,
@@ -415,7 +427,7 @@ const styles = StyleSheet.create({
     color: '#EF4444',
   },
 
-  // Delete disclaimer
+  // Fine-print disclaimer below the delete button
   deleteDisclaimer: {
     fontSize: 12,
     textAlign: 'center',

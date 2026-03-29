@@ -1,5 +1,6 @@
-// src/screens/user/MoodCalendarScreen.tsx
-// ✅ Dark theme aware — empty state defaults
+// Mood Calendar screen — shows a monthly grid with mood icons, a monthly
+// summary card, and two stat cards (therapy sessions + discipline score).
+// Fully dark-theme aware; all values default to zero until data is connected.
 
 import React, { useState } from 'react';
 import {
@@ -18,8 +19,12 @@ import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
-// ─── Calendar helpers ─────────────────────────────────────────────────────────
+// ─── Calendar Helpers ─────────────────────────────────────────────────────────
+
+// Abbreviated column labels for the calendar header row
 const DAYS_OF_WEEK = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+// Full month names indexed 0–11, matching JavaScript's Date.getMonth()
 const MONTHS = [
   'January',
   'February',
@@ -35,23 +40,31 @@ const MONTHS = [
   'December',
 ];
 
+// Returns total days in a month by querying day-0 of the following month
 const getDaysInMonth = (year: number, month: number) =>
   new Date(year, month + 1, 0).getDate();
 
+// Returns the weekday index (0 = Sun) of the 1st — used to offset the grid
 const getFirstDayOfMonth = (year: number, month: number) =>
   new Date(year, month, 1).getDay();
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
+
 const MoodCalendarScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
 
   const today = new Date();
+
+  // Track the month and year currently shown in the calendar
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+
+  // Number of empty leading cells before the 1st of the month
   const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
 
+  // Go back one month; wrap from January to December of the previous year
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -59,6 +72,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
     } else setCurrentMonth(m => m - 1);
   };
 
+  // Advance one month; wrap from December to January of the next year
   const handleNextMonth = () => {
     if (currentMonth === 11) {
       setCurrentMonth(0);
@@ -74,6 +88,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
   // Pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null);
 
+  // Split flat array into week rows of 7 for rendering
   const rows: (number | null)[][] = [];
   for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
 
@@ -81,7 +96,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Top bar: back button and screen title */}
       <View
         style={[
           styles.header,
@@ -91,6 +106,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
           },
         ]}
       >
+        {/* Back chevron — pops screen from the navigation stack */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
@@ -102,6 +118,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Mood Calendar
         </Text>
+        {/* Spacer keeps the title centred */}
         <View style={{ width: 40 }} />
       </View>
 
@@ -111,7 +128,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
       >
         {/* ── Calendar Card ── */}
         <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>
-          {/* Month nav */}
+          {/* Month navigation: previous arrow | title + month label | next arrow */}
           <View style={styles.monthNav}>
             <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn}>
               <Text style={[styles.navArrow, { color: colors.TEXT_PRIMARY }]}>
@@ -133,7 +150,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
 
-          {/* Day headers */}
+          {/* Weekday column headers (SUN … SAT) */}
           <View style={styles.dayHeaderRow}>
             {DAYS_OF_WEEK.map(d => (
               <Text
@@ -145,7 +162,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
             ))}
           </View>
 
-          {/* Calendar rows */}
+          {/* Calendar grid — each row is one week */}
           {rows.map((row, ri) => (
             <View key={ri} style={styles.calRow}>
               {row.map((day, di) => (
@@ -157,7 +174,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
                         { backgroundColor: colors.BACKGROUND_LIGHT },
                       ]}
                     >
-                      {/* No mood data — just show robot icon dimmed */}
+                      {/* Dimmed placeholder icon — replaced with mood emoji once data is live */}
                       <Image
                         source={require('../../../assets/images/login-page.png')}
                         style={styles.moodIcon}
@@ -165,6 +182,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
                       />
                     </View>
                   ) : (
+                    /* Empty spacer cell for days before the 1st or after the last */
                     <View style={styles.emptyCell} />
                   )}
                 </View>
@@ -172,13 +190,14 @@ const MoodCalendarScreen = ({ navigation }: any) => {
             </View>
           ))}
 
-          {/* No data label */}
+          {/* Shown when no mood entries have been recorded yet */}
           <Text style={[styles.noDataLabel, { color: colors.TEXT_TERTIARY }]}>
             No mood data recorded yet
           </Text>
         </View>
 
         {/* ── Monthly Mood Summary ── */}
+        {/* Displays the user's dominant mood for the month; defaults to empty state */}
         <View
           style={[
             styles.summaryCard,
@@ -198,6 +217,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
               Start logging your mood daily to see your monthly summary here.
             </Text>
           </View>
+          {/* Decorative illustration — bleeds out of the card's bottom-right edge */}
           <Image
             source={require('../../../assets/images/mood-summery-image.png')}
             style={styles.summaryImage}
@@ -207,7 +227,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
 
         {/* ── Stats Row ── */}
         <View style={styles.statsRow}>
-          {/* Therapy Sessions */}
+          {/* Therapy Sessions — shows completed sessions out of a 30-session goal */}
           <View style={[styles.statCard, { backgroundColor: colors.SURFACE }]}>
             <View style={styles.statHeader}>
               <Text style={[styles.statTitle, { color: colors.TEXT_PRIMARY }]}>
@@ -231,7 +251,7 @@ const MoodCalendarScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Discipline / Focus Score */}
+          {/* Discipline / Focus Score — shown as a percentage */}
           <View style={[styles.statCard, { backgroundColor: colors.SURFACE }]}>
             <View style={styles.statHeader}>
               <Text style={[styles.statTitle, { color: colors.TEXT_PRIMARY }]}>
@@ -261,6 +281,8 @@ const MoodCalendarScreen = ({ navigation }: any) => {
 };
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
+
+// Each cell is 1/7 of the card's inner width so the grid fills the row exactly
 const CELL_SIZE = (width - SPACING.XL * 2 - SPACING.LG * 2) / 7;
 
 const styles = StyleSheet.create({
@@ -369,8 +391,8 @@ const styles = StyleSheet.create({
   summaryImage: {
     width: 110,
     height: 130,
-    marginBottom: -SPACING.LG,
-    marginRight: -SPACING.LG,
+    marginBottom: -SPACING.LG, // Bleeds image past the card's bottom padding
+    marginRight: -SPACING.LG, // Bleeds image past the card's right padding
   },
 
   // ── Stats row

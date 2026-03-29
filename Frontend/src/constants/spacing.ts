@@ -1,21 +1,22 @@
-// src/constants/spacing.ts
-// Spacing system for consistent padding, margins, and sizing
+// Design-system tokens for spacing, border radii, icon sizes, button/input heights,
+// and container dimensions. All values are in logical pixels.
 
+// Base spacing scale used for padding, margins, and gaps throughout the app.
 export const SPACING = {
-  // Base spacing scale
-  XXS: 2, // 2px
-  XS: 4, // 4px
-  SM: 8, // 8px
-  MD: 12, // 12px
-  LG: 16, // 16px
-  XL: 20, // 20px
-  XXL: 24, // 24px
-  XXXL: 30, // 30px
-  HUGE: 40, // 40px
-  MASSIVE: 48, // 48px
+  XXS: 2,
+  XS: 4,
+  SM: 8,
+  MD: 12,
+  LG: 16,
+  XL: 20,
+  XXL: 24,
+  XXXL: 30,
+  HUGE: 40,
+  MASSIVE: 48,
 } as const;
 
-// Border Radius
+// Border radius presets. ROUND is intended for pill-shaped buttons;
+// CIRCLE produces a fully circular element when applied to a square view.
 export const BORDER_RADIUS = {
   NONE: 0,
   SM: 4,
@@ -23,11 +24,11 @@ export const BORDER_RADIUS = {
   LG: 12,
   XL: 16,
   XXL: 20,
-  ROUND: 30, // For rounded buttons
-  CIRCLE: 9999, // For circular elements
+  ROUND: 30,
+  CIRCLE: 9999,
 } as const;
 
-// Icon Sizes
+// Standard icon dimensions matched to common touch-target sizes.
 export const ICON_SIZES = {
   XS: 16,
   SM: 20,
@@ -37,27 +38,27 @@ export const ICON_SIZES = {
   XXL: 48,
 } as const;
 
-// Button Heights
+// Fixed height values for button components across the three size variants.
 export const BUTTON_HEIGHTS = {
   SMALL: 36,
   MEDIUM: 44,
   LARGE: 52,
 } as const;
 
-// Input Heights
+// Fixed height values for text input components across the three size variants.
 export const INPUT_HEIGHTS = {
   SMALL: 36,
   MEDIUM: 44,
   LARGE: 52,
 } as const;
 
-// Container Widths
+// Layout constraints for content containers.
 export const CONTAINER = {
-  MAX_WIDTH: 600, // Maximum width for content containers
-  PADDING: 20, // Default container padding
+  MAX_WIDTH: 600, // Prevents content from stretching too wide on large screens.
+  PADDING: 20, // Default horizontal inset applied to screen-level containers.
 } as const;
 
-// Screen Padding
+// Default screen-edge insets applied at the outermost layout level.
 export const SCREEN_PADDING = {
   HORIZONTAL: 20,
   VERTICAL: 16,

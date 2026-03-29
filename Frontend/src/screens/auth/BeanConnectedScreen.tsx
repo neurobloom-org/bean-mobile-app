@@ -1,5 +1,6 @@
-// src/screens/auth/BeanConnectedScreen.tsx
-// ✅ Dark theme aware
+// Confirmation screen displayed after a successful Bean robot pairing.
+// Shows a layered success icon, connection status, battery level,
+// and a button that navigates the user into the main app.
 
 import React from 'react';
 import {
@@ -15,7 +16,7 @@ import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
 const BeanConnectedScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView
@@ -25,7 +26,7 @@ const BeanConnectedScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Success Icon */}
+        {/* Three concentric circles forming a success checkmark indicator */}
         <View style={styles.iconContainer}>
           <View
             style={[
@@ -46,7 +47,6 @@ const BeanConnectedScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Title */}
         <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
           Bean Connected!
         </Text>
@@ -54,9 +54,9 @@ const BeanConnectedScreen = ({ navigation }: any) => {
           Your robot is now synced and ready to go.
         </Text>
 
-        {/* Status Cards */}
+        {/* Status cards showing connection security and battery level */}
         <View style={styles.statusContainer}>
-          {/* Connection Status */}
+          {/* Connection status card */}
           <View
             style={[
               styles.statusCard,
@@ -87,7 +87,7 @@ const BeanConnectedScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Battery Level */}
+          {/* Battery level card */}
           <View
             style={[
               styles.statusCard,
@@ -119,6 +119,7 @@ const BeanConnectedScreen = ({ navigation }: any) => {
           </View>
         </View>
 
+        {/* Proceeds to the main user app shell */}
         <PrimaryButton
           title="Next"
           onPress={() => navigation.navigate('UserApp')}
@@ -141,6 +142,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: { marginBottom: SPACING.XXL },
+
+  // Layered circles: outer (light tint) → middle (fixed mid-green) → inner (primary)
   outerCircle: {
     width: 140,
     height: 140,
@@ -164,6 +167,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkmark: { fontSize: 40, color: '#FFFFFF', fontWeight: 'bold' },
+
   title: {
     ...TYPOGRAPHY.H1,
     textAlign: 'center',
@@ -177,11 +181,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     paddingHorizontal: SPACING.LG,
   },
+
   statusContainer: {
     width: '100%',
     gap: SPACING.MD,
     marginBottom: SPACING.XXL,
   },
+
+  // Each row holds an icon, a label, and a coloured badge on the right.
   statusCard: {
     flexDirection: 'row',
     alignItems: 'center',

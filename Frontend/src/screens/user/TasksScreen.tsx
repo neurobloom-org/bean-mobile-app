@@ -1,5 +1,4 @@
-// src/screens/user/TasksScreen.tsx
-// ✅ Dark theme aware
+//  Dark theme aware
 
 import React, { useState } from 'react';
 import {
@@ -17,6 +16,9 @@ import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 import BottomTabBar from '../../components/navigation/BottomTabBar';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+// Represents a single daily task entry shown in the Today's Tasks list
 interface Task {
   id: number;
   title: string;
@@ -24,6 +26,7 @@ interface Task {
   completed: boolean;
 }
 
+// Represents a medication reminder entry shown in the Medication Reminders list
 interface Medication {
   id: number;
   title: string;
@@ -32,9 +35,15 @@ interface Medication {
   taken: boolean;
 }
 
-const TasksScreen = ({ navigation }: any) => {
-  const { colors, isDark } = useTheme(); // ✅
+// ─── Component ────────────────────────────────────────────────────────────────
 
+const TasksScreen = ({ navigation }: any) => {
+  // Pull current color palette and dark-mode flag from the global theme context
+  const { colors, isDark } = useTheme();
+
+  // ── Local state ──────────────────────────────────────────────────────────────
+
+  // Seed list of daily tasks; toggled, deleted, or extended at runtime
   const [tasks, setTasks] = useState<Task[]>([
     { id: 1, title: 'Hydrate: 1L Water', category: 'Health', completed: false },
     {
@@ -46,6 +55,7 @@ const TasksScreen = ({ navigation }: any) => {
     { id: 3, title: 'Make-the-bed', category: 'Routine', completed: false },
   ]);
 
+  // Seed list of medication reminders; each entry can be marked as taken
   const [medications, setMedications] = useState<Medication[]>([
     {
       id: 1,
@@ -63,24 +73,40 @@ const TasksScreen = ({ navigation }: any) => {
     },
   ]);
 
+  // Controlled value for the new-task text input
   const [newTask, setNewTask] = useState('');
+
+  // Controls visibility of the inline add-task form (replaces the FAB when true)
   const [showAddTask, setShowAddTask] = useState(false);
 
+  // ── Derived values ───────────────────────────────────────────────────────────
+
+  // Static streak count — will be wired to persistence in a future iteration
   const STREAK = 0;
+
+  // Number of tasks the user has already ticked off today
   const completedCount = tasks.filter(t => t.completed).length;
+
   const totalCount = tasks.length;
+
+  // 0–100 percentage fed into the progress bar width
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
+  // ── Handlers ─────────────────────────────────────────────────────────────────
+
+  // Flips the completed flag for the tapped task
   const toggleTask = (id: number) =>
     setTasks(
       tasks.map(t => (t.id === id ? { ...t, completed: !t.completed } : t)),
     );
 
+  // Flips the taken flag for the tapped medication reminder
   const toggleMedication = (id: number) =>
     setMedications(
       medications.map(m => (m.id === id ? { ...m, taken: !m.taken } : m)),
     );
 
+  // Prompts the user for confirmation before removing a task from the list
   const deleteTask = (id: number) => {
     Alert.alert('Delete Task', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
@@ -92,6 +118,7 @@ const TasksScreen = ({ navigation }: any) => {
     ]);
   };
 
+  // Validates the input, appends a new task, then resets the add-task form
   const addTask = () => {
     if (!newTask.trim()) {
       Alert.alert('Error', 'Please enter a task');
@@ -110,11 +137,13 @@ const TasksScreen = ({ navigation }: any) => {
     setShowAddTask(false);
   };
 
+  // ─── Render ──────────────────────────────────────────────────────────────────
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header */}
+      {/* Top bar: back button and screen title */}
       <View
         style={[
           styles.header,
@@ -124,6 +153,7 @@ const TasksScreen = ({ navigation }: any) => {
           },
         ]}
       >
+        {/* Back chevron — pops the screen from the navigation stack */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
@@ -135,6 +165,7 @@ const TasksScreen = ({ navigation }: any) => {
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Today's Focus
         </Text>
+        {/* Spacer keeps the title centred */}
         <View style={{ width: 36 }} />
       </View>
 
@@ -142,13 +173,16 @@ const TasksScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Streak Card */}
+        {/* ── Streak Card ── */}
+        {/* Background tint switches between a dark forest green and a pale sage
+            depending on the current colour scheme */}
         <View
           style={[
             styles.streakCard,
             { backgroundColor: isDark ? '#1A2A22' : '#E8EDEA' },
           ]}
         >
+          {/* Soft radial glow centred behind the streak number */}
           <View
             style={[
               styles.streakGlow,
@@ -162,7 +196,8 @@ const TasksScreen = ({ navigation }: any) => {
           <Text style={styles.streakLabel}>CURRENT STREAK!</Text>
         </View>
 
-        {/* Daily Progress */}
+        {/* ── Daily Progress ── */}
+        {/* Header row: section label on the left, x-of-y counter on the right */}
         <View style={styles.progressRow}>
           <Text style={[styles.progressTitle, { color: colors.TEXT_PRIMARY }]}>
             Daily Progress
@@ -173,6 +208,8 @@ const TasksScreen = ({ navigation }: any) => {
             {completedCount} of {totalCount} completed
           </Text>
         </View>
+
+        {/* Horizontal progress bar — fill width is driven by the `progress` value */}
         <View
           style={[styles.progressBarBg, { backgroundColor: colors.BORDER }]}
         >
@@ -184,15 +221,18 @@ const TasksScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Medication Reminders */}
+        {/* ── Medication Reminders ── */}
         <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
           Medication Reminders
         </Text>
+
+        {/* Render one card per medication entry */}
         {medications.map(med => (
           <View
             key={med.id}
             style={[styles.medCard, { backgroundColor: colors.SURFACE }]}
           >
+            {/* Icon circle — turns green when the medication has been taken */}
             <View
               style={[
                 styles.medIconCircle,
@@ -202,6 +242,8 @@ const TasksScreen = ({ navigation }: any) => {
             >
               <Text style={styles.medIconText}>💊</Text>
             </View>
+
+            {/* Medication name and scheduled time / dose */}
             <View style={styles.medContent}>
               <Text style={[styles.medTitle, { color: colors.TEXT_PRIMARY }]}>
                 {med.title}
@@ -210,6 +252,8 @@ const TasksScreen = ({ navigation }: any) => {
                 {med.time} • {med.dose}
               </Text>
             </View>
+
+            {/* Take / Done toggle button — dims to border colour once taken */}
             <TouchableOpacity
               style={[
                 styles.takeBtn,
@@ -225,15 +269,18 @@ const TasksScreen = ({ navigation }: any) => {
           </View>
         ))}
 
-        {/* Today's Tasks */}
+        {/* ── Today's Tasks ── */}
         <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
           Today's Tasks
         </Text>
+
+        {/* Render one card per task entry */}
         {tasks.map(task => (
           <View
             key={task.id}
             style={[styles.taskCard, { backgroundColor: colors.SURFACE }]}
           >
+            {/* Circular checkbox — fills with PRIMARY colour when the task is complete */}
             <TouchableOpacity
               onPress={() => toggleTask(task.id)}
               style={styles.checkboxHit}
@@ -251,6 +298,8 @@ const TasksScreen = ({ navigation }: any) => {
                 {task.completed && <Text style={styles.checkmark}>✓</Text>}
               </View>
             </TouchableOpacity>
+
+            {/* Task title (struck-through when complete) and category label */}
             <View style={styles.taskContent}>
               <Text
                 style={[
@@ -270,6 +319,8 @@ const TasksScreen = ({ navigation }: any) => {
                 {task.category}
               </Text>
             </View>
+
+            {/* Trash icon — triggers the delete confirmation alert */}
             <TouchableOpacity
               onPress={() => deleteTask(task.id)}
               style={styles.deleteBtn}
@@ -279,7 +330,8 @@ const TasksScreen = ({ navigation }: any) => {
           </View>
         ))}
 
-        {/* Add Task */}
+        {/* ── Add Task ── */}
+        {/* Inline form replaces the FAB while the user is composing a new task */}
         {showAddTask ? (
           <View style={[styles.addBox, { backgroundColor: colors.SURFACE }]}>
             <TextInput
@@ -298,6 +350,7 @@ const TasksScreen = ({ navigation }: any) => {
               autoFocus
             />
             <View style={styles.addBtnRow}>
+              {/* Confirm button — calls addTask() to append and close the form */}
               <TouchableOpacity
                 style={[
                   styles.addConfirmBtn,
@@ -309,6 +362,8 @@ const TasksScreen = ({ navigation }: any) => {
                   Add
                 </Text>
               </TouchableOpacity>
+
+              {/* Cancel button — discards input and restores the FAB */}
               <TouchableOpacity
                 style={[styles.addCancelBtn, { borderColor: colors.BORDER }]}
                 onPress={() => {
@@ -328,6 +383,7 @@ const TasksScreen = ({ navigation }: any) => {
             </View>
           </View>
         ) : (
+          /* Floating action button — opens the inline add-task form */
           <TouchableOpacity
             style={[styles.fab, { backgroundColor: colors.PRIMARY }]}
             onPress={() => setShowAddTask(true)}
@@ -336,7 +392,8 @@ const TasksScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         )}
 
-        {/* Quote */}
+        {/* ── Motivational Quote ── */}
+        {/* Static inspirational message attributed to the Bean robot */}
         <View style={styles.quoteBox}>
           <Text style={[styles.quoteText, { color: colors.TEXT_SECONDARY }]}>
             "One step at a time is still moving forward.{'\n'}You're doing great
@@ -348,13 +405,18 @@ const TasksScreen = ({ navigation }: any) => {
         </View>
       </ScrollView>
 
+      {/* Persistent bottom navigation bar — highlights the Tasks tab */}
       <BottomTabBar navigation={navigation} activeTab="Tasks" />
     </SafeAreaView>
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -366,11 +428,15 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, height: 36, justifyContent: 'center' },
   backIcon: { fontSize: 28, lineHeight: 32 },
   headerTitle: { ...TYPOGRAPHY.H4 },
+
+  // Scrollable content area
   scroll: {
     paddingHorizontal: SPACING.LG,
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.MASSIVE,
   },
+
+  // Streak card
   streakCard: {
     borderRadius: BORDER_RADIUS.XL,
     paddingVertical: SPACING.XL,
@@ -400,6 +466,8 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     marginTop: SPACING.XS,
   },
+
+  // Daily progress
   progressRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -415,11 +483,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   progressBarFill: { height: '100%', borderRadius: 5 },
+
+  // Section heading shared by Medication Reminders and Today's Tasks
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
     marginBottom: SPACING.MD,
   },
+
+  // Medication reminder cards
   medCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -446,6 +518,8 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.XS,
   },
   takeBtnText: { fontSize: 13, fontWeight: '700' as const },
+
+  // Task list cards
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -469,6 +543,8 @@ const styles = StyleSheet.create({
   taskCategory: { ...TYPOGRAPHY.CAPTION, marginTop: 2 },
   deleteBtn: { padding: SPACING.XS },
   deleteIcon: { fontSize: 16 },
+
+  // Floating action button (add new task)
   fab: {
     width: 52,
     height: 52,
@@ -485,6 +561,8 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     fontWeight: '300' as const,
   },
+
+  // Inline add-task form
   addBox: {
     borderRadius: BORDER_RADIUS.LG,
     padding: SPACING.LG,
@@ -513,6 +591,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addCancelText: { fontSize: 15, fontWeight: '600' as const },
+
+  // Motivational quote
   quoteBox: {
     marginTop: SPACING.SM,
     marginBottom: SPACING.MD,

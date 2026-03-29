@@ -1,5 +1,4 @@
 // src/screens/auth/index.ts
-// ✅ UPDATED - Added BeanConnectedScreen export
 
 export { default as RoleSelectionScreen } from './RoleSelectionScreen';
 export { default as CreateAccountScreen } from './CreateAccountScreen';

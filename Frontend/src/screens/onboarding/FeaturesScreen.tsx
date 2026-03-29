@@ -1,5 +1,6 @@
-// src/screens/onboarding/FeaturesScreen.tsx
-// ✅ Dark theme aware
+// Onboarding step 2 of 3. Presents the six core Bean features as a two-column
+// card grid. Cards are intentionally kept green regardless of the active theme
+// because they form part of the brand identity.
 
 import React from 'react';
 import {
@@ -18,12 +19,17 @@ import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
+// Two shades of green used for card backgrounds; not drawn from the theme palette.
 const GREEN_DARK = '#007042';
 const GREEN_BRIGHT = '#22C55E';
 
 const H_PAD = SPACING.XL;
 const CARD_GAP = SPACING.MD;
+
+// Card fills half the available width minus one gap.
 const CARD_SIZE = (width - H_PAD * 2 - CARD_GAP) / 2;
+
+// Icon wrapper and icon dimensions derived proportionally from card size.
 const ICON_WRAP = CARD_SIZE * 0.38;
 const ICON_SIZE = ICON_WRAP * 0.72;
 
@@ -80,10 +86,12 @@ interface FeatureCardProps {
   iconSource: any;
   title: string;
   subtitle: string;
+  // 'dark' uses GREEN_DARK background; 'bright' uses GREEN_BRIGHT.
   variant: 'dark' | 'bright';
 }
 
-// ✅ Cards stay green — they're brand identity, not themed
+// Cards intentionally stay green regardless of the system theme — brand colours
+// are not overridden by the dark/light palette switch.
 const FeatureCard = ({
   iconSource,
   title,
@@ -93,12 +101,14 @@ const FeatureCard = ({
   const isDark = variant === 'dark';
   return (
     <View style={[styles.card, isDark ? styles.cardDark : styles.cardBright]}>
+      {/* Decorative circle positioned behind the content for depth */}
       <View
         style={[
           styles.decorCircle,
           { backgroundColor: withOpacity('#FFFFFF', isDark ? 0.06 : 0.14) },
         ]}
       />
+      {/* Icon container with a semi-transparent white background */}
       <View
         style={[
           styles.iconWrapper,
@@ -120,7 +130,7 @@ const FeatureCard = ({
 };
 
 const FeaturesScreen = ({ navigation }: any) => {
-  const { colors } = useTheme(); // ✅
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView
@@ -131,7 +141,7 @@ const FeaturesScreen = ({ navigation }: any) => {
         showsVerticalScrollIndicator={false}
         bounces
       >
-        {/* Header */}
+        {/* Screen header */}
         <View style={styles.headerBlock}>
           <Text style={[styles.title, { color: colors.TEXT_PRIMARY }]}>
             What{' '}
@@ -146,7 +156,7 @@ const FeaturesScreen = ({ navigation }: any) => {
           </Text>
         </View>
 
-        {/* Grid — cards always green */}
+        {/* Two-column feature card grid */}
         <View style={styles.grid}>
           {FEATURES.map(feature => (
             <FeatureCard
@@ -159,7 +169,7 @@ const FeaturesScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Footer */}
+        {/* Navigation footer: continue button and step indicator */}
         <View style={styles.footer}>
           <PrimaryButton
             title="Continue"
@@ -191,6 +201,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     paddingHorizontal: SPACING.SM,
   },
+
+  // Wrapping row layout; cards break to the next row automatically.
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -198,6 +210,7 @@ const styles = StyleSheet.create({
     rowGap: CARD_GAP,
     marginBottom: SPACING.XL,
   },
+
   card: {
     width: CARD_SIZE,
     height: CARD_SIZE,
@@ -209,6 +222,8 @@ const styles = StyleSheet.create({
   },
   cardDark: { backgroundColor: GREEN_DARK },
   cardBright: { backgroundColor: GREEN_BRIGHT },
+
+  // Large translucent circle partially off the top-right corner for decoration.
   decorCircle: {
     position: 'absolute',
     width: CARD_SIZE * 0.7,
@@ -217,6 +232,7 @@ const styles = StyleSheet.create({
     top: -CARD_SIZE * 0.22,
     right: -CARD_SIZE * 0.18,
   },
+
   iconWrapper: {
     width: ICON_WRAP,
     height: ICON_WRAP,
@@ -226,6 +242,7 @@ const styles = StyleSheet.create({
   },
   iconImage: { width: ICON_SIZE, height: ICON_SIZE },
   textBlock: { gap: 3 },
+
   cardTitle: {
     fontSize: 14,
     fontWeight: '700',
@@ -237,6 +254,7 @@ const styles = StyleSheet.create({
     color: withOpacity('#FFFFFF', 0.82),
     lineHeight: 15,
   },
+
   footer: { gap: SPACING.SM },
 });
 
