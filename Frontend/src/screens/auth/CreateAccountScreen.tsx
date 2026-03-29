@@ -58,11 +58,8 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       return;
     }
 
-    // Persist the name so every screen can show it instead of a placeholder.
     const storageKey = isGuardian ? GUARDIAN_NAME_KEY : USER_NAME_KEY;
     await AsyncStorage.setItem(storageKey, fullName.trim());
-
-    // TODO: also save phone to backend when Supabase auth is wired up.
 
     if (isGuardian) navigation.navigate('CaregiverApp');
     else navigation.navigate('ConnectBean');
@@ -94,7 +91,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
         >
           <BackButton />
 
-          {/* Role-specific title */}
           <Text style={styles.title}>
             {isGuardian ? (
               <>
@@ -131,7 +127,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
               : 'Sign up to start your journey with Bean, your mental health companion.'}
           </Text>
 
-          {/* Full Name */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             FULL NAME
           </Text>
@@ -142,7 +137,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="words"
           />
 
-          {/* Email */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             EMAIL ADDRESS
           </Text>
@@ -154,35 +148,22 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Phone — guardian only */}
+          {/* Phone number — guardian only, plain Input identical to all other fields */}
           {isGuardian && (
             <>
               <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
                 PHONE NUMBER
               </Text>
-              <View
-                style={[
-                  styles.phoneWrap,
-                  { backgroundColor: colors.SECONDARY_LIGHT },
-                ]}
-              >
-                <Image
-                  source={require('../../../assets/images/phone-number.png')}
-                  style={styles.phoneIcon}
-                  resizeMode="contain"
-                />
-                <Input
-                  placeholder="+1 (555) 000-0000"
-                  value={phone}
-                  onChangeText={setPhone}
-                  keyboardType="phone-pad"
-                  autoCapitalize="none"
-                />
-              </View>
+              <Input
+                placeholder="+1 (555) 000-0000"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                autoCapitalize="none"
+              />
             </>
           )}
 
-          {/* Password */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             PASSWORD
           </Text>
@@ -195,7 +176,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             autoCapitalize="none"
           />
 
-          {/* Confirm Password */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             CONFIRM PASSWORD
           </Text>
@@ -305,23 +285,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     fontWeight: '600',
   },
-
-  // Phone row — icon sits to the left of the Input component
-  phoneWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingLeft: SPACING.MD,
-    marginBottom: SPACING.XS,
-  },
-  // Icon tintColor left as-is so it renders black in both themes (as requested)
-  phoneIcon: {
-    width: 20,
-    height: 20,
-    marginRight: SPACING.SM,
-    tintColor: '#000000',
-  },
-
   dividerContainer: { alignItems: 'center', marginVertical: SPACING.MD },
   dividerText: { fontSize: 11, letterSpacing: 1 },
   socialContainer: {
