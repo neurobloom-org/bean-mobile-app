@@ -3,6 +3,7 @@ from utils.supabase_client import supabase
 from datetime import datetime
 import pytz
 import os
+import json # <-- Added the missing json import!
 from dotenv import load_dotenv
 from groq import Groq
 import smtplib
@@ -101,26 +102,38 @@ def app_chat():
             "sender": "user"
         }).execute()
 
-        # 2. THE GROQ AI LOGIC
+        # 2. THE UPGRADED GROQ AI LOGIC (Forcing JSON Output)
         bean_persona = """
         You are Bean, a highly empathetic, warm, and supportive mental wellness companion robot created by the startup NeuroBloom. 
         Your goal is to listen, validate the user's feelings, and offer gentle encouragement.
         Keep your responses short, conversational, and friendly (like a text message). 
         Never give medical diagnoses.
+
+        CRITICAL INSTRUCTION: You must respond strictly in JSON format. 
+        Analyze the user's message and determine their primary emotion from this exact list: [Joy, Sadness, Anxiety, Anger, Calm, Active].
+        
+        Your output must be a valid JSON object looking exactly like this:
+        {
+            "reply": "Your conversational response to the user here.",
+            "detected_mood": "One of the exact mood words from the list above"
+        }
         """
         
-        # 3. Ask Groq for the response (Using LLaMA 3 - ultra fast and smart)
         chat_completion = groq_client.chat.completions.create(
             messages=[
                 {"role": "system", "content": bean_persona},
                 {"role": "user", "content": user_message}
             ],
             model="llama-3.1-8b-instant",
+            response_format={"type": "json_object"} 
         )
         
-        ai_reply = chat_completion.choices[0].message.content
+        # 3. Parse JSON and split data
+        ai_response_data = json.loads(chat_completion.choices[0].message.content)
+        ai_reply = ai_response_data['reply']
+        detected_mood = ai_response_data['detected_mood']
 
-        # 4. Log BEAN'S reply to Supabase 
+        # 4. Log BEAN'S reply 
         supabase.table('chat_logs').insert({
             "user_id": user_id,
             "message": ai_reply,
@@ -128,22 +141,24 @@ def app_chat():
             "sender": "bean"
         }).execute()
 
-        # 5. Send the reply back to React Native
-        return jsonify ({
-            "status" : "success",
-            "response" : ai_reply
-        }), 200
+        # 5. Log the USER'S MOOD for the Caregiver Dashboard Charts!
+        supabase.table('emotion_events').insert({
+            "user_id": user_id,
+            "mood": detected_mood,
+            "created_at": get_ist_time()
+        }).execute()
+
+        return jsonify ({"status": "success", "response": ai_reply}), 200
 
     except Exception as e:
-        return jsonify ({"status" : "error", "message" : f"AI/Database Error: {str(e)}"}), 500
-    
-    # --- EMAIL HELPER FUNCTION ---
+        return jsonify ({"status": "error", "message": f"AI/Database Error: {str(e)}"}), 500
+
+# --- EMAIL HELPER FUNCTION ---
 def send_verification_email(patient_email, token):
     sender_email = os.getenv("EMAIL_ADDRESS")
     sender_password = os.getenv("EMAIL_PASSWORD") 
 
     # TODO: Replace YOUR_MAC_IP with your actual Wi-Fi IP while testing!
-    # When deployed, this will be your Render/Cloud URL.
     verify_link = f"http://192.168.8.146:5001/api/guardian/verify/{token}"
 
     msg = MIMEMultipart()
@@ -151,7 +166,6 @@ def send_verification_email(patient_email, token):
     msg['To'] = patient_email
     msg['Subject'] = "Action Required: Guardian Access Request"
 
-    # The Email Body
     body = f"""
     Hello,
 
@@ -167,7 +181,6 @@ def send_verification_email(patient_email, token):
     """
     msg.attach(MIMEText(body, 'plain'))
 
-    # Connect to Google's SMTP server securely and send the email
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(sender_email, sender_password)
@@ -178,7 +191,6 @@ def send_verification_email(patient_email, token):
 @app.route('/api/guardian/request-link', methods=['POST'])
 def request_guardian_link():
     data = request.json
-    # Read the data the way React Native sends it:
     guardian_incoming_id = data.get('guardian_id') 
     patient_email = data.get('patient_email')
 
@@ -197,7 +209,6 @@ def request_guardian_link():
         patient_user_id = patient_check.data[0]['id']
         token = secrets.token_urlsafe(32)
 
-        # Save to the database using your exact column names
         supabase.table('guardian_links').insert({
             "guardian_user_id": guardian_incoming_id,
             "patient_user_id": patient_user_id,
@@ -214,35 +225,31 @@ def request_guardian_link():
 
     except Exception as e:
         return jsonify({"status": "error", "message": f"Server Error: {str(e)}"}), 500
-        
-    
-    # --- 5. The Email Click Endpoint (Patient clicks this in their browser) ---
+
+
+# --- 5. The Email Click Endpoint (Patient clicks this in their browser) ---
 @app.route('/api/guardian/verify/<token>', methods=['GET'])
 def verify_guardian(token):
     try:
-        # 1. Look up the token in the database
         link_check = supabase.table('guardian_links').select('*').eq('verification_token', token).single().execute()
 
         if not link_check.data:
             return "Invalid or expired verification link.", 400
 
-        # 2. If it's already verified, just tell them
         if link_check.data['status'] == 'verified':
             return "This account is already verified. You can close this window.", 200
 
-        # 3. Update the status to 'verified'
         supabase.table('guardian_links').update({"status": "verified"}).eq('verification_token', token).execute()
 
-        # 4. Show a friendly success webpage
         return """
         <html>
-          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #F8FAFC;">
+        <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #F8FAFC;">
             <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto;">
                 <h1 style="color: #22C55E;">Verification Successful! ✅</h1>
                 <p style="color: #334155; font-size: 16px;">You have successfully securely connected with your guardian.</p>
                 <p style="color: #64748B; font-size: 14px;">You can now close this window and return to your day.</p>
             </div>
-          </body>
+        </body>
         </html>
         """, 200
 
@@ -250,11 +257,10 @@ def verify_guardian(token):
         return f"Server Error: {str(e)}", 500
 
 
-    # --- 6. The Status Check Endpoint (React Native app polls this) ---
+# --- 6. The Status Check Endpoint (React Native app polls this) ---
 @app.route('/api/guardian/status/<guardian_user_id>', methods=['GET'])
 def check_guardian_status(guardian_user_id):
     try:
-        # Fetch the most recent link request for this specific guardian
         status_check = supabase.table('guardian_links') \
             .select('status') \
             .eq('guardian_user_id', guardian_user_id) \
@@ -265,7 +271,7 @@ def check_guardian_status(guardian_user_id):
         if not status_check.data:
             return jsonify({"status": "error", "message": "No pending request found for this guardian."}), 404
 
-        current_status = status_check.data[0]['status'] # Will be 'pending' or 'verified'
+        current_status = status_check.data[0]['status'] 
 
         return jsonify({
             "status": "success", 

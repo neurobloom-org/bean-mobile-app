@@ -74,8 +74,16 @@ const LoginGuardianScreen = ({ navigation }: any) => {
       // Extract full name from user_metadata (set during registration)
       const fullName = data.user.user_metadata?.full_name || 'Guardian';
 
-      // Save session globally
-      login(data.user.id, fullName);
+      // Save session globally via AuthContext
+      await login(
+        {
+          id: data.user.id,
+          email: emailGuardian.trim(),
+          role: 'guardian',
+          fullName,
+        },
+        data.session?.access_token || '',
+      );
 
       // Success - Navigate to Dashboard
       console.log('Login successful');

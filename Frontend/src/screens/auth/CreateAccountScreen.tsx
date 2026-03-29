@@ -2,6 +2,7 @@
 // Registration screen shared by both the user and guardian roles.
 // On successful validation, the full name is persisted to AsyncStorage
 // so that the dashboard and profile screens can display it.
+// Guardian role shows an additional phone number field.
 
 import { supabase } from '../../lib/supabase';
 import React, { useState } from 'react';
@@ -22,7 +23,6 @@ import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
-// AsyncStorage keys used to persist the signed-in user's display name.
 const USER_NAME_KEY = 'bean_user_name';
 const GUARDIAN_NAME_KEY = 'bean_guardian_name';
 
@@ -30,8 +30,11 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const { colors, isDark } = useTheme();
   const { userType } = route.params || { userType: 'user' };
 
+  const isGuardian = userType === 'guardian';
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +51,10 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
+    if (isGuardian && !phone.trim()) {
+      Alert.alert('Error', 'Please enter your phone number');
+      return;
+    }
     if (!password.trim() || password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters');
       return;
@@ -60,7 +67,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
     setIsLoading(true);
 
     try {
-      // Call Supabase Auth
+      // --- THE SUPABASE LOGIC ---
       const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
@@ -68,15 +75,24 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           data: {
             full_name: fullName,
             user_type: userType, // 'user' or 'guardian'
+            phone: isGuardian ? phone : undefined,
           },
         },
       });
 
       if (error) throw error;
 
-      // Instead of AsyncStorage, place it safely in the global context
+      // Save session in the global AuthContext
       if (data?.user) {
-         login(data.user.id, fullName.trim());
+        await login(
+          {
+            id: data.user.id,
+            email: email.trim(),
+            role: isGuardian ? 'guardian' : 'user',
+            fullName: fullName.trim(),
+          },
+          data.session?.access_token || '',
+        );
       }
 
       // Success Feedback
@@ -87,10 +103,10 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           { 
             text: 'OK', 
             onPress: () => {
-              if (userType === 'user') {
-                navigation.navigate('ConnectBean');
-              } else {
+              if (isGuardian) {
                 navigation.navigate('CaregiverApp', { screen: 'EnterWardEmail' });
+              } else {
+                navigation.navigate('ConnectBean');
               }
             } 
           }
@@ -112,8 +128,8 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   };
 
   const handleSignIn = () => {
-    if (userType === 'user') navigation.navigate('LoginUser');
-    else navigation.navigate('LoginGuardian');
+    if (isGuardian) navigation.navigate('LoginGuardian');
+    else navigation.navigate('LoginUser');
   };
 
   return (
@@ -131,7 +147,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           <BackButton />
 
           <Text style={styles.title}>
-            {userType === 'guardian' ? (
+            {isGuardian ? (
               <>
                 <Text style={styles.titleHighlight}>Guardian/Therapist </Text>
                 <Text
@@ -161,7 +177,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
           </View>
 
           <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
-            {userType === 'guardian'
+            {isGuardian
               ? 'Create an account to support your loved one'
               : 'Sign up to start your journey with Bean, your mental health companion.'}
           </Text>
@@ -186,6 +202,22 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
+
+          {/* Phone number — guardian only, plain Input identical to all other fields */}
+          {isGuardian && (
+            <>
+              <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
+                PHONE NUMBER
+              </Text>
+              <Input
+                placeholder="+1 (555) 000-0000"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                autoCapitalize="none"
+              />
+            </>
+          )}
 
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             PASSWORD

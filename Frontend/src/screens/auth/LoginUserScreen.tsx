@@ -100,8 +100,16 @@ const LoginUserScreen = ({ navigation }: any) => {
       // Extract full name from user_metadata (set during registration)
       const fullName = data.user.user_metadata?.full_name || 'User';
 
-      // 4. Save session globally
-      login(data.user.id, fullName);
+      // Save session globally via AuthContext
+      await login(
+        {
+          id: data.user.id,
+          email: email.trim(),
+          role: 'user',
+          fullName,
+        },
+        data.session?.access_token || '',
+      );
 
       // 5. Navigate directly to User Dashboard
       console.log('Login successful, going to Dashboard');

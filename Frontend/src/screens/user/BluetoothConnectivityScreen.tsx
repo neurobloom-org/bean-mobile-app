@@ -1,9 +1,13 @@
-// Three-page Bluetooth provisioning flow:
-//   Page 1 — Radar: scans for nearby Bean robots and lists discovered devices.
-//   Page 2 — Link:  collects WiFi credentials and the 4-digit pairing PIN, then
-//                   sends them to the selected device over BLE.
-//   Page 3 — Success: confirms the robot is connected and navigates to the dashboard.
-// BLE calls are stubbed with TODO markers pending integration with react-native-ble-plx.
+// src/screens/user/BluetoothConnectivityScreen.tsx
+// Three-page BLE provisioning flow:
+//   Page 1 — Radar:   scans for nearby Bean robots
+//   Page 2 — Link:    collects WiFi credentials, sends them over BLE as
+//                     "WIFI_NAME,WIFI_PASS,USER_ID_FROM_SUPABASE"
+//   Page 3 — Success: confirms robot is linked, POSTs to /api/v1/robot/pair
+//
+// NOTE: Real BLE scan is commented out pending UUID values from the hardware
+// team. Mock scan runs in its place so the full flow can be tested right now.
+// When hardware team provides UUIDs, uncomment the BLE blocks and delete mocks.
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -20,24 +24,30 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../context/ThemeContext';
 import { SPACING } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── BLE Constants ─────────────────────────────────────────────────────────
+// TODO: paste the values your hardware team gives you here.
+// const BEAN_SERVICE_UUID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+// const BEAN_CHAR_UUID    = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+
+// TODO: update to your Flask server IP before testing on a real device.
+const PAIR_ENDPOINT = 'http://192.168.1.100:5001/api/v1/robot/pair';
+
+// ─── Types ────────────────────────────────────────────────────────────────
 
 interface ScannedDevice {
   id: string;
   name: string;
-  // Received signal strength in dBm; closer to 0 = stronger signal.
   rssi: number;
 }
 
 type FlowPage = 'radar' | 'link' | 'success';
 
-// ─── Pulse Animation ──────────────────────────────────────────────────────────
-// Renders three concentric rings that expand outward and fade in sequence,
-// simulating a sonar / radar effect during BLE scanning.
+// ─── Pulse Animation ──────────────────────────────────────────────────────
 
 const PulseRing = ({ colors }: { colors: any }) => {
   const scale1 = useRef(new Animated.Value(1)).current;
@@ -48,35 +58,29 @@ const PulseRing = ({ colors }: { colors: any }) => {
   const opacity3 = useRef(new Animated.Value(0.2)).current;
 
   useEffect(() => {
-    // Each ring follows the same expand-then-reset pattern with a staggered delay.
-    const pulse = (
-      scaleAnim: Animated.Value,
-      opacityAnim: Animated.Value,
-      delay: number,
-    ) =>
+    const pulse = (s: Animated.Value, o: Animated.Value, delay: number) =>
       Animated.loop(
         Animated.sequence([
           Animated.delay(delay),
           Animated.parallel([
-            Animated.timing(scaleAnim, {
+            Animated.timing(s, {
               toValue: 2.4,
               duration: 1600,
               useNativeDriver: true,
             }),
-            Animated.timing(opacityAnim, {
+            Animated.timing(o, {
               toValue: 0,
               duration: 1600,
               useNativeDriver: true,
             }),
           ]),
-          // Reset instantly so the next loop starts from the origin.
           Animated.parallel([
-            Animated.timing(scaleAnim, {
+            Animated.timing(s, {
               toValue: 1,
               duration: 0,
               useNativeDriver: true,
             }),
-            Animated.timing(opacityAnim, {
+            Animated.timing(o, {
               toValue: 0.5,
               duration: 0,
               useNativeDriver: true,
@@ -84,14 +88,12 @@ const PulseRing = ({ colors }: { colors: any }) => {
           ]),
         ]),
       );
-
     const a1 = pulse(scale1, opacity1, 0);
     const a2 = pulse(scale2, opacity2, 500);
     const a3 = pulse(scale3, opacity3, 1000);
     a1.start();
     a2.start();
     a3.start();
-
     return () => {
       a1.stop();
       a2.stop();
@@ -101,7 +103,6 @@ const PulseRing = ({ colors }: { colors: any }) => {
 
   return (
     <View style={styles.pulseContainer}>
-      {/* Outermost ring first so it renders behind the others */}
       {[
         { scale: scale3, opacity: opacity3 },
         { scale: scale2, opacity: opacity2 },
@@ -119,7 +120,6 @@ const PulseRing = ({ colors }: { colors: any }) => {
           ]}
         />
       ))}
-      {/* Static centre circle housing the robot icon */}
       <View style={[styles.pulseCenter, { backgroundColor: colors.PRIMARY }]}>
         <Image
           source={require('../../../assets/images/robot-connectivity-top-icon.png')}
@@ -131,9 +131,7 @@ const PulseRing = ({ colors }: { colors: any }) => {
   );
 };
 
-// ─── Device Card ──────────────────────────────────────────────────────────────
-// Represents a single discovered BLE device with its name, signal strength,
-// and a connect button.
+// ─── Device Card ──────────────────────────────────────────────────────────
 
 const DeviceCard = ({
   device,
@@ -180,39 +178,42 @@ const DeviceCard = ({
   </TouchableOpacity>
 );
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
+// ─── Main Screen ──────────────────────────────────────────────────────────
 
 const BluetoothConnectivityScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
-
-  // Pre-resolved hex for Android image tinting.
   const iconTint = isDark ? '#F1F5F9' : '#000000';
 
-  // Controls which of the three pages is currently visible.
   const [page, setPage] = useState<FlowPage>('radar');
-
-  // Page 1 — Radar state
   const [devices, setDevices] = useState<ScannedDevice[]>([]);
   const [scanning, setScanning] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<ScannedDevice | null>(
     null,
   );
-
-  // Page 2 — Link state
   const [ssid, setSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
   const [pairingPin, setPairingPin] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [linking, setLinking] = useState(false);
 
-  // ── BLE scan ──────────────────────────────────────────────────────────────
-  // TODO: replace mock with react-native-ble-plx:
-  //   manager.startDeviceScan(null, null, (error, device) => { ... })
+  // ── Scan ────────────────────────────────────────────────────────────────
   const startScan = () => {
     setScanning(true);
     setDevices([]);
 
-    // Mock: simulates discovering one Bean robot after 2.5 s.
+    // ── REAL BLE (uncomment when hardware team provides UUIDs) ────────────
+    // import { BleManager } from 'react-native-ble-plx';
+    // const manager = new BleManager();
+    // manager.startDeviceScan([BEAN_SERVICE_UUID], null, (error, device) => {
+    //   if (error) { setScanning(false); Alert.alert('Scan Error', error.message); return; }
+    //   if (device?.name?.includes('Bean')) {
+    //     setDevices(prev => prev.find(d => d.id === device.id) ? prev
+    //       : [...prev, { id: device.id, name: device.name!, rssi: device.rssi ?? -99 }]);
+    //   }
+    // });
+    // setTimeout(() => { manager.stopDeviceScan(); setScanning(false); }, 10000);
+
+    // ── MOCK (delete this block when real BLE is wired up) ────────────────
     setTimeout(() => {
       setDevices([{ id: 'mock-001', name: 'Bean-Robot-001', rssi: -52 }]);
       setScanning(false);
@@ -221,21 +222,16 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     startScan();
-    return () => {
-      // TODO: manager.stopDeviceScan();
-    };
   }, []);
 
-  // ── Device selection → advance to Link page ───────────────────────────────
-  // TODO: await device.connect() before calling setPage.
+  // ── Connect → go to Link page ──────────────────────────────────────────
   const connectToDevice = (device: ScannedDevice) => {
+    // REAL BLE: await device.rawDevice.connect(); await device.rawDevice.discoverAllServicesAndCharacteristics();
     setSelectedDevice(device);
     setPage('link');
   };
 
-  // ── Provisioning → advance to Success page ────────────────────────────────
-  // Validates all three fields, then sends them over BLE to the robot.
-  // TODO: replace the setTimeout mock with a real BLE write characteristic call.
+  // ── Send payload over BLE → call API → go to Success ──────────────────
   const handleLinkAndStart = async () => {
     if (!ssid.trim() || !wifiPassword.trim() || !pairingPin.trim()) {
       Alert.alert(
@@ -251,28 +247,70 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
 
     setLinking(true);
 
-    // TODO: send provisioning payload over BLE:
-    // const payload = JSON.stringify({ ssid, pass: wifiPassword, pin: pairingPin,
-    //   uid: 'USER_UUID_FROM_SUPABASE', flask_ip: '192.168.1.XX' });
-    // await selectedDevice.writeCharacteristicWithResponseForService(
-    //   SERVICE_UUID, CHAR_UUID, btoa(payload));
-    // Then start a Supabase Realtime listener for the owner_id update.
+    try {
+      // Step 1: Get the Supabase user ID from storage.
+      const authUserRaw = await AsyncStorage.getItem('bean_auth_user');
+      const userId = authUserRaw
+        ? JSON.parse(authUserRaw)?.id ?? 'stub-user-id'
+        : 'stub-user-id';
 
-    setTimeout(() => {
+      // Step 2: Build the payload in the exact format the hardware team expects.
+      // Format: "WIFI_NAME,WIFI_PASS,USER_ID_FROM_SUPABASE"
+      const blePayload = `${ssid.trim()},${wifiPassword.trim()},${userId}`;
+
+      // ── REAL BLE write (uncomment when hardware team provides UUIDs) ────
+      // await selectedDevice.rawDevice.writeCharacteristicWithResponseForService(
+      //   BEAN_SERVICE_UUID,
+      //   BEAN_CHAR_UUID,
+      //   btoa(blePayload),   // base64-encode for ble-plx
+      // );
+
+      // ── MOCK BLE (simulates 3s write delay) ─────────────────────────────
+      console.log('BLE payload (mock):', blePayload);
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 3000));
+
+      // Step 3: POST to backend to link the robot to the user in Supabase.
+      const authToken = await AsyncStorage.getItem('bean_auth_token');
+      const response = await fetch(PAIR_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken ?? ''}`,
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          device_id: selectedDevice?.id ?? 'mock-001',
+          ssid: ssid.trim(),
+        }),
+      });
+
+      // If the server is not up yet, skip the error so the flow can still be tested.
+      if (!response.ok) {
+        console.warn(
+          `Pair API returned ${response.status} — continuing to success page for now.`,
+        );
+      }
+
       setLinking(false);
       setPage('success');
-    }, 3000);
+    } catch (err: any) {
+      // Network errors (e.g. server not running yet) go to success so UI can still be tested.
+      console.warn(
+        'Pair request failed (server may not be running yet):',
+        err.message,
+      );
+      setLinking(false);
+      setPage('success');
+    }
   };
 
-  const handleGoToDashboard = () => {
-    navigation.navigate('Home');
-  };
+  const handleGoToDashboard = () => navigation.navigate('Home');
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND }]}
     >
-      {/* Header — back button behaviour changes per page */}
+      {/* Header */}
       <View
         style={[
           styles.header,
@@ -305,52 +343,54 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Step indicator: completed steps stay primary-coloured, pending steps are dimmed */}
+      {/* Step indicator */}
       <View style={[styles.stepRow, { backgroundColor: colors.SURFACE }]}>
-        {(['radar', 'link', 'success'] as FlowPage[]).map((step, i) => (
-          <React.Fragment key={step}>
-            <View
-              style={[
-                styles.stepDot,
-                {
-                  backgroundColor:
-                    page === step ||
-                    ['radar', 'link', 'success'].indexOf(page) > i
-                      ? colors.PRIMARY
-                      : colors.BORDER_LIGHT,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.stepDotText,
-                  {
-                    color:
-                      page === step ||
-                      ['radar', 'link', 'success'].indexOf(page) > i
-                        ? '#FFFFFF'
-                        : colors.TEXT_TERTIARY,
-                  },
-                ]}
-              >
-                {i + 1}
-              </Text>
-            </View>
-            {i < 2 && (
+        {(['radar', 'link', 'success'] as FlowPage[]).map((step, i) => {
+          const pageIndex = ['radar', 'link', 'success'].indexOf(page);
+          const isActive = page === step;
+          const isComplete = pageIndex > i;
+          return (
+            <React.Fragment key={step}>
               <View
                 style={[
-                  styles.stepLine,
+                  styles.stepDot,
                   {
                     backgroundColor:
-                      ['radar', 'link', 'success'].indexOf(page) > i
+                      isActive || isComplete
                         ? colors.PRIMARY
                         : colors.BORDER_LIGHT,
                   },
                 ]}
-              />
-            )}
-          </React.Fragment>
-        ))}
+              >
+                <Text
+                  style={[
+                    styles.stepDotText,
+                    {
+                      color:
+                        isActive || isComplete
+                          ? '#FFFFFF'
+                          : colors.TEXT_TERTIARY,
+                    },
+                  ]}
+                >
+                  {i + 1}
+                </Text>
+              </View>
+              {i < 2 && (
+                <View
+                  style={[
+                    styles.stepLine,
+                    {
+                      backgroundColor: isComplete
+                        ? colors.PRIMARY
+                        : colors.BORDER_LIGHT,
+                    },
+                  ]}
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
       </View>
 
       {/* ── Page 1: Radar ── */}
@@ -365,9 +405,7 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
           <Text style={[styles.pageSubtitle, { color: colors.TEXT_SECONDARY }]}>
             Make sure your Bean Robot is powered on and nearby.
           </Text>
-
           <PulseRing colors={colors} />
-
           {scanning && (
             <View style={styles.scanningRow}>
               <ActivityIndicator size="small" color={colors.PRIMARY} />
@@ -378,7 +416,6 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
               </Text>
             </View>
           )}
-
           {devices.length > 0 && (
             <View style={styles.deviceList}>
               <Text
@@ -397,8 +434,6 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
               ))}
             </View>
           )}
-
-          {/* Rescan button; icon tinted white in dark mode, primary in light mode */}
           {!scanning && (
             <TouchableOpacity
               style={[styles.rescanBtn, { borderColor: colors.PRIMARY }]}
@@ -477,7 +512,7 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* WiFi Password with show/hide toggle */}
+          {/* WiFi Password */}
           <View style={styles.fieldGroup}>
             <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
               WiFi Password
@@ -516,7 +551,7 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* 4-digit pairing PIN shown on the robot's display */}
+          {/* 4-digit pairing PIN */}
           <View style={styles.fieldGroup}>
             <Text style={[styles.fieldLabel, { color: colors.TEXT_SECONDARY }]}>
               Bean Pairing ID
@@ -556,7 +591,7 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Privacy reassurance banner */}
+          {/* Info banner */}
           <View
             style={[
               styles.infoBanner,
@@ -564,12 +599,11 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
             ]}
           >
             <Text style={[styles.infoBannerText, { color: colors.PRIMARY }]}>
-              🔒 This data is sent securely over Bluetooth. Your password is
-              never stored on our servers.
+              🔒 Sent as: WiFi_Name, WiFi_Pass, Your_ID — securely over
+              Bluetooth.{'\n'}Your password is never stored on our servers.
             </Text>
           </View>
 
-          {/* Submit: shows a spinner while the BLE write is in progress */}
           {linking ? (
             <View style={styles.linkingState}>
               <ActivityIndicator size="large" color={colors.PRIMARY} />
@@ -599,7 +633,6 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
             style={styles.successRobotImage}
             resizeMode="contain"
           />
-
           <View
             style={[
               styles.successBadge,
@@ -610,7 +643,6 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
               ✓ Connected
             </Text>
           </View>
-
           <Text style={[styles.successTitle, { color: colors.TEXT_PRIMARY }]}>
             Bean is Ready! 🎉
           </Text>
@@ -620,8 +652,6 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
             Your Bean Robot has been successfully linked to your account and is
             now connected to WiFi.
           </Text>
-
-          {/* Summary card showing robot name, network, and live status */}
           <View
             style={[
               styles.successCard,
@@ -661,7 +691,6 @@ const BluetoothConnectivityScreen = ({ navigation }: any) => {
               </View>
             ))}
           </View>
-
           <TouchableOpacity
             style={[styles.dashboardBtn, { backgroundColor: colors.PRIMARY }]}
             onPress={handleGoToDashboard}
@@ -681,7 +710,6 @@ export default BluetoothConnectivityScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -693,8 +721,6 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   backIcon: { fontSize: 28, lineHeight: 32 },
   headerTitle: { fontSize: 17, fontWeight: '700' as const },
-
-  // Step indicator
   stepRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -712,8 +738,6 @@ const styles = StyleSheet.create({
   },
   stepDotText: { fontSize: 12, fontWeight: '700' as const },
   stepLine: { flex: 1, height: 2, marginHorizontal: 4 },
-
-  // Shared page content container
   pageContent: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.XL,
@@ -733,8 +757,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XL,
     paddingHorizontal: SPACING.MD,
   },
-
-  // Pulse animation
   pulseContainer: {
     width: 160,
     height: 160,
@@ -751,8 +773,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pulseCenterIcon: { width: 48, height: 48, tintColor: '#FFFFFF' },
-
-  // Scanning status
   scanningRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -761,8 +781,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.LG,
   },
   scanningText: { flex: 1, fontSize: 13, lineHeight: 18, textAlign: 'center' },
-
-  // Device list
   deviceList: { width: '100%', marginBottom: SPACING.LG },
   foundLabel: {
     fontSize: 12,
@@ -801,8 +819,6 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     color: '#000000',
   },
-
-  // Rescan button
   rescanBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -822,8 +838,6 @@ const styles = StyleSheet.create({
   },
   rescanIconImage: { width: 18, height: 18 },
   rescanText: { fontSize: 14, fontWeight: '600' as const },
-
-  // Form fields
   fieldGroup: { width: '100%', marginBottom: SPACING.LG },
   fieldLabel: {
     fontSize: 12,
@@ -849,8 +863,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   pinCount: { fontSize: 11 },
-
-  // Privacy banner
   infoBanner: {
     width: '100%',
     borderRadius: BORDER_RADIUS.LG,
@@ -858,16 +870,12 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XL,
   },
   infoBannerText: { fontSize: 12, lineHeight: 18 },
-
-  // Linking state
   linkingState: {
     alignItems: 'center',
     gap: SPACING.MD,
     marginTop: SPACING.LG,
   },
   linkingText: { fontSize: 14, fontStyle: 'italic' },
-
-  // Link & Start button
   linkBtn: {
     width: '100%',
     borderRadius: BORDER_RADIUS.ROUND,
@@ -880,8 +888,6 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   linkBtnText: { fontSize: 16, fontWeight: '700' as const, color: '#000000' },
-
-  // Success page
   successPage: {
     flex: 1,
     alignItems: 'center',
@@ -925,8 +931,6 @@ const styles = StyleSheet.create({
   },
   successInfoLabel: { fontSize: 13 },
   successInfoValue: { fontSize: 13, fontWeight: '600' as const },
-
-  // Dashboard button
   dashboardBtn: {
     width: '100%',
     borderRadius: BORDER_RADIUS.ROUND,

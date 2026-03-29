@@ -17,6 +17,7 @@ import {
 import { BackButton, Input, PrimaryButton } from '../../components';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 
 const EnterWardEmailScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -24,8 +25,7 @@ const EnterWardEmailScreen = ({ navigation }: any) => {
   const [wardEmail, setWardEmail] = useState('');
   const [isWaiting, setIsWaiting] = useState(false); // Tracks if we are waiting for the click
   
-  // For the MVP, we hardcode a test guardian ID. In production, this comes from your Auth state.
-  const [guardianId] = useState("073ae6aa-c5c0-4096-b168-9f69212522ec"); 
+  const { userId: guardianId } = useAuth();
 
   const isValidEmail = wardEmail.trim().length > 0 && wardEmail.includes('@');
 
