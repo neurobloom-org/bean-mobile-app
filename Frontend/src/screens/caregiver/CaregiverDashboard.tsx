@@ -2,7 +2,7 @@
 // activity overview, and patient history for the linked user. A slide-in
 // hamburger menu provides theme toggling, account settings, and logout.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,20 +17,15 @@ import {
   Switch,
   Dimensions,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 import MoodTrendChart from '../../components/cards/MoodTrendChart';
 
 const { width } = Dimensions.get('window');
-
-// Panel occupies 72% of screen width so the backdrop remains partially visible.
 const PANEL_WIDTH = width * 0.72;
-
-// Delay in ms to let the modal slide-out animation finish before navigating.
 const MODAL_CLOSE_DELAY = 320;
-
-// ─── Caregiver Hamburger Menu ─────────────────────────────────────────────────
 
 interface CaregiverMenuProps {
   visible: boolean;
@@ -38,7 +33,6 @@ interface CaregiverMenuProps {
   navigation: any;
   colors: any;
   isDark: boolean;
-  // Signature matches ThemeContext: toggleTheme(dark: boolean) => void
   toggleTheme: (dark: boolean) => void;
 }
 
@@ -50,10 +44,8 @@ const CaregiverMenu = ({
   isDark,
   toggleTheme,
 }: CaregiverMenuProps) => {
-  // Pre-resolved hex so Android tinting works reliably.
   const iconTint = isDark ? '#F1F5F9' : '#000000';
 
-  // Close the modal first, then show the confirmation dialog after the animation.
   const handleLogOut = () => {
     onClose();
     setTimeout(() => {
@@ -68,7 +60,6 @@ const CaregiverMenu = ({
     }, MODAL_CLOSE_DELAY);
   };
 
-  // Close the modal first, then navigate to the account screen.
   const handleAccountSettings = () => {
     onClose();
     setTimeout(() => {
@@ -83,13 +74,10 @@ const CaregiverMenu = ({
       animationType="slide"
       onRequestClose={onClose}
     >
-      {/* Tappable backdrop dismisses the panel */}
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={menuStyles.overlay} />
       </TouchableWithoutFeedback>
-
       <View style={[menuStyles.panel, { backgroundColor: colors.SURFACE }]}>
-        {/* Dismiss button in the top-right corner */}
         <TouchableOpacity
           style={[menuStyles.closeBtn, { backgroundColor: colors.GRAY_100 }]}
           onPress={onClose}
@@ -98,8 +86,6 @@ const CaregiverMenu = ({
             ✕
           </Text>
         </TouchableOpacity>
-
-        {/* Branding row: Bean logo tinted with the primary colour */}
         <View style={menuStyles.brandRow}>
           <Image
             source={require('../../../assets/images/login-page.png')}
@@ -113,12 +99,9 @@ const CaregiverMenu = ({
         <Text style={[menuStyles.brandSub, { color: colors.TEXT_TERTIARY }]}>
           Caregiver Portal
         </Text>
-
         <View
           style={[menuStyles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
         />
-
-        {/* Theme toggle: Switch passes its new boolean value directly to toggleTheme */}
         <View style={menuStyles.menuItem}>
           <View
             style={[
@@ -138,8 +121,6 @@ const CaregiverMenu = ({
             thumbColor={isDark ? '#F1F5F9' : '#FFFFFF'}
           />
         </View>
-
-        {/* Account settings row */}
         <TouchableOpacity
           style={menuStyles.menuItem}
           onPress={handleAccountSettings}
@@ -164,14 +145,10 @@ const CaregiverMenu = ({
             ›
           </Text>
         </TouchableOpacity>
-
-        {/* Spacer pushes the log-out section to the bottom */}
         <View style={{ flex: 1 }} />
-
         <View
           style={[menuStyles.divider, { backgroundColor: colors.BORDER_LIGHT }]}
         />
-
         <TouchableOpacity
           style={menuStyles.logOutButton}
           onPress={handleLogOut}
@@ -179,7 +156,6 @@ const CaregiverMenu = ({
         >
           <Text style={menuStyles.logOutText}>→ Log Out</Text>
         </TouchableOpacity>
-
         <Text style={[menuStyles.versionText, { color: colors.TEXT_TERTIARY }]}>
           Bean v2.4.1 · Caregiver Portal
         </Text>
@@ -188,49 +164,18 @@ const CaregiverMenu = ({
   );
 };
 
-// ─── Alert Item ───────────────────────────────────────────────────────────────
-// Reusable row used in the patient history list.
-
-interface AlertItemProps {
-  icon: any;
-  title: string;
-  subtitle: string;
-  onPress: () => void;
-  colors: any;
-}
-
-const AlertItem = ({
-  icon,
-  title,
-  subtitle,
-  onPress,
-  colors,
-}: AlertItemProps) => (
-  <TouchableOpacity
-    style={[styles.alertItem, { backgroundColor: colors.SURFACE }]}
-    onPress={onPress}
-    activeOpacity={0.8}
-  >
-    <Image source={icon} style={styles.alertIcon} resizeMode="contain" />
-    <View style={styles.alertItemText}>
-      <Text style={[styles.alertItemTitle, { color: colors.TEXT_PRIMARY }]}>
-        {title}
-      </Text>
-      <Text style={[styles.alertItemSub, { color: colors.TEXT_SECONDARY }]}>
-        {subtitle}
-      </Text>
-    </View>
-    <Text style={[styles.alertChevron, { color: colors.TEXT_TERTIARY }]}>
-      ›
-    </Text>
-  </TouchableOpacity>
-);
-
-// ─── Main Screen ─────────────────────────────────────────────────────────────
-
 const CaregiverDashboard = ({ navigation }: any) => {
   const { colors, isDark, toggleTheme } = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
+
+  // Reads the guardian's name saved at signup.
+  const [guardianName, setGuardianName] = useState('Guardian');
+
+  useEffect(() => {
+    AsyncStorage.getItem('bean_guardian_name').then(name => {
+      if (name) setGuardianName(name);
+    });
+  }, []);
 
   const handleExportReport = () => {
     Alert.alert('Export Report', 'Clinical report will be exported as PDF.', [
@@ -242,7 +187,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND_LIGHT }]}
     >
-      {/* Header: Bean logo on the left, title in the centre, hamburger on the right */}
       <View
         style={[
           styles.header,
@@ -252,7 +196,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
           },
         ]}
       >
-        {/* Bean logo tinted white in dark mode for sufficient contrast */}
         <View style={styles.headerLeft}>
           <Image
             source={require('../../../assets/images/login-page.png')}
@@ -268,12 +211,9 @@ const CaregiverDashboard = ({ navigation }: any) => {
             Bean
           </Text>
         </View>
-
         <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
           Caregiver Dashboard
         </Text>
-
-        {/* Opens the slide-in hamburger menu panel */}
         <TouchableOpacity
           onPress={() => setMenuVisible(true)}
           style={styles.hamburgerBtn}
@@ -291,11 +231,12 @@ const CaregiverDashboard = ({ navigation }: any) => {
         <Text style={[styles.pageTitle, { color: colors.TEXT_PRIMARY }]}>
           Caregiver/Therapist Dashboard
         </Text>
+
+        {/* Shows the guardian's name from AsyncStorage instead of a hardcoded placeholder */}
         <Text style={[styles.pageSubtitle, { color: colors.TEXT_SECONDARY }]}>
-          Monitoring: Alex Johnson
+          Signed in as: {guardianName}
         </Text>
 
-        {/* Mood trend line chart for the past 7 days */}
         <View style={[styles.card, { backgroundColor: colors.SURFACE }]}>
           <Text style={[styles.cardTitle, { color: colors.TEXT_PRIMARY }]}>
             Mood Trends
@@ -306,7 +247,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
           <MoodTrendChart scores={[0, 0, 0, 0, 0, 0, 0]} />
         </View>
 
-        {/* Side-by-side activity summary cards */}
         <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
           Activity Overview
         </Text>
@@ -337,7 +277,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
               — no data yet
             </Text>
           </View>
-
           <View
             style={[styles.activityCard, { backgroundColor: colors.SURFACE }]}
           >
@@ -366,7 +305,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Event history — shows SOS triggers and mood alerts when populated */}
         <View style={styles.historyHeader}>
           <Text style={[styles.sectionTitle, { color: colors.TEXT_PRIMARY }]}>
             Bean User History
@@ -377,8 +315,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Empty state shown until the backend provides event data */}
         <View
           style={[styles.historyEmpty, { backgroundColor: colors.SURFACE }]}
         >
@@ -414,7 +350,6 @@ const CaregiverDashboard = ({ navigation }: any) => {
         </Text>
       </ScrollView>
 
-      {/* Slide-in hamburger menu rendered as a transparent modal */}
       <CaregiverMenu
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
@@ -427,9 +362,7 @@ const CaregiverDashboard = ({ navigation }: any) => {
   );
 };
 
-// ─── Menu Styles ──────────────────────────────────────────────────────────────
 const menuStyles = StyleSheet.create({
-  // Full-screen transparent layer that captures taps outside the panel.
   overlay: {
     position: 'absolute',
     top: 0,
@@ -438,7 +371,6 @@ const menuStyles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
-  // Right-anchored panel with rounded left corners.
   panel: {
     position: 'absolute',
     top: 0,
@@ -512,7 +444,6 @@ const menuStyles = StyleSheet.create({
   versionText: { fontSize: 11, textAlign: 'center' },
 });
 
-// ─── Screen Styles ────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {

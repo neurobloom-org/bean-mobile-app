@@ -2,7 +2,7 @@
 // Covers personal details, professional information, monitored patient summary,
 // password change, and account deletion — all in a single scrollable layout.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,12 +15,12 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useTheme } from '../../context/ThemeContext';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 
-// Renders an uppercase section label in the primary colour.
 const SectionTitle = ({ label, colors }: { label: string; colors: any }) => (
   <Text style={[sectionStyle.title, { color: colors.PRIMARY }]}>{label}</Text>
 );
@@ -36,13 +36,10 @@ const sectionStyle = StyleSheet.create({
   },
 });
 
-// Displays a labelled field with an icon, read-only value, and an optional edit button.
-// When isEditing is true, a TextInput replaces the static text.
 interface FieldRowProps {
   label: string;
   value: string;
   iconSource: any;
-  // When true, a pencil icon is shown and tapping it calls onEdit.
   editable?: boolean;
   onEdit?: () => void;
   colors: any;
@@ -66,9 +63,7 @@ const FieldRow: React.FC<FieldRowProps> = ({
   onBlur,
   keyboardType = 'default',
 }) => {
-  // Pre-resolved hex so Android tinting works reliably.
   const iconTint = isDark ? '#F1F5F9' : '#000000';
-
   return (
     <View style={fieldStyle.wrap}>
       <Text style={[fieldStyle.label, { color: colors.TEXT_TERTIARY }]}>
@@ -127,23 +122,27 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
   const iconTint = isDark ? '#F1F5F9' : '#000000';
 
-  // Profile fields — placeholder data until backend integration is complete.
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [fullName, setFullName] = useState('Dr. Sarah Mitchell');
-  const [email] = useState('sarah.mitchell@hospital.org');
-  const [phone, setPhone] = useState('+1 (555) 234-5678');
-  const [organisation, setOrganisation] = useState(
-    'Green Valley Mental Health Clinic',
-  );
-  const [specialisation, setSpecialisation] = useState('Clinical Psychologist');
-  const [wardName] = useState('Alex Johnson');
-  const [wardEmail] = useState('alex.johnson@example.com');
+  const [fullName, setFullName] = useState('');
+  const [email] = useState('');
+  const [phone, setPhone] = useState('');
+  const [organisation, setOrganisation] = useState('');
+  const [specialisation, setSpecialisation] = useState('');
+  const [wardName] = useState('Linked Patient');
+  const [wardEmail] = useState('—');
 
-  // Tracks which field is currently in its inline edit mode.
   const [editingName, setEditingName] = useState(false);
   const [editingPhone, setEditingPhone] = useState(false);
   const [editingOrg, setEditingOrg] = useState(false);
   const [editingSpec, setEditingSpec] = useState(false);
+
+  // Load the guardian's name saved at signup so the profile shows a real name,
+  // not a hardcoded placeholder. Other fields come from the backend when connected.
+  useEffect(() => {
+    AsyncStorage.getItem('bean_guardian_name').then(name => {
+      if (name) setFullName(name);
+    });
+  }, []);
 
   const handlePickPhoto = () => {
     launchImageLibrary(
@@ -167,7 +166,6 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
     navigation.navigate('ForgotPassword', { userType: 'guardian' });
   };
 
-  // Requires confirmation before permanently removing the account.
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
@@ -183,7 +181,6 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
     );
   };
 
-  // Reusable thin separator rendered between FieldRow elements inside a card.
   const divider = (
     <View style={[styles.divider, { backgroundColor: colors.BORDER_LIGHT }]} />
   );
@@ -221,7 +218,7 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Avatar section with photo picker, name, and role badge */}
+        {/* Avatar — shows the guardian's name loaded from AsyncStorage */}
         <View
           style={[styles.avatarSection, { backgroundColor: colors.SURFACE }]}
         >
@@ -242,14 +239,14 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
               ]}
               resizeMode="cover"
             />
-            {/* Semi-transparent overlay with camera icon indicates the photo is tappable */}
             <View style={styles.cameraOverlay}>
               <Text style={styles.cameraIcon}>📷</Text>
             </View>
           </TouchableOpacity>
 
+          {/* Displays the name entered at signup instead of a hardcoded placeholder */}
           <Text style={[styles.avatarName, { color: colors.TEXT_PRIMARY }]}>
-            {fullName}
+            {fullName || 'Caregiver'}
           </Text>
 
           <View
@@ -262,7 +259,6 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
               🩺 Caregiver / Therapist
             </Text>
           </View>
-
           <Text style={[styles.avatarHint, { color: colors.TEXT_TERTIARY }]}>
             Tap photo to change
           </Text>
@@ -294,7 +290,7 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
           {divider}
           <FieldRow
             label="Email Address"
-            value={email}
+            value={email || '—'}
             iconSource={require('../../../assets/images/mail.png')}
             colors={colors}
             isDark={isDark}
@@ -302,7 +298,7 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
           {divider}
           <FieldRow
             label="Phone Number"
-            value={phone}
+            value={phone || '—'}
             iconSource={require('../../../assets/images/phone-number.png')}
             editable
             onEdit={() => setEditingPhone(true)}
@@ -328,7 +324,7 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
         >
           <FieldRow
             label="Organisation / Clinic"
-            value={organisation}
+            value={organisation || '—'}
             iconSource={require('../../../assets/images/account-info.png')}
             editable
             onEdit={() => setEditingOrg(true)}
@@ -341,7 +337,7 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
           {divider}
           <FieldRow
             label="Specialisation"
-            value={specialisation}
+            value={specialisation || '—'}
             iconSource={require('../../../assets/images/analytics.png')}
             editable
             onEdit={() => setEditingSpec(true)}
@@ -353,7 +349,7 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Read-only summary of the linked patient */}
+        {/* Monitored patient — populated from backend when connected */}
         <SectionTitle label="Monitored Patient" colors={colors} />
         <View
           style={[
@@ -389,7 +385,6 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
                 {wardEmail}
               </Text>
             </View>
-            {/* Green active badge confirms the monitoring link is live */}
             <View
               style={[
                 styles.monitoringBadge,
@@ -404,7 +399,7 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Security — navigates to the forgot-password flow */}
+        {/* Security */}
         <SectionTitle label="Security" colors={colors} />
         <TouchableOpacity
           style={[
@@ -455,7 +450,6 @@ const CaregiverAccountScreen = ({ navigation }: any) => {
           <Text style={styles.deleteBtnText}>Delete Account</Text>
         </TouchableOpacity>
 
-        {/* Primary action */}
         <TouchableOpacity
           style={[styles.saveBtn, { backgroundColor: colors.PRIMARY }]}
           onPress={handleSave}
@@ -472,7 +466,6 @@ export default CaregiverAccountScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -484,14 +477,11 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   backIcon: { fontSize: 28, lineHeight: 32 },
   headerTitle: { fontSize: 17, fontWeight: '700' as const },
-
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.MASSIVE,
   },
-
-  // Avatar section
   avatarSection: {
     alignItems: 'center',
     paddingVertical: SPACING.XL,
@@ -526,7 +516,6 @@ const styles = StyleSheet.create({
   },
   roleBadgeText: { fontSize: 13, fontWeight: '600' as const },
   avatarHint: { fontSize: 11 },
-
   card: {
     borderRadius: BORDER_RADIUS.XL,
     borderWidth: 1,
@@ -534,8 +523,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   divider: { height: 1 },
-
-  // Patient row
   patientRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -569,8 +556,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#07882C',
   },
   monitoringText: { fontSize: 12, fontWeight: '600' as const },
-
-  // Security card
   securityCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -589,8 +574,6 @@ const styles = StyleSheet.create({
   securityTitle: { fontSize: 15, fontWeight: '600' as const, marginBottom: 2 },
   securitySub: { fontSize: 12 },
   chevron: { fontSize: 20 },
-
-  // Buttons
   deleteBtn: {
     borderWidth: 1.5,
     borderColor: '#EF4444',

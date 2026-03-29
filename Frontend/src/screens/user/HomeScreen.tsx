@@ -2,7 +2,7 @@
 // donut chart, daily progress, and a feature tile grid. The hamburger menu
 // opens the slide-in DropdownMenu. The bottom tab bar provides global navigation.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
@@ -21,22 +22,14 @@ import BottomTabBar from '../../components/navigation/BottomTabBar';
 
 const { width } = Dimensions.get('window');
 const TILE_GAP = SPACING.MD;
-
-// Each tile is half the available width minus one gap.
 const TILE_SIZE = (width - SPACING.XL * 2 - TILE_GAP) / 2;
 
-// ─── Donut Chart ──────────────────────────────────────────────────────────────
-// Renders a static ring chart alongside a three-item legend.
-// Values are placeholder zeros until mood data is connected from the backend.
-
 const DonutChart = ({ colors }: { colors: any }) => {
-  const SIZE = 120;
-  const THICKNESS = 16;
-  const INNER = SIZE - THICKNESS * 2;
-
+  const SIZE = 120,
+    THICKNESS = 16,
+    INNER = SIZE - THICKNESS * 2;
   return (
     <View style={donut.wrapper}>
-      {/* Thick ring — single colour for now; will be segmented once data is live */}
       <View
         style={[
           donut.ring,
@@ -49,7 +42,6 @@ const DonutChart = ({ colors }: { colors: any }) => {
           },
         ]}
       >
-        {/* Centre hole matches the card background */}
         <View
           style={[
             donut.hole,
@@ -62,8 +54,6 @@ const DonutChart = ({ colors }: { colors: any }) => {
           ]}
         />
       </View>
-
-      {/* Legend */}
       <View style={donut.legend}>
         {[
           { label: 'Calm', color: colors.PRIMARY_LIGHT },
@@ -100,10 +90,6 @@ const donut = StyleSheet.create({
   label: { fontSize: 13, width: 48 },
   value: { fontSize: 13, fontWeight: '700' as const },
 });
-
-// ─── Feature Tile ─────────────────────────────────────────────────────────────
-// Generic square tile used for the feature grid. fullWidth renders it as a
-// full-width horizontal row instead of a half-width square.
 
 interface TileProps {
   iconSource: any;
@@ -144,18 +130,21 @@ const FeatureTile = ({
   </TouchableOpacity>
 );
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
-
 const HomeScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  // Tile background follows the Tailwind slate-800 / slate-100 palette so
-  // it stays visually distinct from the card surface in both themes.
+  // Reads the name saved at signup; falls back to 'there' until data loads.
+  const [userName, setUserName] = useState('there');
+
+  useEffect(() => {
+    AsyncStorage.getItem('bean_user_name').then(name => {
+      if (name) setUserName(name);
+    });
+  }, []);
+
   const TILE_BG = isDark ? '#1E293B' : '#F1F5F9';
 
-  // Wraps navigation.navigate in a try-catch to silently handle missing routes
-  // during development before all screens are registered.
   const goTo = (screen: string) => {
     try {
       navigation.navigate(screen);
@@ -166,7 +155,6 @@ const HomeScreen = ({ navigation }: any) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.BACKGROUND }]}
     >
-      {/* Top bar: Bean logo, app name, hamburger */}
       <View
         style={[
           styles.topBar,
@@ -177,7 +165,6 @@ const HomeScreen = ({ navigation }: any) => {
         ]}
       >
         <View style={styles.topBarLeft}>
-          {/* Bean icon tinted white in dark mode for contrast against dark surfaces */}
           <Image
             source={require('../../../assets/images/login-page.png')}
             style={[styles.topBarIcon, isDark && { tintColor: '#FFFFFF' }]}
@@ -198,14 +185,14 @@ const HomeScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
+        {/* Greeting uses the name from AsyncStorage, not a hardcoded value */}
         <Text style={[styles.greeting, { color: colors.TEXT_PRIMARY }]}>
-          Hey Alex!
+          Hey {userName}!
         </Text>
         <Text style={[styles.focusLabel, { color: colors.TEXT_SECONDARY }]}>
           Today's Focus
         </Text>
 
-        {/* Combined mood + progress card */}
         <View
           style={[styles.combinedCard, { backgroundColor: colors.SURFACE }]}
         >
@@ -213,14 +200,12 @@ const HomeScreen = ({ navigation }: any) => {
             Mood Balance
           </Text>
           <DonutChart colors={colors} />
-
           <View
             style={[
               styles.inCardDivider,
               { backgroundColor: colors.BORDER_LIGHT },
             ]}
           />
-
           <Text
             style={[
               styles.cardTitle,
@@ -232,9 +217,7 @@ const HomeScreen = ({ navigation }: any) => {
           <Text style={[styles.progressSub, { color: colors.TEXT_SECONDARY }]}>
             0/5 Tasks Done • 0m Focus Time
           </Text>
-
           <View style={styles.progressRow}>
-            {/* Streak badge updates once activity data is available */}
             <View
               style={[
                 styles.streakBadge,
@@ -258,7 +241,6 @@ const HomeScreen = ({ navigation }: any) => {
           Features
         </Text>
 
-        {/* Feature grid: most tiles are half-width; Therapeutic Conversations spans full width */}
         <View style={styles.grid}>
           <FeatureTile
             iconSource={require('../../../assets/images/talk-to-bean.png')}
@@ -296,7 +278,6 @@ const HomeScreen = ({ navigation }: any) => {
             onPress={() => goTo('SOSDetection')}
           />
 
-          {/* Calming Exercises tile has a floating Bean mascot that opens Chat on tap */}
           <TouchableOpacity
             style={[styles.tile, { backgroundColor: TILE_BG }]}
             activeOpacity={0.8}
@@ -310,7 +291,6 @@ const HomeScreen = ({ navigation }: any) => {
             <Text style={[styles.tileLabel, { color: colors.TEXT_PRIMARY }]}>
               Calming Exercises
             </Text>
-            {/* Mascot overflows the tile boundary; tapping it opens the chat screen */}
             <TouchableOpacity
               style={styles.beanHitArea}
               onPress={() => navigation.navigate('Chat')}
@@ -336,7 +316,6 @@ const HomeScreen = ({ navigation }: any) => {
       </ScrollView>
 
       <BottomTabBar navigation={navigation} activeTab="Home" />
-
       <DropdownMenu
         visible={dropdownVisible}
         onClose={() => setDropdownVisible(false)}
@@ -348,7 +327,6 @@ const HomeScreen = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -361,21 +339,17 @@ const styles = StyleSheet.create({
   topBarIcon: { width: 32, height: 32, borderRadius: 16 },
   topBarName: { ...TYPOGRAPHY.H4 },
   hamburger: { fontSize: 26, lineHeight: 28 },
-
   scroll: {
     paddingHorizontal: SPACING.XL,
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.MASSIVE,
   },
-
   greeting: {
     fontSize: 30,
     fontWeight: '800' as const,
     marginBottom: SPACING.XS,
   },
   focusLabel: { ...TYPOGRAPHY.BODY, marginBottom: SPACING.LG },
-
-  // Combined mood + progress card
   combinedCard: {
     borderRadius: BORDER_RADIUS.XL,
     padding: SPACING.LG,
@@ -406,10 +380,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.XS,
   },
   calendarText: { fontSize: 12, fontWeight: '700' as const, color: '#000000' },
-
   sectionTitle: { ...TYPOGRAPHY.H3, marginBottom: SPACING.MD },
-
-  // Feature grid
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
   tile: {
     width: TILE_SIZE,
@@ -430,8 +401,6 @@ const styles = StyleSheet.create({
   tileIcon: { width: 52, height: 52, marginBottom: SPACING.MD },
   tileLabel: { fontSize: 13, fontWeight: '600' as const, lineHeight: 18 },
   tileLabelFull: { marginBottom: 0, fontSize: 14 },
-
-  // Floating Bean mascot on the Calming Exercises tile
   beanHitArea: {
     position: 'absolute',
     bottom: -22,

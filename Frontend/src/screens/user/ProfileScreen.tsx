@@ -2,7 +2,7 @@
 // Bean Robot card, General Settings and Support menu rows, a Log Out button,
 // and a version footer. Menu rows navigate to real screens. Dark theme aware.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,13 +13,12 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { SPACING, TYPOGRAPHY } from '../../constants';
 import { BORDER_RADIUS } from '../../constants/spacing';
 import { useTheme } from '../../context/ThemeContext';
 import BottomTabBar from '../../components/navigation/BottomTabBar';
-
-// ─── Menu Row ─────────────────────────────────────────────────────────────────
 
 interface MenuRowProps {
   icon: any;
@@ -29,9 +28,7 @@ interface MenuRowProps {
   isDark: boolean;
 }
 
-// Reusable settings row with an icon, label, and a right-pointing chevron
 const MenuRow = ({ icon, label, onPress, colors, isDark }: MenuRowProps) => {
-  // Resolve icon tint to exact hex so Android tinting works reliably
   const iconTint = isDark ? '#F1F5F9' : '#000000';
   return (
     <TouchableOpacity
@@ -54,15 +51,19 @@ const MenuRow = ({ icon, label, onPress, colors, isDark }: MenuRowProps) => {
   );
 };
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
-
 const ProfileScreen = ({ navigation }: any) => {
   const { colors, isDark } = useTheme();
-
-  // Stores the URI of a user-selected photo; falls back to the default asset
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
-  // Opens the device gallery and updates the avatar on selection
+  // Reads the name saved at signup instead of showing a hardcoded placeholder.
+  const [userName, setUserName] = useState('User');
+
+  useEffect(() => {
+    AsyncStorage.getItem('bean_user_name').then(name => {
+      if (name) setUserName(name);
+    });
+  }, []);
+
   const handlePickPhoto = () => {
     launchImageLibrary(
       { mediaType: 'photo', quality: 0.8, selectionLimit: 1 },
@@ -78,7 +79,6 @@ const ProfileScreen = ({ navigation }: any) => {
     );
   };
 
-  // Two-step confirmation before navigating back to the Welcome screen
   const handleLogOut = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
       { text: 'Cancel', style: 'cancel' },
@@ -98,7 +98,6 @@ const ProfileScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top bar: back button and screen title */}
         <View
           style={[
             styles.header,
@@ -108,7 +107,6 @@ const ProfileScreen = ({ navigation }: any) => {
             },
           ]}
         >
-          {/* Back chevron — pops the screen from the navigation stack */}
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backBtn}
@@ -120,12 +118,9 @@ const ProfileScreen = ({ navigation }: any) => {
           <Text style={[styles.headerTitle, { color: colors.TEXT_PRIMARY }]}>
             Profile
           </Text>
-          {/* Spacer keeps the title centred */}
           <View style={{ width: 40 }} />
         </View>
 
-        {/* ── Avatar ── */}
-        {/* Tapping the avatar opens the gallery to change the profile photo */}
         <View
           style={[styles.avatarSection, { backgroundColor: colors.SURFACE }]}
         >
@@ -134,7 +129,6 @@ const ProfileScreen = ({ navigation }: any) => {
             activeOpacity={0.85}
             style={styles.avatarWrap}
           >
-            {/* Shows picked photo URI or falls back to the default asset */}
             <Image
               source={
                 profilePhoto
@@ -147,25 +141,23 @@ const ProfileScreen = ({ navigation }: any) => {
               ]}
               resizeMode="cover"
             />
-            {/* Semi-transparent overlay with a camera icon at the bottom of the avatar */}
             <View style={styles.cameraOverlay}>
               <Text style={styles.cameraIcon}>📷</Text>
             </View>
-            {/* Gold star badge in the bottom-right corner of the avatar */}
             <View style={[styles.badge, { borderColor: colors.SURFACE }]}>
               <Text style={styles.badgeEmoji}>⭐</Text>
             </View>
           </TouchableOpacity>
+
+          {/* Shows the name entered at signup, not a hardcoded value */}
           <Text style={[styles.userName, { color: colors.TEXT_PRIMARY }]}>
-            Alex Johnson
+            {userName}
           </Text>
           <Text style={[styles.tapHint, { color: colors.TEXT_TERTIARY }]}>
             Tap photo to change
           </Text>
         </View>
 
-        {/* ── Connected Bean Robot card ── */}
-        {/* Tapping navigates to the Robot Connectivity screen */}
         <TouchableOpacity
           style={[styles.beanCard, { backgroundColor: colors.SURFACE }]}
           onPress={() => navigation.navigate('RobotConnectivity')}
@@ -186,7 +178,6 @@ const ProfileScreen = ({ navigation }: any) => {
               >
                 Connected Bean Robot
               </Text>
-              {/* Red dot + label — updates to green once a robot is paired */}
               <View style={styles.beanStatusRow}>
                 <View style={styles.statusDot} />
                 <Text style={styles.beanStatusText}>Not Connected</Text>
@@ -198,10 +189,8 @@ const ProfileScreen = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        {/* ── General Settings ── */}
         <Text style={styles.sectionGreen}>General Settings</Text>
         <View style={[styles.menuCard, { backgroundColor: colors.SURFACE }]}>
-          {/* Navigates to AccountInformationScreen */}
           <MenuRow
             icon={require('../../../assets/images/account-info.png')}
             label="Account Info"
@@ -215,7 +204,6 @@ const ProfileScreen = ({ navigation }: any) => {
               { backgroundColor: colors.BORDER_LIGHT },
             ]}
           />
-          {/* Navigates to NotificationPreferencesScreen */}
           <MenuRow
             icon={require('../../../assets/images/notification-preferences.png')}
             label="Notification Preferences"
@@ -229,7 +217,6 @@ const ProfileScreen = ({ navigation }: any) => {
               { backgroundColor: colors.BORDER_LIGHT },
             ]}
           />
-          {/* Navigates to PrivacySettingsScreen */}
           <MenuRow
             icon={require('../../../assets/images/privacy-settings.png')}
             label="Privacy Settings"
@@ -239,10 +226,8 @@ const ProfileScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* ── Support ── */}
         <Text style={styles.sectionGreen}>Support</Text>
         <View style={[styles.menuCard, { backgroundColor: colors.SURFACE }]}>
-          {/* Navigates to HelpCenterScreen */}
           <MenuRow
             icon={require('../../../assets/images/help-centre.png')}
             label="Help Center"
@@ -252,7 +237,6 @@ const ProfileScreen = ({ navigation }: any) => {
           />
         </View>
 
-        {/* Outlined danger button — triggers a two-step logout confirmation */}
         <TouchableOpacity
           style={[
             styles.logOutBtn,
@@ -261,7 +245,6 @@ const ProfileScreen = ({ navigation }: any) => {
           onPress={handleLogOut}
           activeOpacity={0.85}
         >
-          {/* Logout icon tinted with the theme's error colour */}
           <Image
             source={require('../../../assets/images/logout.png')}
             style={[styles.logoutIcon, { tintColor: colors.ERROR }]}
@@ -272,7 +255,6 @@ const ProfileScreen = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        {/* App version footer */}
         <Text style={[styles.footer, { color: colors.TEXT_TERTIARY }]}>
           Bean App Version 2.4.1
         </Text>
@@ -286,13 +268,9 @@ const ProfileScreen = ({ navigation }: any) => {
   );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { paddingBottom: SPACING.MASSIVE },
-
-  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -304,8 +282,6 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   backIcon: { fontSize: 28, lineHeight: 32 },
   headerTitle: { ...TYPOGRAPHY.H4 },
-
-  // Avatar section
   avatarSection: {
     alignItems: 'center',
     paddingTop: SPACING.XXL,
@@ -313,8 +289,6 @@ const styles = StyleSheet.create({
   },
   avatarWrap: { position: 'relative', marginBottom: SPACING.MD },
   avatarImage: { width: 100, height: 100, borderRadius: 50 },
-
-  // Semi-transparent bottom-half overlay showing the camera icon
   cameraOverlay: {
     position: 'absolute',
     bottom: 0,
@@ -328,8 +302,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cameraIcon: { fontSize: 14 },
-
-  // Gold star badge overlaid on the bottom-right of the avatar
   badge: {
     position: 'absolute',
     bottom: 2,
@@ -345,8 +317,6 @@ const styles = StyleSheet.create({
   badgeEmoji: { fontSize: 13 },
   userName: { fontSize: 22, fontWeight: '700' as const, marginBottom: 4 },
   tapHint: { fontSize: 12 },
-
-  // Connected Bean Robot card
   beanCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -367,7 +337,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.XS,
   },
-  // Red dot indicating the robot is not yet paired
   statusDot: {
     width: 8,
     height: 8,
@@ -376,8 +345,6 @@ const styles = StyleSheet.create({
   },
   beanStatusText: { fontSize: 13, color: '#E74C3C' },
   chevron: { fontSize: 22, lineHeight: 26 },
-
-  // Green section heading above each menu card
   sectionGreen: {
     fontSize: 16,
     fontWeight: '700' as const,
@@ -385,8 +352,6 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.XL,
     marginBottom: SPACING.SM,
   },
-
-  // Rounded card wrapping a group of MenuRows
   menuCard: {
     marginHorizontal: SPACING.XL,
     marginBottom: SPACING.XL,
@@ -404,11 +369,7 @@ const styles = StyleSheet.create({
   menuIcon: { width: 36, height: 36 },
   menuLabel: { flex: 1, fontSize: 17, fontWeight: '500' as const },
   menuChevron: { fontSize: 22, lineHeight: 26 },
-
-  // Hairline divider between rows inside a menu card
   menuDivider: { height: 1, marginLeft: SPACING.LG + 36 + SPACING.MD },
-
-  // Outlined Log Out button — uses the theme's error colour for border and text
   logOutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -422,8 +383,6 @@ const styles = StyleSheet.create({
   },
   logoutIcon: { width: 22, height: 22 },
   logOutText: { fontSize: 18, fontWeight: '700' as const },
-
-  // Version footer at the bottom of the scroll area
   footer: { fontSize: 12, textAlign: 'center' },
   footerSub: { fontSize: 11, textAlign: 'center', marginTop: 2 },
 });

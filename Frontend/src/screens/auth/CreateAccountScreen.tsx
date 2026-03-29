@@ -1,6 +1,6 @@
 // Registration screen shared by both the user and guardian roles.
-// The displayed copy and the post-registration navigation target are
-// determined by the userType route parameter passed from RoleSelectionScreen.
+// On successful validation, the full name is persisted to AsyncStorage
+// so that the dashboard and profile screens can display it.
 
 import React, { useState } from 'react';
 import {
@@ -15,14 +15,17 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BackButton, PrimaryButton, Input } from '../../components';
 import { SPACING } from '../../constants';
 import { useTheme } from '../../context/ThemeContext';
 
+// AsyncStorage keys used to persist the signed-in user's display name.
+const USER_NAME_KEY = 'bean_user_name';
+const GUARDIAN_NAME_KEY = 'bean_guardian_name';
+
 const CreateAccountScreen = ({ navigation, route }: any) => {
   const { colors, isDark } = useTheme();
-
-  // Defaults to 'user' if no userType is provided by the caller.
   const { userType } = route.params || { userType: 'user' };
 
   const [fullName, setFullName] = useState('');
@@ -30,9 +33,7 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Validates all fields before routing to the next step.
-  // Users proceed to the robot pairing flow; guardians go straight to their app.
-  const handleCreateAccount = () => {
+  const handleCreateAccount = async () => {
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -49,6 +50,12 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
+
+    // Persist the entered name so every screen can show it instead of a placeholder.
+    const storageKey =
+      userType === 'guardian' ? GUARDIAN_NAME_KEY : USER_NAME_KEY;
+    await AsyncStorage.setItem(storageKey, fullName.trim());
+
     if (userType === 'user') navigation.navigate('ConnectBean');
     else navigation.navigate('CaregiverApp');
   };
@@ -60,7 +67,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
     );
   };
 
-  // Routes to the correct login screen based on the active role.
   const handleSignIn = () => {
     if (userType === 'user') navigation.navigate('LoginUser');
     else navigation.navigate('LoginGuardian');
@@ -80,7 +86,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
         >
           <BackButton />
 
-          {/* Role-specific title: highlighted role word followed by "Sign Up" */}
           <Text style={styles.title}>
             {userType === 'guardian' ? (
               <>
@@ -103,7 +108,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             )}
           </Text>
 
-          {/* Role icon; tinted white in dark mode for visibility on dark surfaces */}
           <View style={styles.iconContainer}>
             <Image
               source={require('../../../assets/images/select-user.png')}
@@ -112,14 +116,12 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             />
           </View>
 
-          {/* Role-specific descriptive subtitle */}
           <Text style={[styles.subtitle, { color: colors.TEXT_SECONDARY }]}>
             {userType === 'guardian'
               ? 'Create an account to support your loved one'
               : 'Sign up to start your journey with Bean, your mental health companion.'}
           </Text>
 
-          {/* Registration form fields */}
           <Text style={[styles.label, { color: colors.TEXT_TERTIARY }]}>
             FULL NAME
           </Text>
@@ -179,7 +181,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             </Text>
           </View>
 
-          {/* Social login buttons; border is white in dark mode for contrast */}
           <View style={styles.socialContainer}>
             {[
               {
@@ -215,7 +216,6 @@ const CreateAccountScreen = ({ navigation, route }: any) => {
             ))}
           </View>
 
-          {/* Existing account prompt */}
           <View style={styles.signInContainer}>
             <Text style={[styles.signInText, { color: colors.TEXT_SECONDARY }]}>
               Already have an account?{' '}
@@ -257,7 +257,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     paddingHorizontal: SPACING.MD,
   },
-  // Uppercase field labels rendered above each Input component.
   label: {
     fontSize: 11,
     marginBottom: 6,
