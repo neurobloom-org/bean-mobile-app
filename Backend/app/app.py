@@ -32,6 +32,9 @@ def get_ist_time():
 # This helps you debug what the Robot or App is sending in real-time
 @app.before_request
 def log_request_info():
+    # Skip the guardian polling endpoint — it fires every 3s and floods the logs
+    if '/api/guardian/status/' in request.path:
+        return
     print(f"📥 [LOG] {request.method} {request.path}")
     if request.is_json:
         print(f"📦 [BODY] {request.get_json()}")
@@ -193,7 +196,7 @@ def send_verification_email(patient_email, token):
     sender_password = os.getenv("EMAIL_PASSWORD") 
 
     # TODO: Replace YOUR_MAC_IP with your actual Wi-Fi IP while testing!
-    verify_link = f"http://192.168.8.146:5001/api/guardian/verify/{token}"
+    verify_link = f"http://192.168.0.200:5001/api/guardian/verify/{token}"
 
     msg = MIMEMultipart()
     msg['From'] = f"NeuroBloom Security <{sender_email}>"
