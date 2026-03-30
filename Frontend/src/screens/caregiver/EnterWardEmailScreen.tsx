@@ -36,7 +36,7 @@ const EnterWardEmailScreen = ({ navigation }: any) => {
     if (isWaiting) {
       intervalId = setInterval(async () => {
         try {
-          const response = await fetch(`http://192.168.8.146:5001/api/guardian/status/${guardianId}`);
+          const response = await fetch(`http://192.168.0.200:5001/api/guardian/status/${guardianId}`);
           const data = await response.json();
 
           if (response.ok && data.verification_status === 'verified') {
@@ -66,7 +66,7 @@ const EnterWardEmailScreen = ({ navigation }: any) => {
 
     try {
       // 1. Send request to your Flask Backend
-      const response = await fetch('http://192.168.8.146:5001/api/guardian/request-link', {
+      const response = await fetch('http://192.168.0.200:5001/api/guardian/request-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

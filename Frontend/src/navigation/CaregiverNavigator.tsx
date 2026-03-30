@@ -1,5 +1,7 @@
 // src/navigation/CaregiverNavigator.tsx
-// ✅ All caregiver screens — onboarding flow + dashboard
+// Stack navigator for the caregiver/therapist role.
+// All caregiver screens — onboarding flow + dashboard.
+// No NavigationContainer here — that lives only in AppNavigator.
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,27 +14,25 @@ import CaregiverAccountScreen from '../screens/caregiver/CaregiverAccountScreen'
 
 const Stack = createNativeStackNavigator();
 
-const CaregiverNavigator = () => {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {/* ── Guardian onboarding flow ── */}
-      <Stack.Screen name="EnterWardEmail" component={EnterWardEmailScreen} />
-      <Stack.Screen
-        name="VerifyPatientEmail"
-        component={VerifyPatientEmailScreen}
-      />
-      <Stack.Screen
-        name="VerificationSuccessful"
-        component={VerificationSuccessfulScreen}
-      />
+const CaregiverNavigator = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    {/* Guardian onboarding — links guardian to their patient */}
+    <Stack.Screen name="EnterWardEmail" component={EnterWardEmailScreen} />
+    <Stack.Screen
+      name="VerifyPatientEmail"
+      component={VerifyPatientEmailScreen}
+    />
+    <Stack.Screen
+      name="VerificationSuccessful"
+      component={VerificationSuccessfulScreen}
+    />
 
-      {/* ── Caregiver Dashboard ── */}
-      <Stack.Screen name="CaregiverDashboard" component={CaregiverDashboard} />
-      
-      {/* ── Caregiver Account Settings ── */}
-      <Stack.Screen name="CaregiverAccount" component={CaregiverAccountScreen} />
-    </Stack.Navigator>
-  );
-};
+    {/* Main caregiver dashboard */}
+    <Stack.Screen name="CaregiverDashboard" component={CaregiverDashboard} />
+
+    {/* Account & profile settings — opened from the hamburger menu */}
+    <Stack.Screen name="CaregiverAccount" component={CaregiverAccountScreen} />
+  </Stack.Navigator>
+);
 
 export default CaregiverNavigator;
